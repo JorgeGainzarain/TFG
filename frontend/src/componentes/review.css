@@ -1,0 +1,86 @@
+.review-label {
+    background: #fff; /* Fondo blanco */
+    border: 2px solid #ccc; /* Borde más definido */
+    border-radius: 8px; /* Bordes redondeados */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Sombra ligera */
+    padding: 20px; /* Espaciado interno adicional */
+    margin: 16px; /* Espaciado externo para los bordes */
+    display: flex; /* Layout flexible */
+    gap: 16px; /* Espaciado entre sidebar y contenido */
+    transition: transform 0.2s, box-shadow 0.2s; /* Transición para hover */
+}
+
+.review-sidebar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px; /* Espaciado entre elementos */
+}
+
+.review-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%; /* Makes the avatar circular */
+    background-size: cover; /* Ensures the image covers the entire area */
+    background-position: center; /* Centers the image */
+    background-repeat: no-repeat; /* Prevents the image from repeating */
+    border: 1px solid #ccc; /* Optional border */
+}
+
+.review-user {
+    font-weight: bold;
+    color: #333;
+    font-size: 1rem;
+}
+
+.review-date {
+    font-size: 0.85rem;
+    color: #777;
+}
+
+.review-likes {
+    font-size: 0.9rem;
+    color: #555;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.heart {
+    color: #e63946; /* Color rojo para el corazón */
+    font-size: 1.2rem;
+    cursor: pointer; /* Cambia el cursor al estilo de puntero */
+    display: inline-block; /* Asegura que el corazón sea un bloque interactivo */
+    pointer-events: auto; /* Habilita eventos en el contenedor */
+}
+
+
+.review-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* Espaciado entre texto y estrellas */
+}
+
+.review-text {
+    font-size: 0.95rem;
+    color: #333;
+    line-height: 1.5;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+
+.review-rating {
+    display: flex;
+    gap: 4px; /* Espaciado entre estrellas */
+}
+
+.star {
+    font-size: 1.2rem;
+    color: #ccc; /* Color de estrellas vacías */
+}
+
+.star.filled {
+    color: #ffc107; /* Color de estrellas llenas */
+}
