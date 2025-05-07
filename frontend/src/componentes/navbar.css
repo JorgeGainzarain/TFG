@@ -1,7 +1,7 @@
 .navbar {
     display: flex;
     justify-content: space-between;
-    align-items: center; /* Ensures vertical centering */
+    align-items: center;
     padding: 10px 10px;
     background-color: #f8f8f8;
     border-bottom: 1px solid #ddd;
@@ -15,13 +15,13 @@
     font-weight: bold;
     color: #333;
     border-left: none;
-    display: flex; /* Ensures proper alignment */
+    display: flex;
     align-items: center;
 }
 
 .navbar-search {
     display: flex;
-    align-items: center; /* Ensures vertical centering */
+    align-items: center;
     border-right: none;
 }
 
@@ -43,12 +43,12 @@
 .navbar-logo a {
     text-decoration: none;
     color: #007bff;
-    display: flex; /* Ensures proper alignment */
+    display: flex;
     align-items: center;
 }
 
 .navbar-links {
-    display: flex; /* Ensures proper alignment */
+    display: flex;
     align-items: center;
 }
 

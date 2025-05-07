@@ -1,16 +1,17 @@
 import React from "react";
 import "./home.css";
-import Navbar from "./navbar"; // Import the Navbar component
+import Navbar from "./navbar";
 import BookLabel from "./book";
 import ReviewLabel from "./review";
 
-const Home = () => (
-    <div className="home-container">
-        <Navbar /> {/* Use the Navbar component */}
+const Home = ({ isMobile }) => (
+
+    <div className={`home-container ${isMobile ? "mobile" : "pc"}`}>
+        {!isMobile && <Navbar />}
 
         <main>
             <section className="banner">
-                <h2>¡Bienvenido a tu biblioteca digital!</h2>
+                <h2>¡Bienvenido!</h2>
                 <p>Descubre, organiza y disfruta tus libros favoritos.</p>
             </section>
 
@@ -18,12 +19,12 @@ const Home = () => (
                 <h3>Libros Recomendados</h3>
                 <div className="book-list">
                     <BookLabel
-                        title="Titulo Default"
-                        author="Autor Default"
+                        title="Libro 1"
+                        author="Autor 1"
                         genres={["Genero1", "Genero2"]}
-                        year="XXXX"
+                        year="2023"
                         rating={3}
-                        variant="narrow"
+                        variant={isMobile ? "narrow" : "default"}
                     />
                     <BookLabel
                         title="Libro 2"
@@ -31,7 +32,7 @@ const Home = () => (
                         genres={["Fantasía", "Aventura"]}
                         year="2021"
                         rating={4}
-                        variant="narrow"
+                        variant={isMobile ? "narrow" : "default"}
                     />
                     <BookLabel
                         title="Libro 3"
@@ -39,7 +40,7 @@ const Home = () => (
                         genres={["Ciencia Ficción", "Misterio"]}
                         year="2020"
                         rating={3}
-                        variant="narrow"
+                        variant={isMobile ? "narrow" : "default"}
                     />
                 </div>
             </section>
@@ -71,6 +72,8 @@ const Home = () => (
                 </div>
             </section>
         </main>
+
+        {isMobile && <Navbar />}
     </div>
 );
 

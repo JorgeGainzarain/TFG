@@ -9,14 +9,50 @@ body {
     padding: 0;
 }
 
+@media (max-width: 768px) {
+    .navbar {
+        width: 100%;
+        height: 5%;
+    }
+
+    .navbar-logo {
+        margin-bottom: 10px;
+        margin-right: 10px;
+    }
+
+    .navbar-search {
+        width: 95%;
+    }
+
+    .navbar-links a {
+        margin: 5px 0;
+    }
+
+}
+
 .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
+    z-index: 1000;
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    background: #fff;
-    padding: 18px 0;
-    border-bottom: 1px solid #eee;
+    align-items: center;
+    padding: 10px 10px;
+    background-color: #f8f8f8;
+    border-bottom: 1px solid #ddd;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        top: auto;
+        bottom: 0;
+        border-top: 1px solid #ddd;
+        border-bottom: none;
+    }
 }
 
 .navbar-logo {
@@ -90,21 +126,28 @@ body {
 }
 
 .recommended-books .book-list::-webkit-scrollbar {
-    height: 8px; /* Adjust scrollbar height */
+    height: 8px;
 }
 
 .recommended-books .book-list::-webkit-scrollbar-thumb {
-    background: #ccc; /* Style the scrollbar thumb */
+    background: #ccc;
     border-radius: 4px;
 }
 
 .recommended-books .book-list::-webkit-scrollbar-track {
-    background: #f0f0f0; /* Style the scrollbar track */
+    background: #f0f0f0;
 }
 
 .recommended-books .book-list .book-label {
-    flex: 0 0 auto; /* Prevent items from shrinking or growing */
+    flex: 0 0 auto;
     width: 44%;
+}
+
+@media (max-width: 768px) {
+    .recommended-books .book-list .book-label {
+        flex: 0 0 auto;
+        width: 95%;
+    }
 }
 
 .book-list::-webkit-scrollbar {

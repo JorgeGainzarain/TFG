@@ -139,7 +139,7 @@
 
 .book-label-narrow .book-info {
     gap: 3px;
-    margin-left: 10px; /* Move the book-info section to the right */
+    margin-left: 10px;
 }
 
 .book-label-narrow .book-meta {
@@ -148,7 +148,7 @@
 }
 
 .book-label-narrow {
-    position: relative; /* Enable positioning for child elements */
+    position: relative;
     width: 450px;
     padding: 8px;
     gap: 4px;
@@ -156,11 +156,11 @@
 }
 
 .book-label-narrow .add-button {
-    position: absolute; /* Position the button outside its category */
-    bottom: -22px; /* Move the button below the book-label */
+    position: absolute;
+    bottom: -22px;
     left: 0;
-    width: 100%; /* Make the button span the full width */
+    width: 100%;
     justify-content: center;
     padding: 4px 0;
-    border-radius: 0 0 8px 8px; /* Optional: rounded corners for the bottom */
+    border-radius: 0 0 8px 8px;
 }

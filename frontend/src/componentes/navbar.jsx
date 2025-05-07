@@ -1,5 +1,5 @@
 import React from "react";
-import "./navbar.css"; // Create a separate CSS file for the navbar styles
+import "./navbar.css";
 
 const Navbar = () => (
     <header className="navbar">

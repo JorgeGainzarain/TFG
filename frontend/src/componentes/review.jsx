@@ -7,9 +7,8 @@ const ReviewLabel = ({
                          text = "Suspendisse consectetur cursus nulla, at ornare ipsum cursus non. Mauris tempor ligula a molestie fringilla. Fusce libero est, dictum non est et, suscipit congue turpis. Pellentesque elementum auctor libero in ultrices. Curabitur bibendum libero ut sodales egestas. Nam et neque vitae leo...",
                          likes = 123,
                          rating = 4,
-                         avatar = "/user.png" // Default avatar image
+                         avatar = "/user.png"
                      }) => {
-    // Render stars based on rating
     const stars = Array.from({ length: 5 }).map((_, i) => (
         <span key={i} className={i < rating ? "star filled" : "star"}>
       ★
