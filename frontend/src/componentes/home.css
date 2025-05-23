@@ -1,219 +1,53 @@
 body {
     margin: 0;
-    font-family: 'Segoe UI', Arial, sans-serif;
+    font-family: 'Roboto', Arial, sans-serif;
     background: #f7f7f7;
+    color: #333;
 }
 
 .home-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
     margin: 0 auto;
-    padding: 0;
-}
-
-@media (max-width: 768px) {
-    .navbar {
-        width: 100%;
-        height: 5%;
-    }
-
-    .navbar-logo {
-        margin-bottom: 10px;
-        margin-right: 10px;
-    }
-
-    .navbar-search {
-        width: 95%;
-    }
-
-    .navbar-links a {
-        margin: 5px 0;
-    }
-
-}
-
-.navbar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 1000;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 10px;
-    background-color: #f8f8f8;
-    border-bottom: 1px solid #ddd;
-    box-sizing: border-box;
-    overflow: hidden;
-}
-
-@media (max-width: 768px) {
-    .navbar {
-        top: auto;
-        bottom: 0;
-        border-top: 1px solid #ddd;
-        border-bottom: none;
-    }
-}
-
-.navbar-logo {
-    margin-left: 15px;
-    font-weight: bold;
-    font-size: 1.3rem;
-}
-
-.navbar-search {
-    display: flex;
-    align-items: center;
-    width: 60%;
-}
-
-.navbar-search input {
-    width: 100%;
-    padding: 6px 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    outline: none;
-}
-
-.navbar-search button {
-    padding: 6px 10px;
-    border: 1px solid #ccc;
-    border-left: none;
-    background: #eee;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.navbar-links a {
-    margin-left: 20px;
-    margin-right: 20px;
-    text-decoration: none;
-    color: #333;
-    font-weight: 500;
+    padding: 16px;
+    max-width: 1200px;
+    overflow-y: auto;
 }
 
 .banner {
-    background: #eaf4ff;
-    padding: 30px 18px;
-    border-radius: 10px;
+    background: linear-gradient(135deg, #007bff, #00d4ff);
+    color: #ffffff;
+    padding: 40px 20px;
+    border-radius: 12px;
     margin: 32px 0 24px 0;
     text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.recommended-books {
-    text-align: center;
-    background: #fff;
+.recommended-books, .highlighted-reviews {
+    background: #ffffff;
     border: 1px solid #ddd;
-    border-radius: 8px;
+    border-radius: 12px;
     padding: 20px;
     margin: 24px 0;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.recommended-books h3 {
-    margin: 0;
-    font-size: 1.5rem;
+.recommended-books h3, .highlighted-reviews h3 {
+    margin: 0 0 16px 0;
+    font-size: 1.8rem;
     color: #333;
 }
 
-.recommended-books .book-list {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding-bottom: 20px;
-}
-
-.recommended-books .book-list::-webkit-scrollbar {
-    height: 8px;
-}
-
-.recommended-books .book-list::-webkit-scrollbar-thumb {
-    background: #ccc;
-    border-radius: 4px;
-}
-
-.recommended-books .book-list::-webkit-scrollbar-track {
-    background: #f0f0f0;
-}
-
-.recommended-books .book-list .book-label {
-    flex: 0 0 auto;
-    width: 44%;
+.recommended-books .book-list, .highlighted-reviews .reviews-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
 }
 
 @media (max-width: 768px) {
-    .recommended-books .book-list .book-label {
-        flex: 0 0 auto;
-        width: 95%;
+    .recommended-books .book-list, .highlighted-reviews .reviews-list {
+        grid-template-columns: 1fr;
     }
-}
-
-.book-list::-webkit-scrollbar {
-    height: 5px;
-}
-
-.book-list::-webkit-scrollbar-thumb {
-    background: #ccc;
-    border-radius: 4px;
-}
-
-.book-list::-webkit-scrollbar-track {
-    background: #f0f0f0;
-}
-
-@media (max-width: 900px) {
-    .book-list, .reviews-list {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    .book-label {
-        max-width: 100%;
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    .book-label-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 6px;
-    }
-}
-
-.highlighted-reviews {
-    text-align: center;
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 20px;
-    margin: 24px 0;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.highlighted-reviews h3 {
-    margin: 0 0 16px 0;
-    font-size: 1.5rem;
-    color: #333;
-}
-
-.highlighted-reviews .review-card {
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-    padding: 18px;
-    min-width: 220px;
-    text-align: left;
-}
-
-.highlighted-reviews .reviews-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    justify-content: center;
-}
-
-.highlighted-reviews .review-label {
-    flex: 1 1 45%;
-    max-width: 100%;
-    box-sizing: border-box;
 }

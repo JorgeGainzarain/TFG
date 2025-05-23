@@ -1,18 +1,14 @@
 import React, { useEffect, useState } from "react";
 import Home from "./componentes/home";
-import Search from "./componentes/search";
+import SearchBar from "./componentes/SearchBar";
+import BottomNavbar from "./componentes/BottomNavbar";
 
 const App = () => {
     const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
         const checkIfMobile = () => {
-            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-            if (/android|iPad|iPhone|iPod/i.test(userAgent.toLowerCase()) || window.innerWidth <= 768) {
-                setIsMobile(true);
-            } else {
-                setIsMobile(false);
-            }
+            setIsMobile(window.innerWidth <= 768);
         };
 
         checkIfMobile();
@@ -21,8 +17,22 @@ const App = () => {
     }, []);
 
     return (
-        <div>
-            <Home isMobile={isMobile} />
+        <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+            {isMobile ? (
+                <>
+                    <SearchBar />
+                    <div style={{ flex: 1, overflowY: "auto" }}>
+                        <Home isMobile={isMobile} />
+                    </div>
+                    <BottomNavbar />
+                </>
+            ) : (
+                <>
+                    <div style={{ flex: 1, overflowY: "auto" }}>
+                        <Home isMobile={isMobile} />
+                    </div>
+                </>
+            )}
         </div>
     );
 };
