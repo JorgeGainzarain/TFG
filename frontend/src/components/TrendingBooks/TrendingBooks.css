@@ -1,0 +1,57 @@
+.trending-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+
+.trending-section::-webkit-scrollbar {
+    width: 8px;
+}
+
+.trending-section::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+}
+
+.trending-section::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+/* Efectos específicos para libros en tendencia */
+.trending-section .book-card {
+    position: relative;
+}
+
+.trending-section .book-card::after {
+    content: '🔥';
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 1.2rem;
+    opacity: 0.7;
+    animation: flicker 2s infinite alternate;
+}
+
+@keyframes flicker {
+    0% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+.trending-section .book-card:hover::after {
+    animation: none;
+    opacity: 1;
+    transform: scale(1.2);
+    transition: all 0.3s ease;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .trending-section .book-card::after {
+        font-size: 1rem;
+        top: 0.8rem;
+        right: 0.8rem;
+    }
+}

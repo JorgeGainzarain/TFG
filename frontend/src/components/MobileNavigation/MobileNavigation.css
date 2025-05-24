@@ -1,0 +1,112 @@
+.mobile-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(15, 15, 35, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 1rem;
+    border-top: 1px solid var(--border-glass);
+    z-index: 1000;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.mobile-nav-items {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.mobile-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    font-size: 0.75rem;
+    transition: all 0.3s ease;
+    padding: 0.5rem;
+    border-radius: 12px;
+    cursor: pointer;
+    min-width: 60px;
+    position: relative;
+}
+
+.mobile-nav-item.active,
+.mobile-nav-item:hover {
+    color: var(--text-primary);
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.mobile-nav-item.active {
+    transform: translateY(-2px);
+}
+
+.mobile-nav-item.active::before {
+    content: '';
+    position: absolute;
+    top: -1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    background: var(--primary-gradient);
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+}
+
+.nav-icon {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+}
+
+.mobile-nav-item:hover .nav-icon {
+    transform: scale(1.1);
+}
+
+.mobile-nav-item.active .nav-icon {
+    transform: scale(1.2);
+}
+
+.nav-label {
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* Animación de entrada */
+.mobile-nav {
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Responsive para pantallas muy pequeñas */
+@media (max-width: 480px) {
+    .mobile-nav {
+        padding: 0.75rem;
+    }
+
+    .mobile-nav-item {
+        min-width: 50px;
+        font-size: 0.7rem;
+        padding: 0.4rem;
+    }
+
+    .nav-icon {
+        font-size: 1rem;
+    }
+}

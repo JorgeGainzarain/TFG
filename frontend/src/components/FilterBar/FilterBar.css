@@ -1,0 +1,71 @@
+.filters {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    justify-content: start;
+    align-items: start;
+    border: 1px solid var(--border-glass);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.filter-select {
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 12px;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    border: 1px solid var(--border-glass);
+    backdrop-filter: blur(16px);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 140px;
+}
+
+.filter-select:focus {
+    outline: none;
+    box-shadow: 0 0 15px rgba(102, 126, 234, 0.3);
+    background: var(--bg-card-hover);
+}
+
+.filter-select:hover {
+    background: var(--bg-card-hover);
+}
+
+.filter-select option {
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    padding: 0.5rem;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .filters {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .filters::-webkit-scrollbar {
+        height: 4px;
+    }
+
+    .filters::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .filters::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 2px;
+    }
+
+    .filter-select {
+        min-width: 120px;
+        flex-shrink: 0;
+    }
+}

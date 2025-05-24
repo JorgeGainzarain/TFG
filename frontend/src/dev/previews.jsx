@@ -1,32 +1,32 @@
 import {ComponentPreview, Previews} from '@react-buddy/ide-toolbox'
 import {PaletteTree} from './palette'
-import BookLabel from "../componentes/book";
 import App from "../App";
-import Home from "../componentes/home";
-import ReviewLabel from "../componentes/review";
-import Navbar from "../componentes/navbar";
-import Search from "../componentes/search";
+import Hero from "../components/Hero/Hero";
+import FilterBar from "../components/FilterBar/FilterBar";
+import AIRecommendations from "../components/AIRecommnedations/AIRecommendations";
+import BookCard from "../components/BookCard/BookCard";
+import TrendingBooks from "../components/TrendingBooks/TrendingBooks";
 
 const ComponentPreviews = () => {
     return (
         <Previews palette={<PaletteTree/>}>
-            <ComponentPreview path="/BookLabel">
-                <BookLabel/>
-            </ComponentPreview>
             <ComponentPreview path="/App">
                 <App/>
             </ComponentPreview>
-            <ComponentPreview path="/Home">
-                <Home/>
+            <ComponentPreview path="/Hero">
+                <Hero/>
             </ComponentPreview>
-            <ComponentPreview path="/ReviewLabel">
-                <ReviewLabel/>
+            <ComponentPreview path="/FilterBar">
+                <FilterBar/>
             </ComponentPreview>
-            <ComponentPreview path="/Navbar">
-                <Navbar/>
+            <ComponentPreview path="/AIRecommendations">
+                <AIRecommendations/>
             </ComponentPreview>
-            <ComponentPreview path="/Search">
-                <Search/>
+            <ComponentPreview path="/BookCard">
+                <BookCard/>
+            </ComponentPreview>
+            <ComponentPreview path="/TrendingBooks">
+                <TrendingBooks/>
             </ComponentPreview>
         </Previews>
     )
