@@ -1,100 +1,90 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import BookCard from '../BookCard/BookCard';
-import { bookAPI, handleApiError } from '../../services/api';
 import './TrendingBooks.css';
 
 const TrendingBooks = () => {
-    const [books, setBooks] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-
-    useEffect(() => {
-        loadTrendingBooks();
-    }, []);
-
-    const loadTrendingBooks = async () => {
-        try {
-            setLoading(true);
-            setError(null);
-
-            const response = await bookAPI.getTrendingBooks();
-            setBooks(response.books || []);
-
-        } catch (err) {
-            console.error('Error loading trending books:', err);
-            setError(handleApiError(err));
-        } finally {
-            setLoading(false);
+    // Datos placeholder para libros en tendencia
+    const placeholderBooks = [
+        {
+            id: 'trending-1',
+            title: 'It Ends with Us',
+            author: 'Colleen Hoover',
+            genres: ['Romance', 'Drama', 'Contemporáneo'],
+            rating: 5,
+            reviewCount: 45230,
+            coverEmoji: '💕',
+            thumbnail: ''
+        },
+        {
+            id: 'trending-2',
+            title: 'The Seven Moons of Maali Almeida',
+            author: 'Shehan Karunatilaka',
+            genres: ['Ficción', 'Fantasía', 'Premiado'],
+            rating: 4,
+            reviewCount: 18760,
+            coverEmoji: '🌙',
+            thumbnail: ''
+        },
+        {
+            id: 'trending-3',
+            title: 'Atomic Habits',
+            author: 'James Clear',
+            genres: ['Autoayuda', 'Productividad', 'Psicología'],
+            rating: 5,
+            reviewCount: 89430,
+            coverEmoji: '⚡',
+            thumbnail: ''
+        },
+        {
+            id: 'trending-4',
+            title: 'The Midnight Library',
+            author: 'Matt Haig',
+            genres: ['Ficción', 'Filosofía', 'Drama'],
+            rating: 4,
+            reviewCount: 67890,
+            coverEmoji: '📚',
+            thumbnail: ''
+        },
+        {
+            id: 'trending-5',
+            title: 'Where the Crawdads Sing',
+            author: 'Delia Owens',
+            genres: ['Ficción', 'Misterio', 'Naturaleza'],
+            rating: 5,
+            reviewCount: 123450,
+            coverEmoji: '🦆',
+            thumbnail: ''
+        },
+        {
+            id: 'trending-6',
+            title: 'The Silent Patient',
+            author: 'Alex Michaelides',
+            genres: ['Thriller', 'Psicológico', 'Misterio'],
+            rating: 4,
+            reviewCount: 95670,
+            coverEmoji: '🤫',
+            thumbnail: ''
         }
-    };
+    ];
 
     const handleAddToLibrary = (book) => {
         console.log('Añadiendo a la librería:', book);
-        // TODO: Implement add to library functionality
         alert(`"${book.title}" será añadido a tu librería (funcionalidad pendiente)`);
     };
-
-    const handleRetry = () => {
-        loadTrendingBooks();
-    };
-
-    if (loading) {
-        return (
-            <section className="section trending-section">
-                <div className="section-header">
-                    <h2 className="section-title">📈 Tendencias</h2>
-                </div>
-                <div className="loading-state">
-                    <div className="loading-spinner"></div>
-                    <p>Cargando libros en tendencia...</p>
-                </div>
-            </section>
-        );
-    }
-
-    if (error) {
-        return (
-            <section className="section trending-section">
-                <div className="section-header">
-                    <h2 className="section-title">📈 Tendencias</h2>
-                </div>
-                <div className="error-state">
-                    <p className="error-message">❌ {error}</p>
-                    <button className="retry-btn" onClick={handleRetry}>
-                        🔄 Intentar de nuevo
-                    </button>
-                </div>
-            </section>
-        );
-    }
-
-    if (books.length === 0) {
-        return (
-            <section className="section trending-section">
-                <div className="section-header">
-                    <h2 className="section-title">📈 Tendencias</h2>
-                </div>
-                <div className="empty-state">
-                    <p>📚 No se pudieron cargar los libros en tendencia en este momento.</p>
-                    <button className="retry-btn" onClick={handleRetry}>
-                        🔄 Intentar de nuevo
-                    </button>
-                </div>
-            </section>
-        );
-    }
 
     return (
         <section className="section trending-section">
             <div className="section-header">
                 <h2 className="section-title">📈 Tendencias</h2>
-                <span className="trending-badge">
-                    🔥 {books.length} libros populares
-                </span>
+                <div className="trending-indicators">
+                    <span className="trending-badge">
+                        🔥 {placeholderBooks.length} libros populares
+                    </span>
+                </div>
             </div>
 
             <div className="cards-grid">
-                {books.map((book) => (
+                {placeholderBooks.map((book) => (
                     <BookCard
                         key={book.id}
                         title={book.title}
@@ -107,6 +97,9 @@ const TrendingBooks = () => {
                         onAddToLibrary={handleAddToLibrary}
                     />
                 ))}
+            </div>
+
+            <div className="trending-footer">
             </div>
         </section>
     );

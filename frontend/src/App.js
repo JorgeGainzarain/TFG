@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar/Navbar';
-import Hero from './components/WelcomeMessage/WelcomeMessage.css';
+import Hero from './components/WelcomeMessage/WelcomeMessage';
 import AIRecommendations from './components/AIRecommnedations/AIRecommendations';
 import TrendingBooks from './components/TrendingBooks/TrendingBooks';
 import ReviewsSection from './components/ReviewsSection/ReviewsSection';
 import MobileNavigation from './components/MobileNavigation/MobileNavigation';
 import SearchResults from './components/SearchResults/SearchResults';
+import AuthOverlay from './components/AuthOverlay/AuthOverlay';
+import { useAuth } from './hooks/useAuth';
 import { healthCheck } from './services/api';
 import './App.css';
 
@@ -16,6 +18,11 @@ const App = () => {
     const [isSearching, setIsSearching] = useState(false);
     const [searchError, setSearchError] = useState(null);
     const [apiStatus, setApiStatus] = useState('checking');
+    const [showAuthOverlay, setShowAuthOverlay] = useState(false);
+    const [showAuthPrompt, setShowAuthPrompt] = useState(false);
+
+    // Hook de autenticación
+    const { user, isAuthenticated, initialized } = useAuth();
 
     useEffect(() => {
         const checkIfMobile = () => {
@@ -31,6 +38,17 @@ const App = () => {
     useEffect(() => {
         checkApiHealth();
     }, []);
+
+    // Mostrar prompt de auth después de un tiempo si no está autenticado
+    useEffect(() => {
+        if (initialized && !isAuthenticated) {
+            const timer = setTimeout(() => {
+                setShowAuthPrompt(true);
+            }, 10000); // Mostrar después de 10 segundos
+
+            return () => clearTimeout(timer);
+        }
+    }, [initialized, isAuthenticated]);
 
     const checkApiHealth = async () => {
         try {
@@ -67,7 +85,37 @@ const App = () => {
         setIsSearching(false);
     };
 
+    const handleAuthSuccess = (userData) => {
+        console.log('Usuario autenticado:', userData);
+        setShowAuthPrompt(false);
+    };
+
+    const handleShowAuth = () => {
+        setShowAuthOverlay(true);
+        setShowAuthPrompt(false);
+    };
+
+    const handleCloseAuth = () => {
+        setShowAuthOverlay(false);
+    };
+
+    const handleCloseAuthPrompt = () => {
+        setShowAuthPrompt(false);
+    };
+
     const showSearchResults = searchQuery || searchResults.length > 0 || searchError;
+
+    // Mostrar loading mientras se inicializa la auth
+    if (!initialized) {
+        return (
+            <div className="app">
+                <div className="app-loading">
+                    <div className="loading-spinner"></div>
+                    <p>Cargando BookHub...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="app">
@@ -75,6 +123,9 @@ const App = () => {
                 onSearchResults={handleSearchResults}
                 onSearchLoading={handleSearchLoading}
                 onSearchError={handleSearchError}
+                user={user}
+                isAuthenticated={isAuthenticated}
+                onShowAuth={handleShowAuth}
             />
 
             <main className="main-content">
@@ -104,22 +155,35 @@ const App = () => {
                         onClearSearch={clearSearch}
                         onRetry={() => {
                             if (searchQuery) {
-                                // Re-trigger search - this would need to be passed down or handled differently
                                 console.log('Retry search for:', searchQuery);
                             }
                         }}
+                        user={user}
+                        isAuthenticated={isAuthenticated}
                     />
                 ) : (
                     <>
-                        <Hero />
-                        <AIRecommendations />
-                        <TrendingBooks />
-                        <ReviewsSection />
+                        <Hero/>
+                        <AIRecommendations
+                                user={user}
+                                isAuthenticated={isAuthenticated}
+                                onShowAuth={handleShowAuth}
+                        />
+                        <div className="section-spacing"></div>
+                        <TrendingBooks/>
+                        <ReviewsSection/>
                     </>
                 )}
             </main>
 
-            {isMobile && <MobileNavigation />}
+            {isMobile && <MobileNavigation/>}
+
+            {/* Auth Modal */}
+            <AuthOverlay
+                isVisible={showAuthOverlay}
+                onClose={handleCloseAuth}
+                onAuthSuccess={handleAuthSuccess}
+            />
         </div>
     );
 };

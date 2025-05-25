@@ -93,7 +93,7 @@ export const bookAPI = {
         }
 
         const params = new URLSearchParams({
-            q: searchQuery || 'fiction', // Default search if empty
+            q: searchQuery || '',
             maxResults: maxResults.toString(),
             startIndex: startIndex.toString(),
             orderBy: sortBy

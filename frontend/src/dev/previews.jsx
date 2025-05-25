@@ -5,6 +5,7 @@ import WelcomeMessage from "../components/WelcomeMessage/WelcomeMessage";
 import FilterBar from "../components/FilterBar/FilterBar";
 import AIRecommendations from "../components/AIRecommnedations/AIRecommendations";
 import SearchPage from "../components/SearchPage/SearchPage";
+import AuthOverlay from "../components/AuthOverlay/AuthOverlay";
 
 const ComponentPreviews = () => {
     return (
@@ -23,6 +24,9 @@ const ComponentPreviews = () => {
             </ComponentPreview>
             <ComponentPreview path="/SearchPage">
                 <SearchPage/>
+            </ComponentPreview>
+            <ComponentPreview path="/AuthOverlay">
+                <AuthOverlay/>
             </ComponentPreview>
         </Previews>
     )

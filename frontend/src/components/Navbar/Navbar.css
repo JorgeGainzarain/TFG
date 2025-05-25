@@ -113,6 +113,186 @@
     align-items: center;
 }
 
+/* User Menu */
+.user-menu-container {
+    position: relative;
+}
+
+.user-menu-trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border-glass);
+    border-radius: 25px;
+    padding: 0.5rem 1rem 0.5rem 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: var(--text-primary);
+    backdrop-filter: blur(16px);
+}
+
+.user-menu-trigger:hover {
+    background: var(--bg-card-hover);
+    border-color: rgba(102, 126, 234, 0.4);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--primary-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+}
+
+.user-avatar.large {
+    width: 48px;
+    height: 48px;
+    font-size: 1rem;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 0;
+}
+
+.user-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+}
+
+.user-status {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.menu-arrow {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    transition: transform 0.3s ease;
+}
+
+/* User Dropdown */
+.user-dropdown {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    background: var(--bg-dark);
+    border: 1px solid var(--border-glass);
+    border-radius: 16px;
+    min-width: 280px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow:
+            0 20px 40px rgba(0, 0, 0, 0.4),
+            0 0 0 1px rgba(255, 255, 255, 0.1);
+    animation: dropdownSlide 0.3s ease-out;
+    overflow: hidden;
+}
+
+@keyframes dropdownSlide {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.user-dropdown-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(240, 147, 251, 0.1) 100%);
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 0;
+    flex: 1;
+}
+
+.user-details .user-name {
+    font-size: 1rem;
+    font-weight: 600;
+    max-width: none;
+}
+
+.user-email {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.user-dropdown-menu {
+    padding: 0.5rem;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    text-align: left;
+}
+
+.menu-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+
+.menu-item.logout {
+    color: #f87171;
+}
+
+.menu-item.logout:hover {
+    background: rgba(248, 113, 113, 0.1);
+    color: #f87171;
+}
+
+.menu-icon {
+    font-size: 1rem;
+    width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.menu-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 0.5rem 0;
+}
+
 /* Loading state for search */
 .search-container.loading .search-icon {
     animation: pulse 1.5s infinite;
@@ -150,5 +330,57 @@
 
     .logo {
         font-size: 1.3rem;
+    }
+
+    /* Show simplified user menu on mobile */
+    .nav-actions {
+        display: flex;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .user-menu-trigger {
+        padding: 0.4rem 0.8rem 0.4rem 0.4rem;
+    }
+
+    .user-info {
+        display: none;
+    }
+
+    .menu-arrow {
+        display: none;
+    }
+
+    .user-dropdown {
+        right: 50%;
+        transform: translateX(50%);
+        min-width: 260px;
+    }
+
+    .user-dropdown-header {
+        padding: 1rem;
+    }
+
+    .user-details .user-name {
+        font-size: 0.9rem;
+    }
+
+    .user-email {
+        font-size: 0.8rem;
+    }
+
+    .menu-item {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.85rem;
+    }
+}
+
+/* Very small screens */
+@media (max-width: 480px) {
+    .user-dropdown {
+        left: 0.5rem;
+        right: 0.5rem;
+        transform: none;
+        min-width: auto;
     }
 }
