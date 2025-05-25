@@ -7,28 +7,39 @@
 }
 
 :root {
-  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  --success-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+  --primary-gradient: linear-gradient(135deg, #1d66d7 0%, #2563eb 100%);
+  --secondary-gradient: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+  --accent-gradient: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+  --success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+
+  --section-bg: linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(224, 231, 255, 0.12) 100%);
+  --section-border: rgba(83, 120, 178, 0.2);
+  --section-accent: rgba(59, 130, 246, 0.15);
+
+  --navbar-bg: rgba(40, 88, 168, 0.53);
+
+  --bg-gradient-1: rgba(29, 102, 215, 0.3);   /* Azul principal */
+  --bg-gradient-2: rgba(17, 53, 91, 0.78);   /* Azul medio */
+  --bg-gradient-3: rgba(39, 55, 84, 0.7);  /* Azul claro */
+
   --bg-dark: #0f0f23;
   --bg-card: rgba(255, 255, 255, 0.1);
   --bg-card-hover: rgba(255, 255, 255, 0.15);
   --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.8);
+  --text-secondary: rgba(19, 118, 199, 0.8);
   --text-muted: rgba(255, 255, 255, 0.6);
   --border-glass: rgba(255, 255, 255, 0.2);
   --shadow-glass: 0 8px 32px rgba(31, 38, 135, 0.37);
-  --shadow-hover: 0 12px 40px rgba(31, 38, 135, 0.5);
+  --shadow-hover: 0 12px 40px rgba(22, 35, 190, 0.5);
 }
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--bg-dark);
   background-image:
-          radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-          radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
-          radial-gradient(circle at 40% 40%, rgba(120, 219, 226, 0.2) 0%, transparent 50%);
+          radial-gradient(circle at 20% 80%, var(--bg-gradient-1) 0%, transparent 50%),
+          radial-gradient(circle at 80% 20%, var(--bg-gradient-2) 0%, transparent 50%),
+          radial-gradient(circle at 40% 40%, var(--bg-gradient-3) 0%, transparent 50%);
   min-height: 100vh;
   color: var(--text-primary);
   overflow-x: hidden;

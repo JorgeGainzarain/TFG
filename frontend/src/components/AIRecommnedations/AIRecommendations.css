@@ -1,9 +1,9 @@
 .ai-section {
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(240, 147, 251, 0.1) 100%);
+    background: var(--section-bg);
+    border: 1px solid var(--section-border);
     border-radius: 20px;
     padding: 1.5rem;
     margin: 2rem 0;
-    border: 1px solid rgba(102, 126, 234, 0.2);
     position: relative; /* Importante para el overlay local */
 }
 

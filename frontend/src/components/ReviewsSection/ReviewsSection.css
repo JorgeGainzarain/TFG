@@ -1,5 +1,9 @@
 .reviews-section {
-    /* Hereda estilos de .section en App.css */
+    background: var(--section-bg);
+    border: 1px solid var(--section-border);
+    border-radius: 20px;
+    padding: 1.5rem;
+    margin: 2rem 0;
 }
 
 .reviews-container {

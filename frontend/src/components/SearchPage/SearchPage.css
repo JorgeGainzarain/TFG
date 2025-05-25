@@ -1,4 +1,6 @@
 .search-page {
+    background: var(--section-bg);
+    border: 1px solid var(--section-border);
     max-width: 1400px;
     margin: 0 auto;
     padding: 2rem;
