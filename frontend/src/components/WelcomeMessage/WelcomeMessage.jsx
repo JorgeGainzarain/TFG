@@ -1,7 +1,7 @@
 import React from 'react';
-import './Hero.css';
+import './WelcomeMessage.css';
 
-const Hero = () => {
+const WelcomeMessage = () => {
     return (
         <section className="hero">
             <h1>Descubre tu próxima lectura perfecta</h1>
@@ -13,4 +13,4 @@ const Hero = () => {
     );
 };
 
-export default Hero;
+export default WelcomeMessage;

@@ -1,0 +1,146 @@
+.search-page {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.search-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.search-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.search-subtitle {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+.search-controls {
+    margin-bottom: 2rem;
+}
+
+.filters-row {
+    display: flex;
+    gap: 1rem;
+    align-items: start;
+    margin-top: 1rem;
+}
+
+.search-results {
+    min-height: 400px;
+}
+
+.books-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 0;
+    gap: 1rem;
+}
+
+.loading-container p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+.no-results {
+    text-align: center;
+    padding: 4rem 0;
+    color: var(--text-secondary);
+}
+
+.no-results-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.6;
+}
+
+.no-results h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.no-results p {
+    font-size: 1rem;
+    max-width: 400px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* Animation for book cards */
+.books-list .horizontal-book-card {
+    animation: fadeInUp 0.6s ease-out;
+    animation-fill-mode: both;
+}
+
+.books-list .horizontal-book-card:nth-child(odd) {
+    animation-delay: 0.1s;
+}
+
+.books-list .horizontal-book-card:nth-child(even) {
+    animation-delay: 0.2s;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .search-page {
+        padding: 1rem;
+    }
+
+    .search-title {
+        font-size: 2rem;
+    }
+
+    .search-subtitle {
+        font-size: 1rem;
+    }
+
+    .filters-row {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .books-list {
+        gap: 0.75rem;
+    }
+
+    .no-results {
+        padding: 2rem 0;
+    }
+
+    .no-results-icon {
+        font-size: 3rem;
+    }
+
+    .no-results h3 {
+        font-size: 1.3rem;
+    }
+}

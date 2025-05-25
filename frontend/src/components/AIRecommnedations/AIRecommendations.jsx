@@ -1,14 +1,71 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import BookCard from '../BookCard/BookCard';
 import FilterBar from '../FilterBar/FilterBar';
+import { bookAPI, handleApiError } from '../../services/api';
 import './AIRecommendations.css';
 
 const AIRecommendations = () => {
+    const [books, setBooks] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [filters, setFilters] = useState({
         genre: '',
         year: '',
         sortBy: 'relevance'
     });
+
+    // Load initial recommendations
+    useEffect(() => {
+        loadRecommendations();
+    }, []);
+
+    // Load recommendations when filters change
+    useEffect(() => {
+        if (filters.genre || filters.year || filters.sortBy !== 'relevance') {
+            loadFilteredRecommendations();
+        }
+    }, [filters]);
+
+    const loadRecommendations = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+
+            const response = await bookAPI.getRecommendations();
+            setBooks(response.books || []);
+
+        } catch (err) {
+            console.error('Error loading recommendations:', err);
+            setError(handleApiError(err));
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const loadFilteredRecommendations = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+
+            // Use advanced search for filtered recommendations
+            const searchFilters = {
+                query: '', // Empty query to get general results
+                genre: filters.genre,
+                year: filters.year,
+                sortBy: filters.sortBy,
+                maxResults: 12
+            };
+
+            const response = await bookAPI.advancedSearch(searchFilters);
+            setBooks(response.books || []);
+
+        } catch (err) {
+            console.error('Error loading filtered recommendations:', err);
+            setError(handleApiError(err));
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleFilterChange = (filterType, value) => {
         setFilters(prev => ({
@@ -19,61 +76,85 @@ const AIRecommendations = () => {
 
     const handleAddToLibrary = (book) => {
         console.log('Añadiendo a la librería:', book);
-        // Aquí iría la lógica para añadir el libro a la librería
+        // TODO: Implement add to library functionality
+        // This could save to localStorage, send to backend, etc.
+        alert(`"${book.title}" será añadido a tu librería (funcionalidad pendiente)`);
     };
 
-    const books = [
-        {
-            title: "El Nombre del Viento",
-            author: "Patrick Rothfuss",
-            genres: ["Fantasía", "Aventura"],
-            rating: 5,
-            reviewCount: 2847,
-            coverEmoji: "📖"
-        },
-        {
-            title: "Atomic Habits",
-            author: "James Clear",
-            genres: ["Autoayuda", "Productividad"],
-            rating: 5,
-            reviewCount: 1923,
-            coverEmoji: "🌟"
-        },
-        {
-            title: "Dune",
-            author: "Frank Herbert",
-            genres: ["Ciencia Ficción", "Épico"],
-            rating: 4,
-            reviewCount: 3156,
-            coverEmoji: "🚀"
+    const handleRetry = () => {
+        if (filters.genre || filters.year || filters.sortBy !== 'relevance') {
+            loadFilteredRecommendations();
+        } else {
+            loadRecommendations();
         }
-    ];
+    };
+
+    if (error) {
+        return (
+            <section className="ai-section">
+                <div className="ai-header">
+                    <h2 className="ai-title">Recomendaciones Personalizadas</h2>
+                </div>
+                <div className="error-state">
+                    <p className="error-message">❌ {error}</p>
+                    <button className="retry-btn" onClick={handleRetry}>
+                        🔄 Intentar de nuevo
+                    </button>
+                </div>
+            </section>
+        );
+    }
 
     return (
         <section className="ai-section">
             <div className="ai-header">
                 <h2 className="ai-title">Recomendaciones Personalizadas</h2>
                 <p className="ai-description">
-                    Nuestra IA analiza tus gustos y te sugiere libros que realmente amarás
+                    Descubre libros increíbles seleccionados especialmente para ti
                 </p>
             </div>
 
             <FilterBar filters={filters} onFilterChange={handleFilterChange} />
 
-            <div className="cards-grid">
-                {books.map((book, index) => (
-                    <BookCard
-                        key={index}
-                        title={book.title}
-                        author={book.author}
-                        genres={book.genres}
-                        rating={book.rating}
-                        reviewCount={book.reviewCount}
-                        coverEmoji={book.coverEmoji}
-                        onAddToLibrary={handleAddToLibrary}
-                    />
-                ))}
-            </div>
+            {loading ? (
+                <div className="loading-state">
+                    <div className="loading-spinner"></div>
+                    <p>Cargando recomendaciones...</p>
+                </div>
+            ) : books.length > 0 ? (
+                <div className="cards-grid">
+                    {books.map((book) => (
+                        <BookCard
+                            key={book.id}
+                            title={book.title}
+                            author={book.author}
+                            genres={book.genres}
+                            rating={book.rating}
+                            reviewCount={book.reviewCount}
+                            coverEmoji={book.coverEmoji}
+                            thumbnail={book.thumbnail}
+                            onAddToLibrary={handleAddToLibrary}
+                        />
+                    ))}
+                </div>
+            ) : (
+                <div className="empty-state">
+                    <p>📚 No se encontraron recomendaciones con los filtros actuales.</p>
+                    <button
+                        className="reset-filters-btn"
+                        onClick={() => {
+                            setFilters({
+                                genre: '',
+                                year: '',
+                                sortBy: 'relevance'
+                            });
+                            loadRecommendations();
+                        }}
+                    >
+                        Limpiar filtros
+                    </button>
+                </div>
+            )}
         </section>
     );
 };

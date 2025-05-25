@@ -39,6 +39,68 @@ body {
   position: relative;
 }
 
+/* API Status Banner */
+.api-status-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1001;
+  padding: 0.75rem 2rem;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  backdrop-filter: blur(20px);
+  animation: slideDown 0.3s ease-out;
+}
+
+.api-status-banner.error {
+  background: rgba(248, 113, 113, 0.9);
+  color: white;
+  border-bottom: 1px solid rgba(248, 113, 113, 0.5);
+}
+
+.api-status-banner.checking {
+  background: rgba(251, 191, 36, 0.9);
+  color: white;
+  border-bottom: 1px solid rgba(251, 191, 36, 0.5);
+}
+
+.retry-connection {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 0.4rem 0.8rem;
+  border-radius: 16px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+}
+
+.retry-connection:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Adjust main content when banner is shown */
+.app:has(.api-status-banner) .main-content {
+  margin-top: 150px;
+}
+
 /* Glassmorphism utility class */
 .glass {
   background: var(--bg-card);
@@ -62,6 +124,7 @@ body {
   max-width: 1400px;
   margin-left: auto;
   margin-right: auto;
+  transition: margin-top 0.3s ease;
 }
 
 /* Button Utilities */
@@ -175,6 +238,15 @@ html {
     margin-top: 120px;
     padding: 0 1rem;
     margin-bottom: 100px;
+  }
+
+  .app:has(.api-status-banner) .main-content {
+    margin-top: 170px;
+  }
+
+  .api-status-banner {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
   }
 
   .section-header {

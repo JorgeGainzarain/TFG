@@ -29,6 +29,106 @@
     line-height: 1.6;
 }
 
+/* Loading State */
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    text-align: center;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(102, 126, 234, 0.2);
+    border-left: 4px solid var(--primary-gradient);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-state p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+/* Error State */
+.error-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    text-align: center;
+}
+
+.error-message {
+    color: #f87171;
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: rgba(248, 113, 113, 0.1);
+    border-radius: 12px;
+    border: 1px solid rgba(248, 113, 113, 0.2);
+}
+
+.retry-btn {
+    padding: 0.75rem 1.5rem;
+    background: var(--primary-gradient);
+    border: none;
+    border-radius: 25px;
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+}
+
+.retry-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+/* Empty State */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    text-align: center;
+}
+
+.empty-state p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+}
+
+.reset-filters-btn {
+    padding: 0.75rem 1.5rem;
+    background: var(--secondary-gradient);
+    border: none;
+    border-radius: 25px;
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+}
+
+.reset-filters-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(240, 147, 251, 0.4);
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
     .ai-section {
@@ -43,5 +143,16 @@
     .ai-description {
         font-size: 1rem;
         padding: 0 0.5rem;
+    }
+
+    .loading-state,
+    .error-state,
+    .empty-state {
+        padding: 2rem 1rem;
+    }
+
+    .loading-spinner {
+        width: 32px;
+        height: 32px;
     }
 }

@@ -1,11 +1,10 @@
 import {ComponentPreview, Previews} from '@react-buddy/ide-toolbox'
 import {PaletteTree} from './palette'
 import App from "../App";
-import Hero from "../components/Hero/Hero";
+import WelcomeMessage from "../components/WelcomeMessage/WelcomeMessage";
 import FilterBar from "../components/FilterBar/FilterBar";
 import AIRecommendations from "../components/AIRecommnedations/AIRecommendations";
-import BookCard from "../components/BookCard/BookCard";
-import TrendingBooks from "../components/TrendingBooks/TrendingBooks";
+import SearchPage from "../components/SearchPage/SearchPage";
 
 const ComponentPreviews = () => {
     return (
@@ -14,7 +13,7 @@ const ComponentPreviews = () => {
                 <App/>
             </ComponentPreview>
             <ComponentPreview path="/Hero">
-                <Hero/>
+                <WelcomeMessage/>
             </ComponentPreview>
             <ComponentPreview path="/FilterBar">
                 <FilterBar/>
@@ -22,11 +21,8 @@ const ComponentPreviews = () => {
             <ComponentPreview path="/AIRecommendations">
                 <AIRecommendations/>
             </ComponentPreview>
-            <ComponentPreview path="/BookCard">
-                <BookCard/>
-            </ComponentPreview>
-            <ComponentPreview path="/TrendingBooks">
-                <TrendingBooks/>
+            <ComponentPreview path="/SearchPage">
+                <SearchPage/>
             </ComponentPreview>
         </Previews>
     )

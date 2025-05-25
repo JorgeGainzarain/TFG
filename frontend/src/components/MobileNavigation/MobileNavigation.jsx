@@ -1,14 +1,21 @@
 import React, { useState } from 'react';
 import './MobileNavigation.css';
 
-const MobileNavigation = () => {
-    const [activeItem, setActiveItem] = useState('home');
+const MobileNavigation = ({ currentView = 'home', onNavigate }) => {
+    const [activeItem, setActiveItem] = useState(currentView);
 
     const handleItemClick = (item) => {
         setActiveItem(item);
-        // Aquí puedes añadir lógica de navegación
+        if (onNavigate) {
+            onNavigate(item);
+        }
         console.log('Navegando a:', item);
     };
+
+    // Sincronizar con el estado actual de la app
+    React.useEffect(() => {
+        setActiveItem(currentView);
+    }, [currentView]);
 
     const navigationItems = [
         { id: 'home', icon: '🏠', label: 'Inicio' },
