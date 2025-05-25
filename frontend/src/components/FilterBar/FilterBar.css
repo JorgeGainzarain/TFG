@@ -5,7 +5,6 @@
     flex-wrap: wrap;
     justify-content: start;
     align-items: start;
-    border: 1px solid var(--section-border);
     border-radius: 6px;
     padding: 0.8rem;
 }
@@ -17,7 +16,6 @@
     background: rgba(255, 255, 255, 0.08);
     color: var(--text-primary);
     font-size: 0.85rem;
-    border: 1px solid var(--section-border);
     backdrop-filter: blur(16px);
     cursor: pointer;
     transition: all 0.3s ease;
