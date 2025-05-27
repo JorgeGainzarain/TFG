@@ -51,10 +51,10 @@
 
 .clear-search-btn {
     padding: 0.5rem 1rem;
-    background: rgba(248, 113, 113, 0.2);
+    background: var(--error-border);
     border: 1px solid rgba(248, 113, 113, 0.4);
     border-radius: 20px;
-    color: #f87171;
+    color: var(--text-error);
     cursor: pointer;
     transition: all 0.3s ease;
     font-weight: 500;
@@ -64,7 +64,7 @@
 }
 
 .clear-search-btn:hover {
-    background: rgba(248, 113, 113, 0.3);
+    background: var(--error-border);
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(248, 113, 113, 0.3);
 }
@@ -118,11 +118,11 @@
 }
 
 .error-message {
-    color: #f87171;
+    color: var(--text-error);
     font-size: 1.1rem;
     margin-bottom: 2rem;
     padding: 1rem 2rem;
-    background: rgba(248, 113, 113, 0.1);
+    background: var(--error-bg);
     border-radius: 12px;
     border: 1px solid rgba(248, 113, 113, 0.2);
     max-width: 500px;
@@ -152,7 +152,7 @@
 
 .retry-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    box-shadow: var(--shadow-primary);
 }
 
 .clear-btn {
@@ -162,7 +162,7 @@
 
 .clear-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(240, 147, 251, 0.4);
+    box-shadow: var(--shadow-secondary);
 }
 
 /* Empty State */
@@ -211,10 +211,9 @@
 
 .suggestions li {
     color: var(--text-secondary);
-    padding: 0.5rem 0;
     font-size: 0.9rem;
     position: relative;
-    padding-left: 1.5rem;
+    padding: 0.5rem 0 0.5rem 1.5rem;
 }
 
 .suggestions li::before {
@@ -233,7 +232,7 @@
     justify-content: center;
     padding: 3rem 2rem;
     text-align: center;
-    background: rgba(251, 191, 36, 0.1);
+    background: var(--warning-bg);
     border: 1px solid rgba(251, 191, 36, 0.2);
     border-radius: 16px;
     margin: 2rem 0;
@@ -253,10 +252,10 @@
 
 .clear-filters-btn {
     padding: 0.75rem 1.5rem;
-    background: rgba(251, 191, 36, 0.2);
+    background: var(--warning-hover);
     border: 1px solid rgba(251, 191, 36, 0.4);
     border-radius: 25px;
-    color: #f59e0b;
+    color: var(--text-warning);
     cursor: pointer;
     transition: all 0.3s ease;
     font-weight: 500;
@@ -264,7 +263,7 @@
 }
 
 .clear-filters-btn:hover {
-    background: rgba(251, 191, 36, 0.3);
+    background: var(--warning-border);
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(251, 191, 36, 0.4);
 }

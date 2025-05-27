@@ -25,20 +25,6 @@
     line-height: 1.6;
 }
 
-.ai-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    background: var(--accent-gradient);
-    border-radius: 50px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    margin-bottom: 2rem;
-    animation: pulse 2s infinite;
-    color: white;
-}
-
 @keyframes pulse {
     0%, 100% {
         transform: scale(1);
@@ -59,8 +45,4 @@
         padding: 0 1rem;
     }
 
-    .ai-badge {
-        font-size: 0.8rem;
-        padding: 0.4rem 0.8rem;
-    }
 }

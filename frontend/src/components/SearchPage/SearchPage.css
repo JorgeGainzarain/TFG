@@ -87,18 +87,6 @@
 }
 
 /* Animation for book cards */
-.books-list .horizontal-book-card {
-    animation: fadeInUp 0.6s ease-out;
-    animation-fill-mode: both;
-}
-
-.books-list .horizontal-book-card:nth-child(odd) {
-    animation-delay: 0.1s;
-}
-
-.books-list .horizontal-book-card:nth-child(even) {
-    animation-delay: 0.2s;
-}
 
 @keyframes fadeInUp {
     from {

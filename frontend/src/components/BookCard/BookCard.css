@@ -1,6 +1,6 @@
 .book-card {
     border-radius: 16px;
-    padding: 1rem;
+    padding: 20px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     position: relative;
@@ -151,7 +151,7 @@
 
 .add-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    box-shadow: var(--shadow-primary);
 }
 
 .add-btn:active {
@@ -163,7 +163,7 @@
     background: linear-gradient(
             90deg,
             rgba(255, 255, 255, 0.1) 0%,
-            rgba(255, 255, 255, 0.2) 50%,
+            var(--border-glass) 50%,
             rgba(255, 255, 255, 0.1) 100%
     );
     background-size: 200% 100%;
@@ -182,7 +182,7 @@
 /* Mobile Responsive */
 @media (max-width: 768px) {
     .book-card {
-        padding: 1rem;
+        padding: 20px;
     }
 
     .book-cover {

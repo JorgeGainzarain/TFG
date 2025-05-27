@@ -53,8 +53,7 @@
     backdrop-filter: blur(16px);
     color: var(--text-primary);
     font-size: 0.95rem;
-    border: 1px solid var(--border-glass);
-    transition: all 0.3s ease;
+    transition: all var(--transition-normal);
 }
 
 .search-input:focus {
@@ -124,10 +123,10 @@
     gap: 0.75rem;
     background: var(--bg-card);
     border: 1px solid var(--border-glass);
-    border-radius: 25px;
+    border-radius: 50px;
     padding: 0.5rem 1rem 0.5rem 0.5rem;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all var(--transition-normal);
     color: var(--text-primary);
     backdrop-filter: blur(16px);
 }
@@ -183,7 +182,7 @@
 .menu-arrow {
     font-size: 0.7rem;
     color: var(--text-muted);
-    transition: transform 0.3s ease;
+    transition: transform var(--transition-normal);
 }
 
 /* User Dropdown */
@@ -272,12 +271,12 @@
 }
 
 .menu-item.logout {
-    color: #f87171;
+    color: var(--text-error);
 }
 
 .menu-item.logout:hover {
-    background: rgba(248, 113, 113, 0.1);
-    color: #f87171;
+    background: var(--error-bg);
+    color: var(--text-error);
 }
 
 .menu-icon {

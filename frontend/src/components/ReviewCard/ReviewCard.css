@@ -87,19 +87,19 @@
     border: none;
     color: var(--text-muted);
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all var(--transition-normal);
     padding: 0.5rem;
     border-radius: 8px;
     font-size: 0.9rem;
 }
 
 .like-btn:hover {
-    color: #f87171;
-    background: rgba(248, 113, 113, 0.1);
+    color: var(--text-error);
+    background: var(--error-bg);
 }
 
 .like-btn.liked {
-    color: #f87171;
+    color: var(--text-error);
 }
 
 .like-btn.liked:hover {
