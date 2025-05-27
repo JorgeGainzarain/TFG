@@ -37,19 +37,10 @@ const AppContent = () => {
 
     // Check API health on mount
     useEffect(() => {
-        checkApiHealth();
+        checkApiHealth().then(r => {
+            setApiStatus('connected');
+        });
     }, []);
-
-    // Mostrar prompt de auth después de un tiempo si no está autenticado
-    useEffect(() => {
-        if (initialized && !isAuthenticated && location.pathname === '/') {
-            const timer = setTimeout(() => {
-                setShowAuthPrompt(true);
-            }, 10000); // Mostrar después de 10 segundos
-
-            return () => clearTimeout(timer);
-        }
-    }, [initialized, isAuthenticated, location.pathname]);
 
     const checkApiHealth = async () => {
         try {

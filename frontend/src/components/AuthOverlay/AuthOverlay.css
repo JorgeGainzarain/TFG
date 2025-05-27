@@ -12,20 +12,9 @@
     animation: fadeIn 0.3s ease-out;
 }
 
-.auth-backdrop {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-}
-
 .auth-modal {
     position: relative;
-    background: var(--bg-dark);
+    background: var(--auth-modal-bg);
     background-image:
             radial-gradient(circle at 20% 20%, rgba(102, 126, 234, 0.3) 0%, transparent 50%),
             radial-gradient(circle at 80% 80%, rgba(240, 147, 251, 0.3) 0%, transparent 50%);
@@ -111,9 +100,9 @@
 }
 
 .auth-close-btn:hover {
-    background: rgba(248, 113, 113, 0.2);
+    background: var(--error-border);
     border-color: rgba(248, 113, 113, 0.4);
-    color: #f87171;
+    color: var(--text-error);
     transform: scale(1.05);
 }
 
@@ -122,12 +111,12 @@
 }
 
 .auth-error-banner {
-    background: rgba(248, 113, 113, 0.1);
-    border: 1px solid rgba(248, 113, 113, 0.3);
+    background: var(--error-bg);
+    border: 1px solid var(--error-border);
     border-radius: 12px;
     padding: 1rem;
     margin-bottom: 1.5rem;
-    color: #f87171;
+    color: var(--text-error);
     font-size: 0.95rem;
     text-align: center;
 }
@@ -157,7 +146,7 @@
     border-radius: 12px;
     color: var(--text-primary);
     font-size: 1rem;
-    transition: all 0.3s ease;
+    transition: all var(--transition-normal);
     backdrop-filter: blur(10px);
 }
 
@@ -213,7 +202,7 @@
 
 .error-text {
     display: block;
-    color: #f87171;
+    color: var(--text-error);
     font-size: 0.85rem;
     margin-top: 0.5rem;
     padding-left: 0.25rem;
@@ -237,7 +226,7 @@
 
 .auth-submit-btn:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    box-shadow: var(--shadow-primary);
 }
 
 .auth-submit-btn:active:not(:disabled) {
@@ -284,7 +273,7 @@
     left: 0;
     right: 0;
     height: 1px;
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--border-glass);
 }
 
 .auth-divider span {
@@ -362,9 +351,8 @@
 /* Mobile Responsive */
 @media (max-width: 768px) {
     .auth-overlay {
-        padding: 0.5rem;
         align-items: flex-start;
-        padding-top: 2rem;
+        padding: 2rem 0.5rem 0.5rem;
     }
 
     .auth-modal {
@@ -433,7 +421,7 @@
 }
 
 .auth-modal::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--border-glass);
     border-radius: 3px;
 }
 
