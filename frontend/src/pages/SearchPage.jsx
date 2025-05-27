@@ -1,5 +1,5 @@
 import React from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import SearchResults from '../components/SearchResults/SearchResults';
 
 const SearchPage = ({
@@ -12,18 +12,21 @@ const SearchPage = ({
                         isAuthenticated
                     }) => {
     const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
+
     const query = searchParams.get('q') || searchQuery;
+    const isRecommendations = searchParams.get('recommendations') === 'true';
 
     const handleClearSearch = () => {
         onClearSearch();
-        // Navegar de vuelta al home
-        window.history.pushState({}, '', '/');
+        navigate('/'); // Redirige a la página principal
     };
 
     const handleRetry = () => {
-        if (query) {
+        if (query && !isRecommendations) {
             console.log('Retry search for:', query);
             // Aquí podrías disparar la búsqueda nuevamente
+            window.location.reload();
         }
     };
 
@@ -37,6 +40,7 @@ const SearchPage = ({
             onRetry={handleRetry}
             user={user}
             isAuthenticated={isAuthenticated}
+            isRecommendations={isRecommendations}
         />
     );
 };

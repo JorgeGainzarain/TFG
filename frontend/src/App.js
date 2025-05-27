@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar/Navbar';
 import MobileNavbar from './components/MobileNavbar/MobileNavbar';
@@ -21,6 +21,9 @@ const AppContent = () => {
     const [showAuthOverlay, setShowAuthOverlay] = useState(false);
     const [showAuthPrompt, setShowAuthPrompt] = useState(false);
 
+    // Ref para la navbar
+    const navbarRef = useRef();
+
     // Hook de autenticación
     const { user, isAuthenticated, initialized } = useAuth();
     const location = useLocation();
@@ -41,6 +44,16 @@ const AppContent = () => {
             setApiStatus('connected');
         });
     }, []);
+
+    // Limpiar estado cuando se va al home
+    useEffect(() => {
+        if (location.pathname === '/') {
+            setSearchResults([]);
+            setSearchQuery('');
+            setSearchError(null);
+            setIsSearching(false);
+        }
+    }, [location.pathname]);
 
     const checkApiHealth = async () => {
         try {
@@ -75,6 +88,11 @@ const AppContent = () => {
         setSearchQuery('');
         setSearchError(null);
         setIsSearching(false);
+
+        // Limpiar input de navbar usando ref
+        if (navbarRef.current) {
+            navbarRef.current.clearInput();
+        }
     };
 
     const handleAuthSuccess = (userData) => {
@@ -110,6 +128,7 @@ const AppContent = () => {
     return (
         <div className="app">
             <Navbar
+                ref={navbarRef}
                 onSearchResults={handleSearchResults}
                 onSearchLoading={handleSearchLoading}
                 onSearchError={handleSearchError}

@@ -81,7 +81,6 @@ export const ProfilePage = ({ user, isAuthenticated, onShowAuth }) => {
                     <div className="user-details">
                         <h3>{user.name}</h3>
                         <p>{user.email}</p>
-                        <span className="user-badge">✨ Premium</span>
                     </div>
                 </div>
             </div>

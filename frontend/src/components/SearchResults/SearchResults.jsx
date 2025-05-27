@@ -3,15 +3,24 @@ import BookCard from '../BookCard/BookCard';
 import FilterBar from '../FilterBar/FilterBar';
 import './SearchResults.css';
 
-// Archivo CSS actualizado - agregar estos estilos a SearchResults.css
-
-const SearchResults = ({ results, query, loading, error, onClearSearch, onRetry }) => {
+const SearchResults = ({
+                           results,
+                           query,
+                           loading,
+                           error,
+                           onClearSearch,
+                           onRetry,
+                           isRecommendations = false
+                       }) => {
     const [filteredResults, setFilteredResults] = useState(results);
     const [filters, setFilters] = useState({
         genre: '',
         year: '',
         sortBy: 'relevance'
     });
+
+    // Detectar si son resultados placeholder (recomendaciones de IA)
+    const isPlaceholderResults = results.length > 0 && results[0]?.isPlaceholder;
 
     // Update filtered results when results or filters change
     useEffect(() => {
@@ -78,7 +87,11 @@ const SearchResults = ({ results, query, loading, error, onClearSearch, onRetry 
 
     const handleAddToLibrary = (book) => {
         console.log('Añadiendo a la librería:', book);
-        alert(`"${book.title}" será añadido a tu librería (funcionalidad pendiente)`);
+        if (book.isPlaceholder) {
+            alert(`"${book.title}" es una recomendación de IA. ¡Funcionalidad completa próximamente!`);
+        } else {
+            alert(`"${book.title}" será añadido a tu librería (funcionalidad pendiente)`);
+        }
     };
 
     const clearFilters = () => {
@@ -95,9 +108,11 @@ const SearchResults = ({ results, query, loading, error, onClearSearch, onRetry 
                 <div className="search-header">
                     <div className="search-info">
                         <h2>Buscando...</h2>
-                        <button className="clear-search-btn" onClick={onClearSearch}>
-                            ✕ Limpiar búsqueda
-                        </button>
+                        {!isRecommendations && query && (
+                            <button className="clear-search-btn" onClick={onClearSearch}>
+                                ✕ Limpiar búsqueda
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -105,7 +120,12 @@ const SearchResults = ({ results, query, loading, error, onClearSearch, onRetry 
 
                 <div className="loading-state">
                     <div className="loading-spinner"></div>
-                    <p>Buscando "{query}"...</p>
+                    <p>
+                        {isRecommendations ?
+                            'Preparando recomendaciones...' :
+                            `Buscando "${query}"...`
+                        }
+                    </p>
                 </div>
             </section>
         );
@@ -117,9 +137,11 @@ const SearchResults = ({ results, query, loading, error, onClearSearch, onRetry 
                 <div className="search-header">
                     <div className="search-info">
                         <h2>Error en la búsqueda</h2>
-                        <button className="clear-search-btn" onClick={onClearSearch}>
-                            ✕ Limpiar búsqueda
-                        </button>
+                        {!isRecommendations && query && (
+                            <button className="clear-search-btn" onClick={onClearSearch}>
+                                ✕ Limpiar búsqueda
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -140,7 +162,7 @@ const SearchResults = ({ results, query, loading, error, onClearSearch, onRetry 
         );
     }
 
-    if (results.length === 0 && query) {
+    if (results.length === 0 && query && !isRecommendations) {
         return (
             <section className="search-results">
                 <div className="search-header">
@@ -177,16 +199,40 @@ const SearchResults = ({ results, query, loading, error, onClearSearch, onRetry 
         <section className="search-results">
             <div className="search-header">
                 <div className="search-info">
-                    <h2>Resultados de búsqueda</h2>
+                    <h2>
+                        {isPlaceholderResults || isRecommendations ?
+                            '🤖 Recomendaciones IA' :
+                            'Resultados de búsqueda'
+                        }
+                    </h2>
                     <div className="search-meta">
                         <p className="search-query">
-                            {filteredResults.length} de {results.length} resultado{results.length !== 1 ? 's' : ''} para "{query}"
+                            {filteredResults.length} de {results.length} resultado{results.length !== 1 ? 's' : ''}
+                            {isPlaceholderResults || isRecommendations ?
+                                ' (recomendaciones personalizadas)' :
+                                ` para "${query}"`
+                            }
                         </p>
-                        <button className="clear-search-btn" onClick={onClearSearch}>
-                            ✕ Limpiar búsqueda
-                        </button>
+                        {/* Solo mostrar botón limpiar si NO son recomendaciones */}
+                        {!isPlaceholderResults && !isRecommendations && query && (
+                            <button className="clear-search-btn" onClick={onClearSearch}>
+                                ✕ Limpiar búsqueda
+                            </button>
+                        )}
                     </div>
                 </div>
+
+                {(isPlaceholderResults || isRecommendations) && (
+                    <div className="ai-notice">
+                        <div className="ai-notice-content">
+                            <span className="ai-icon">🤖✨</span>
+                            <div className="ai-text">
+                                <h4>Recomendaciones impulsadas por IA</h4>
+                                <p>Estos libros han sido seleccionados especialmente para ti. ¡Pronto tendremos recomendaciones aún más personalizadas!</p>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
 
             <FilterBar filters={filters} onFilterChange={handleFilterChange} />
@@ -213,15 +259,28 @@ const SearchResults = ({ results, query, loading, error, onClearSearch, onRetry 
                                 coverEmoji={book.coverEmoji}
                                 thumbnail={book.thumbnail}
                                 onAddToLibrary={handleAddToLibrary}
+                                isPlaceholder={book.isPlaceholder}
                             />
                         ))}
                     </div>
 
-                    {results.length > 0 && (
+                    {results.length > 0 && !isPlaceholderResults && !isRecommendations && (
                         <div className="search-actions">
                             <button className="load-more-btn disabled">
                                 📚 Cargar más resultados (próximamente)
                             </button>
+                        </div>
+                    )}
+
+                    {(isPlaceholderResults || isRecommendations) && (
+                        <div className="ai-footer">
+                            <div className="ai-footer-content">
+                                <h4>🎯 ¿Quieres recomendaciones más precisas?</h4>
+                                <p>Crea una cuenta para obtener sugerencias basadas en tus gustos de lectura y historial.</p>
+                                <button className="upgrade-ai-btn">
+                                    ✨ Mejorar recomendaciones
+                                </button>
+                            </div>
                         </div>
                     )}
                 </>
