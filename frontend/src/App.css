@@ -14,22 +14,25 @@
   --success-gradient: linear-gradient(135deg, #06b6d4 0%, #22d3ee 100%);
 
   /* Fondos de secciones */
-  --section-bg: linear-gradient(135deg, rgba(59, 130, 246, 0.06) 0%, rgba(147, 197, 253, 0.08) 100%);
+  --section-bg: linear-gradient(135deg, rgba(59, 130, 246, 0.18) 0%, rgba(147, 197, 253, 0.18) 100%);
   --section-border: rgba(96, 165, 250, 0.20);
   --section-accent: rgba(59, 130, 246, 0.10);
 
   /* Navbar */
-  --navbar-bg: rgba(30, 58, 138, 0.75);
+  --navbar-bg: rgba(59, 130, 246, 0.4);
+
+  /* Star Rating */
+  --star-color: #fbbf24;
 
   /* Gradientes de fondo */
-  --bg-gradient-1: rgba(59, 130, 246, 0.08);   /* Azul principal */
-  --bg-gradient-2: rgba(96, 165, 250, 0.12);   /* Azul medio */
-  --bg-gradient-3: rgba(147, 197, 253, 0.06);  /* Azul claro */
+  --bg-gradient-1: rgba(59, 130, 246, 0.2);
+  --bg-gradient-2: rgba(147, 197, 253, 0.15);
+  --bg-gradient-3: rgba(191, 219, 254, 0.1);
 
   /* Fondos base */
-  --bg-dark: #0f1629;
-  --bg-card: rgba(255, 255, 255, 0.10);
-  --bg-card-hover: rgba(255, 255, 255, 0.16);
+  --bg-dark: #1e2951;
+  --bg-card: rgba(59, 130, 246, 0.15);
+  --bg-card-hover: rgba(59, 130, 246, 0.25);
 
   /* Colores de texto */
   --text-primary: #f8fafc;
@@ -46,7 +49,7 @@
 
   /* Fondos específicos de componentes */
   --auth-overlay-bg: rgba(15, 22, 41, 0.88);
-  --auth-modal-bg: var(--bg-dark);
+  --auth-modal-bg: #263b81;
   --loading-spinner-color: rgba(59, 130, 246, 0.22);
   --loading-spinner-active: #3b82f6;
 
