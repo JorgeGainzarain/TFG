@@ -1,3 +1,5 @@
+// noinspection JSUnresolvedReference
+
 import React from 'react';
 import './BookCard.css';
 

@@ -1,3 +1,5 @@
+// noinspection UnnecessaryLocalVariableJS,JSCheckFunctionSignatures,JSUnresolvedReference
+
 const express = require("express");
 const cors = require("cors");
 const axios = require("axios");
@@ -16,7 +18,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "your-super-secret-jwt-key-change-i
 app.use(cors());
 app.use(express.json());
 
-// Simulación de base de datos en memoria (en producción usar MongoDB, PostgreSQL, etc.)
+// Simulación de base de datos en memoria (en producción usar MongoDB, PostgresSQL, etc.)
 const users = [];
 const userLibraries = new Map(); // userId -> { favorites: [], toRead: [], reading: [], read: [] }
 

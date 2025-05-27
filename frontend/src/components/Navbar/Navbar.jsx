@@ -1,47 +1,164 @@
-import React, { useState } from 'react';
+import React, { useState, forwardRef, useImperativeHandle } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { bookAPI, handleApiError } from '../../services/api';
 import { logout } from '../../services/authService';
 import './Navbar.css';
 
-const Navbar = ({ onSearchResults, onSearchLoading, onSearchError, user, isAuthenticated, onShowAuth }) => {
+const Navbar = forwardRef(({ onSearchResults, onSearchLoading, onSearchError, user, isAuthenticated, onShowAuth }, ref) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [isSearching, setIsSearching] = useState(false);
     const [showUserMenu, setShowUserMenu] = useState(false);
     const navigate = useNavigate();
 
+    // Exponer función para limpiar input
+    useImperativeHandle(ref, () => ({
+        clearInput: () => setSearchQuery('')
+    }));
+
+    // Datos placeholder para búsquedas vacías (futuras recomendaciones de IA)
+    const getPlaceholderBooks = () => [
+        {
+            id: 'placeholder-1',
+            title: 'El Nombre del Viento',
+            author: 'Patrick Rothfuss',
+            genres: ['Fantasía', 'Aventura'],
+            rating: 5,
+            reviewCount: 28470,
+            coverEmoji: '🌪️',
+            thumbnail: '',
+            isPlaceholder: true
+        },
+        {
+            id: 'placeholder-2',
+            title: 'Cien años de soledad',
+            author: 'Gabriel García Márquez',
+            genres: ['Realismo Mágico', 'Literatura'],
+            rating: 5,
+            reviewCount: 45230,
+            coverEmoji: '📖',
+            thumbnail: '',
+            isPlaceholder: true
+        },
+        {
+            id: 'placeholder-3',
+            title: 'Sapiens',
+            author: 'Yuval Noah Harari',
+            genres: ['Historia', 'Antropología'],
+            rating: 5,
+            reviewCount: 67890,
+            coverEmoji: '🧠',
+            thumbnail: '',
+            isPlaceholder: true
+        },
+        {
+            id: 'placeholder-4',
+            title: 'The Hobbit',
+            author: 'J.R.R. Tolkien',
+            genres: ['Fantasía', 'Aventura'],
+            rating: 5,
+            reviewCount: 123450,
+            coverEmoji: '🏔️',
+            thumbnail: '',
+            isPlaceholder: true
+        },
+        {
+            id: 'placeholder-5',
+            title: 'Atomic Habits',
+            author: 'James Clear',
+            genres: ['Autoayuda', 'Productividad'],
+            rating: 4,
+            reviewCount: 89340,
+            coverEmoji: '⚡',
+            thumbnail: '',
+            isPlaceholder: true
+        },
+        {
+            id: 'placeholder-6',
+            title: 'Dune',
+            author: 'Frank Herbert',
+            genres: ['Ciencia Ficción', 'Épico'],
+            rating: 4,
+            reviewCount: 98760,
+            coverEmoji: '🏜️',
+            thumbnail: '',
+            isPlaceholder: true
+        },
+        {
+            id: 'placeholder-7',
+            title: 'The Midnight Library',
+            author: 'Matt Haig',
+            genres: ['Ficción', 'Filosofía'],
+            rating: 4,
+            reviewCount: 54320,
+            coverEmoji: '🌙',
+            thumbnail: '',
+            isPlaceholder: true
+        },
+        {
+            id: 'placeholder-8',
+            title: 'Educated',
+            author: 'Tara Westover',
+            genres: ['Biografía', 'Memoir'],
+            rating: 4,
+            reviewCount: 43210,
+            coverEmoji: '📚',
+            thumbnail: '',
+            isPlaceholder: true
+        }
+    ];
+
     const handleSearch = async (e) => {
         e.preventDefault();
+        performSearch();
+    };
 
-        if (!searchQuery.trim()) {
-            onSearchError && onSearchError('Por favor ingresa un término de búsqueda');
-            return;
-        }
-
+    const performSearch = async () => {
         setIsSearching(true);
         onSearchLoading && onSearchLoading(true);
 
         try {
-            console.log('Searching for:', searchQuery);
-            const response = await bookAPI.searchBooks(searchQuery, {
-                maxResults: 12,
-                orderBy: 'relevance'
-            });
+            let results;
+            let query = searchQuery.trim();
 
-            console.log('Search results:', response);
-            onSearchResults && onSearchResults(response.books, searchQuery);
+            // Si la búsqueda está vacía, mostrar placeholders
+            if (!query) {
+                console.log('Empty search - showing AI placeholder recommendations');
+                results = getPlaceholderBooks();
+                query = ''; // Mantener query vacío para las recomendaciones
+
+                // Simular delay para hacer más realista
+                await new Promise(resolve => setTimeout(resolve, 500));
+            } else {
+                console.log('Searching for:', query);
+                const response = await bookAPI.searchBooks(query, {
+                    maxResults: 12,
+                    orderBy: 'relevance'
+                });
+                results = response.books;
+            }
+
+            console.log('Search results:', results);
+            onSearchResults && onSearchResults(results, query);
             onSearchError && onSearchError(null);
 
-            // Navegar a la página de búsqueda con el query como parámetro
-            navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+            // Navegar a la página de búsqueda
+            if (query) {
+                navigate(`/search?q=${encodeURIComponent(query)}`);
+            } else {
+                navigate('/search?recommendations=true');
+            }
 
         } catch (error) {
             console.error('Search error:', error);
             const errorMessage = handleApiError(error);
             onSearchError && onSearchError(errorMessage);
-            onSearchResults && onSearchResults([], searchQuery);
+            onSearchResults && onSearchResults([], searchQuery || '');
             // Aún así navegar a la página de búsqueda para mostrar el error
-            navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+            if (searchQuery.trim()) {
+                navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+            } else {
+                navigate('/search?recommendations=true');
+            }
         } finally {
             setIsSearching(false);
             onSearchLoading && onSearchLoading(false);
@@ -50,8 +167,13 @@ const Navbar = ({ onSearchResults, onSearchLoading, onSearchError, user, isAuthe
 
     const handleInputKeyPress = (e) => {
         if (e.key === 'Enter') {
-            handleSearch(e);
+            e.preventDefault();
+            performSearch();
         }
+    };
+
+    const handleSearchButtonClick = () => {
+        performSearch();
     };
 
     const handleLogout = async () => {
@@ -80,9 +202,10 @@ const Navbar = ({ onSearchResults, onSearchLoading, onSearchError, user, isAuthe
 
     const handleClearSearch = () => {
         setSearchQuery('');
+        // Limpiar resultados y ir a home
         onSearchResults && onSearchResults([], '');
         onSearchError && onSearchError(null);
-        navigate('/'); // Navegar al home
+        navigate('/');
     };
 
     // Close user menu when clicking outside
@@ -111,7 +234,7 @@ const Navbar = ({ onSearchResults, onSearchLoading, onSearchError, user, isAuthe
                     <input
                         type="text"
                         className="search-input"
-                        placeholder={isSearching ? "Buscando..." : "Busca tu próximo libro favorito..."}
+                        placeholder={isSearching ? "Buscando..." : "Busca libros o deja vacío para recomendaciones..."}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         onKeyPress={handleInputKeyPress}
@@ -127,6 +250,20 @@ const Navbar = ({ onSearchResults, onSearchLoading, onSearchError, user, isAuthe
                             ✕
                         </button>
                     )}
+                    <button
+                        type="submit"
+                        className="search-button"
+                        disabled={isSearching}
+                        title={searchQuery.trim() ? "Buscar libros" : "Ver recomendaciones"}
+                    >
+                        {isSearching ? (
+                            <span className="search-loading">⏳</span>
+                        ) : (
+                            <span className="search-btn-text">
+                                {searchQuery.trim() ? '🔍' : '✨'}
+                            </span>
+                        )}
+                    </button>
                 </form>
 
                 <div className="nav-actions">
@@ -204,6 +341,8 @@ const Navbar = ({ onSearchResults, onSearchLoading, onSearchError, user, isAuthe
             </div>
         </nav>
     );
-};
+});
+
+Navbar.displayName = 'Navbar';
 
 export default Navbar;

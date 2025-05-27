@@ -1,3 +1,5 @@
+// noinspection GrazieInspection
+
 import React, { useState } from 'react';
 import BookCard from '../BookCard/BookCard';
 import FilterBar from '../FilterBar/FilterBar';
