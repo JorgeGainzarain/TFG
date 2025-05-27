@@ -375,6 +375,37 @@
     }
 }
 
+.menu-item {
+    text-decoration: none;
+    color: inherit;
+}
+
+.menu-item:visited {
+    color: inherit;
+}
+
+.menu-item:hover {
+    text-decoration: none;
+}
+
+/* Link del logo */
+.logo {
+    text-decoration: none;
+}
+
+.logo:visited {
+    color: inherit;
+}
+
+/* Enlaces de navegación principal */
+.nav-actions .btn {
+    text-decoration: none;
+}
+
+.nav-actions .btn:visited {
+    color: inherit;
+}
+
 /* Very small screens */
 @media (max-width: 480px) {
     .user-dropdown {

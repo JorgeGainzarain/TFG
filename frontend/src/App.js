@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar/Navbar';
-import Hero from './components/WelcomeMessage/WelcomeMessage';
-import AIRecommendations from './components/AIRecommnedations/AIRecommendations';
-import TrendingBooks from './components/TrendingBooks/TrendingBooks';
-import ReviewsSection from './components/ReviewsSection/ReviewsSection';
-import MobileNavigation from './components/MobileNavigation/MobileNavigation';
-import SearchResults from './components/SearchResults/SearchResults';
+import MobileNavbar from './components/MobileNavbar/MobileNavbar';
 import AuthOverlay from './components/AuthOverlay/AuthOverlay';
+import HomePage from './pages/HomePage';
+import SearchPage from './pages/SearchPage';
+import { LibraryPage, AIRecommendationsPage, ProfilePage, NotFoundPage } from './pages/AdditionalPages';
 import { useAuth } from './hooks/useAuth';
 import { healthCheck } from './services/api';
 import './App.css';
 
-const App = () => {
+// Componente interno que tiene acceso a useLocation
+const AppContent = () => {
     const [isMobile, setIsMobile] = useState(false);
     const [searchResults, setSearchResults] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
@@ -23,6 +23,7 @@ const App = () => {
 
     // Hook de autenticación
     const { user, isAuthenticated, initialized } = useAuth();
+    const location = useLocation();
 
     useEffect(() => {
         const checkIfMobile = () => {
@@ -41,14 +42,14 @@ const App = () => {
 
     // Mostrar prompt de auth después de un tiempo si no está autenticado
     useEffect(() => {
-        if (initialized && !isAuthenticated) {
+        if (initialized && !isAuthenticated && location.pathname === '/') {
             const timer = setTimeout(() => {
                 setShowAuthPrompt(true);
             }, 10000); // Mostrar después de 10 segundos
 
             return () => clearTimeout(timer);
         }
-    }, [initialized, isAuthenticated]);
+    }, [initialized, isAuthenticated, location.pathname]);
 
     const checkApiHealth = async () => {
         try {
@@ -103,8 +104,6 @@ const App = () => {
         setShowAuthPrompt(false);
     };
 
-    const showSearchResults = searchQuery || searchResults.length > 0 || searchError;
-
     // Mostrar loading mientras se inicializa la auth
     if (!initialized) {
         return (
@@ -145,38 +144,97 @@ const App = () => {
                     </div>
                 )}
 
-                {/* Show search results or main content */}
-                {showSearchResults ? (
-                    <SearchResults
-                        results={searchResults}
-                        query={searchQuery}
-                        loading={isSearching}
-                        error={searchError}
-                        onClearSearch={clearSearch}
-                        onRetry={() => {
-                            if (searchQuery) {
-                                console.log('Retry search for:', searchQuery);
-                            }
-                        }}
-                        user={user}
-                        isAuthenticated={isAuthenticated}
-                    />
-                ) : (
-                    <>
-                        <Hero/>
-                        <AIRecommendations
+                {/* Rutas principales */}
+                <Routes>
+                    <Route
+                        path="/"
+                        element={
+                            <HomePage
                                 user={user}
                                 isAuthenticated={isAuthenticated}
                                 onShowAuth={handleShowAuth}
-                        />
-                        <div className="section-spacing"></div>
-                        <TrendingBooks/>
-                        <ReviewsSection/>
-                    </>
-                )}
+                            />
+                        }
+                    />
+                    <Route
+                        path="/search"
+                        element={
+                            <SearchPage
+                                searchResults={searchResults}
+                                searchQuery={searchQuery}
+                                isSearching={isSearching}
+                                searchError={searchError}
+                                onClearSearch={clearSearch}
+                                user={user}
+                                isAuthenticated={isAuthenticated}
+                            />
+                        }
+                    />
+                    <Route
+                        path="/library"
+                        element={
+                            <LibraryPage
+                                user={user}
+                                isAuthenticated={isAuthenticated}
+                                onShowAuth={handleShowAuth}
+                            />
+                        }
+                    />
+                    <Route
+                        path="/ai-recommendations"
+                        element={
+                            <AIRecommendationsPage
+                                user={user}
+                                isAuthenticated={isAuthenticated}
+                                onShowAuth={handleShowAuth}
+                            />
+                        }
+                    />
+                    <Route
+                        path="/profile"
+                        element={
+                            <ProfilePage
+                                user={user}
+                                isAuthenticated={isAuthenticated}
+                                onShowAuth={handleShowAuth}
+                            />
+                        }
+                    />
+                    <Route
+                        path="/favorites"
+                        element={
+                            <LibraryPage
+                                user={user}
+                                isAuthenticated={isAuthenticated}
+                                onShowAuth={handleShowAuth}
+                            />
+                        }
+                    />
+                    <Route
+                        path="/stats"
+                        element={
+                            <ProfilePage
+                                user={user}
+                                isAuthenticated={isAuthenticated}
+                                onShowAuth={handleShowAuth}
+                            />
+                        }
+                    />
+                    <Route
+                        path="/settings"
+                        element={
+                            <ProfilePage
+                                user={user}
+                                isAuthenticated={isAuthenticated}
+                                onShowAuth={handleShowAuth}
+                            />
+                        }
+                    />
+                    <Route path="*" element={<NotFoundPage />} />
+                </Routes>
             </main>
 
-            {isMobile && <MobileNavigation/>}
+            {isMobile && <MobileNavbar />}
 
             {/* Auth Modal */}
             <AuthOverlay
@@ -184,7 +242,71 @@ const App = () => {
                 onClose={handleCloseAuth}
                 onAuthSuccess={handleAuthSuccess}
             />
+
+            {/* Auth Prompt - Solo en home */}
+            {showAuthPrompt && !isAuthenticated && location.pathname === '/' && (
+                <div className="auth-prompt-overlay">
+                    <div className="auth-prompt-backdrop" onClick={handleCloseAuthPrompt}></div>
+                    <div className="auth-prompt-card">
+                        <button className="auth-prompt-close" onClick={handleCloseAuthPrompt}>
+                            ✕
+                        </button>
+                        <div className="auth-prompt-content">
+                            <div className="auth-prompt-icon">📚✨</div>
+                            <h3 className="auth-prompt-title">
+                                ¡Descubre tu próxima lectura favorita!
+                            </h3>
+                            <p className="auth-prompt-description">
+                                Únete a BookHub y accede a recomendaciones personalizadas, tu librería personal y mucho más.
+                            </p>
+
+                            <div className="auth-prompt-features">
+                                <div className="feature">
+                                    <span className="feature-icon">🤖</span>
+                                    <span>Recomendaciones con IA</span>
+                                </div>
+                                <div className="feature">
+                                    <span className="feature-icon">📚</span>
+                                    <span>Librería personal</span>
+                                </div>
+                                <div className="feature">
+                                    <span className="feature-icon">⭐</span>
+                                    <span>Sistema de favoritos</span>
+                                </div>
+                            </div>
+
+                            <div className="auth-prompt-actions">
+                                <button
+                                    className="auth-prompt-btn primary"
+                                    onClick={handleShowAuth}
+                                >
+                                    🚀 Crear cuenta gratis
+                                </button>
+                                <button
+                                    className="auth-prompt-btn secondary"
+                                    onClick={handleShowAuth}
+                                >
+                                    🔑 Iniciar sesión
+                                </button>
+                            </div>
+
+                            <p className="auth-prompt-note">
+                                ⏱️ Solo toma 30 segundos • 🔒 100% seguro
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
+    );
+};
+
+// Componente principal que envuelve todo con Router
+const App = () => {
+    return (
+        <Router>
+            <AppContent />
+        </Router>
     );
 };
 

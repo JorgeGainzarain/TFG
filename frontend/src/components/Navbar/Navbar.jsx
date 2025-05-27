@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { bookAPI, handleApiError } from '../../services/api';
 import { logout } from '../../services/authService';
 import './Navbar.css';
@@ -7,6 +8,7 @@ const Navbar = ({ onSearchResults, onSearchLoading, onSearchError, user, isAuthe
     const [searchQuery, setSearchQuery] = useState('');
     const [isSearching, setIsSearching] = useState(false);
     const [showUserMenu, setShowUserMenu] = useState(false);
+    const navigate = useNavigate();
 
     const handleSearch = async (e) => {
         e.preventDefault();
@@ -30,11 +32,16 @@ const Navbar = ({ onSearchResults, onSearchLoading, onSearchError, user, isAuthe
             onSearchResults && onSearchResults(response.books, searchQuery);
             onSearchError && onSearchError(null);
 
+            // Navegar a la página de búsqueda con el query como parámetro
+            navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+
         } catch (error) {
             console.error('Search error:', error);
             const errorMessage = handleApiError(error);
             onSearchError && onSearchError(errorMessage);
             onSearchResults && onSearchResults([], searchQuery);
+            // Aún así navegar a la página de búsqueda para mostrar el error
+            navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
         } finally {
             setIsSearching(false);
             onSearchLoading && onSearchLoading(false);
@@ -51,8 +58,8 @@ const Navbar = ({ onSearchResults, onSearchLoading, onSearchError, user, isAuthe
         try {
             await logout();
             setShowUserMenu(false);
-            alert('¡Hasta luego! Has cerrado sesión exitosamente.'); // Cambiar mas adelante
-            window.location.reload(); // Recargar la página para reflejar el cambio
+            alert('¡Hasta luego! Has cerrado sesión exitosamente.');
+            navigate('/'); // Navegar al home después del logout
         } catch (error) {
             console.error('Logout error:', error);
         }
@@ -71,6 +78,13 @@ const Navbar = ({ onSearchResults, onSearchLoading, onSearchError, user, isAuthe
             .slice(0, 2);
     };
 
+    const handleClearSearch = () => {
+        setSearchQuery('');
+        onSearchResults && onSearchResults([], '');
+        onSearchError && onSearchError(null);
+        navigate('/'); // Navegar al home
+    };
+
     // Close user menu when clicking outside
     React.useEffect(() => {
         const handleClickOutside = (event) => {
@@ -86,9 +100,9 @@ const Navbar = ({ onSearchResults, onSearchLoading, onSearchError, user, isAuthe
     return (
         <nav className="navbar">
             <div className="nav-container">
-                <a href="#" className="logo" onClick={() => window.location.reload()}>
+                <Link to="/" className="logo">
                     📚 BookHub
-                </a>
+                </Link>
 
                 <form className="search-container" onSubmit={handleSearch}>
                     <div className="search-icon">
@@ -107,19 +121,16 @@ const Navbar = ({ onSearchResults, onSearchLoading, onSearchError, user, isAuthe
                         <button
                             type="button"
                             className="clear-search"
-                            onClick={() => {
-                                setSearchQuery('');
-                                onSearchResults && onSearchResults([], '');
-                                onSearchError && onSearchError(null);
-                            }}
+                            onClick={handleClearSearch}
                             title="Limpiar búsqueda"
                         >
                             ✕
                         </button>
                     )}
                 </form>
+
                 <div className="nav-actions">
-                    <a href="#" className="btn btn-ghost">Librería</a>
+                    <Link to="/library" className="btn btn-ghost">Librería</Link>
                     {isAuthenticated && user ? (
                         <div className="user-menu-container">
                             <button
@@ -134,8 +145,8 @@ const Navbar = ({ onSearchResults, onSearchLoading, onSearchError, user, isAuthe
                                     <span className="user-status">✨ Premium</span>
                                 </div>
                                 <span className="menu-arrow">
-                    {showUserMenu ? '▲' : '▼'}
-                </span>
+                                    {showUserMenu ? '▲' : '▼'}
+                                </span>
                             </button>
 
                             {showUserMenu && (
@@ -151,22 +162,22 @@ const Navbar = ({ onSearchResults, onSearchLoading, onSearchError, user, isAuthe
                                     </div>
 
                                     <div className="user-dropdown-menu">
-                                        <button className="menu-item">
+                                        <Link to="/library" className="menu-item">
                                             <span className="menu-icon">📚</span>
                                             Mi Librería
-                                        </button>
-                                        <button className="menu-item">
+                                        </Link>
+                                        <Link to="/favorites" className="menu-item">
                                             <span className="menu-icon">⭐</span>
                                             Favoritos
-                                        </button>
-                                        <button className="menu-item">
+                                        </Link>
+                                        <Link to="/stats" className="menu-item">
                                             <span className="menu-icon">📊</span>
                                             Estadísticas
-                                        </button>
-                                        <button className="menu-item">
+                                        </Link>
+                                        <Link to="/settings" className="menu-item">
                                             <span className="menu-icon">⚙️</span>
                                             Configuración
-                                        </button>
+                                        </Link>
 
                                         <div className="menu-divider"></div>
 

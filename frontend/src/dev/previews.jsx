@@ -7,6 +7,7 @@ import AIRecommendations from "../components/AIRecommnedations/AIRecommendations
 import SearchPage from "../components/SearchPage/SearchPage";
 import AuthOverlay from "../components/AuthOverlay/AuthOverlay";
 import HorizontalBookCard from "../components/HorizontalBookCard/HorizontalBookCard";
+import MobileNavbar from "../components/MobileNavbar/MobileNavbar";
 
 const ComponentPreviews = () => {
     return (
@@ -31,6 +32,9 @@ const ComponentPreviews = () => {
             </ComponentPreview>
             <ComponentPreview path="/HorizontalBookCard">
                 <HorizontalBookCard/>
+            </ComponentPreview>
+            <ComponentPreview path="/MobileNavigation">
+                <MobileNavbar/>
             </ComponentPreview>
         </Previews>
     )
