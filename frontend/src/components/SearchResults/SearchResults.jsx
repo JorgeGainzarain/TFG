@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import BookCard from '../BookCard/BookCard';
+import HorizontalBookCard from '../HorizontalBookCard/HorizontalBookCard';
 import FilterBar from '../FilterBar/FilterBar';
 import './SearchResults.css';
 
@@ -213,7 +213,6 @@ const SearchResults = ({
                                 ` para "${query}"`
                             }
                         </p>
-                        {/* Solo mostrar botón limpiar si NO son recomendaciones */}
                         {!isPlaceholderResults && !isRecommendations && query && (
                             <button className="clear-search-btn" onClick={onClearSearch}>
                                 ✕ Limpiar búsqueda
@@ -249,7 +248,7 @@ const SearchResults = ({
                 <>
                     <div className="results-grid">
                         {filteredResults.map((book) => (
-                            <BookCard
+                            <HorizontalBookCard
                                 key={book.id}
                                 title={book.title}
                                 author={book.author}

@@ -17,8 +17,6 @@
 
 .search-header {
     margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--border-glass);
 }
 
 .search-info {
@@ -129,11 +127,11 @@
     margin: 0;
 }
 
-/* Results Grid */
+/* Results Grid - CAMBIO PRINCIPAL: Una columna */
 .results-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
     margin: 2rem 0 3rem 0;
 }
 
@@ -437,7 +435,6 @@
     }
 
     .results-grid {
-        grid-template-columns: 1fr;
         gap: 1rem;
         margin: 1.5rem 0 2rem 0;
     }

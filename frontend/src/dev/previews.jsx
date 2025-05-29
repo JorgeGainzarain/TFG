@@ -8,6 +8,9 @@ import SearchPage from "../components/SearchPage/SearchPage";
 import AuthOverlay from "../components/AuthOverlay/AuthOverlay";
 import HorizontalBookCard from "../components/HorizontalBookCard/HorizontalBookCard";
 import MobileNavbar from "../components/MobileNavbar/MobileNavbar";
+import BookCard from "../components/BookCard/BookCard";
+import SearchResults from "../components/SearchResults/SearchResults";
+import HomePage from "../pages/HomePage";
 
 const ComponentPreviews = () => {
     return (
@@ -35,6 +38,15 @@ const ComponentPreviews = () => {
             </ComponentPreview>
             <ComponentPreview path="/MobileNavigation">
                 <MobileNavbar/>
+            </ComponentPreview>
+            <ComponentPreview path="/BookCard">
+                <BookCard/>
+            </ComponentPreview>
+            <ComponentPreview path="/SearchResults">
+                <SearchResults/>
+            </ComponentPreview>
+            <ComponentPreview path="/HomePage">
+                <HomePage/>
             </ComponentPreview>
         </Previews>
     )

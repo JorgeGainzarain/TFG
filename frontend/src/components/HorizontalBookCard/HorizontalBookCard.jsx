@@ -7,7 +7,7 @@ const HorizontalBookCard = ({
                                 genres = [],
                                 rating,
                                 reviewCount,
-                                coverEmoji,
+                                thumbnail, // Real cover image
                                 description,
                                 onAddToLibrary
                             }) => {
@@ -16,8 +16,8 @@ const HorizontalBookCard = ({
         for (let i = 1; i <= 5; i++) {
             stars.push(
                 <span key={i} className="star">
-          {i <= rating ? '★' : '☆'}
-        </span>
+                    {i <= rating ? '★' : '☆'}
+                </span>
             );
         }
         return stars;
@@ -29,14 +29,14 @@ const HorizontalBookCard = ({
         }
     };
 
-    // Generar una descripción por defecto si no se proporciona
+    // Generate a default description if none is provided
     const getDefaultDescription = () => {
         const descriptions = [
-            "Una obra cautivadora que te mantendrá enganchado desde la primera página hasta la última.",
-            "Un libro extraordinario que combina una narrativa envolvente con personajes memorables.",
-            "Una lectura imprescindible que ofrece una perspectiva única y transformadora.",
-            "Una historia fascinante que explora temas profundos con maestría y sensibilidad.",
-            "Un relato poderoso que desafía las convenciones y ofrece nuevas perspectivas."
+            "A captivating work that will keep you hooked from the first page to the last.",
+            "An extraordinary book that combines immersive storytelling with memorable characters.",
+            "A must-read offering a unique and transformative perspective.",
+            "A fascinating story exploring deep themes with mastery and sensitivity.",
+            "A powerful tale that challenges conventions and offers new insights."
         ];
         return descriptions[Math.floor(Math.random() * descriptions.length)];
     };
@@ -44,14 +44,18 @@ const HorizontalBookCard = ({
     return (
         <div className="horizontal-book-card glass">
             <div className="book-cover-horizontal">
-                {coverEmoji}
+                {thumbnail ? (
+                    <img src={thumbnail} alt={`${title} cover`} className="book-thumbnail" />
+                ) : (
+                    <div className="placeholder-cover">No Cover</div>
+                )}
             </div>
 
             <div className="book-content">
                 <div className="book-main-info">
                     <div className="book-header">
                         <h3 className="book-title">{title}</h3>
-                        <p className="book-author">por {author}</p>
+                        <p className="book-author">by {author}</p>
                     </div>
 
                     <div className="book-description">
@@ -73,13 +77,13 @@ const HorizontalBookCard = ({
                             {renderStars(rating)}
                         </div>
                         <span className="rating-text">
-                            {rating} ({reviewCount?.toLocaleString()} reseñas)
+                            {rating} ({reviewCount?.toLocaleString()} reviews)
                         </span>
                     </div>
 
                     <button className="add-btn-horizontal" onClick={handleAddClick}>
                         <span className="add-icon">+</span>
-                        Añadir a librería
+                        Add to Library
                     </button>
                 </div>
             </div>

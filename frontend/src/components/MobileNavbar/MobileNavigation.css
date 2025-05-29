@@ -3,13 +3,13 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background: rgba(15, 15, 35, 0.95);
+    background: var(--navbar-bg);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     padding: 1rem;
     border-top: 1px solid var(--border-glass);
     z-index: 1000;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 -4px 20px var(--shadow-glass);
 }
 
 .mobile-nav-items {
@@ -40,7 +40,7 @@
 .mobile-nav-item.active,
 .mobile-nav-item:hover {
     color: var(--text-primary);
-    background: rgba(102, 126, 234, 0.1);
+    background: rgba(102, 126, 234, 0.1); /* Optional: Replace with a new variable if needed */
 }
 
 .mobile-nav-item.active {
@@ -57,7 +57,7 @@
     height: 4px;
     background: var(--primary-gradient);
     border-radius: 50px;
-    box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+    box-shadow: 0 0 10px var(--shadow-primary);
 }
 
 .nav-icon {

@@ -382,7 +382,7 @@
     .search-container {
         margin: 0;
         max-width: none;
-        width: 100%;
+        width: 100%; /* Make the search bar take full width */
     }
 
     .nav-actions {
@@ -390,14 +390,11 @@
     }
 
     .logo {
-        font-size: 1.3rem;
+        display: none; /* Hide the logo in mobile mode */
     }
 
-    /* Show simplified user menu on mobile */
     .nav-actions {
-        display: flex;
-        width: 100%;
-        justify-content: center;
+        display: none; /* Hide navigation actions */
     }
 
     .user-menu-trigger {
