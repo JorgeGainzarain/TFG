@@ -1,3 +1,5 @@
+/* TrendingBooks.css con funcionalidad de drag */
+
 .trending-section {
     background: var(--section-bg);
     border: 1px solid var(--section-border);
@@ -35,8 +37,173 @@
     }
 }
 
-/* Efectos específicos para libros en tendencia */
+/* Container para scroll horizontal con drag */
+.cards-grid-horizontal {
+    display: flex;
+    gap: 1.5rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 1rem 0;
+    margin: 0;
+    scroll-behavior: smooth;
+    cursor: grab;
+    user-select: none; /* Previene selección de texto durante drag */
+    /* Ocultar scrollbar pero mantener funcionalidad */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
 
+    /* Smooth momentum scrolling en iOS */
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Estado durante drag */
+.cards-grid-horizontal.dragging {
+    cursor: grabbing;
+    scroll-behavior: auto; /* Deshabilitar smooth scroll durante drag */
+}
+
+.cards-grid-horizontal.dragging * {
+    pointer-events: none; /* Prevenir clicks durante drag */
+}
+
+/* Webkit scrollbar styling */
+.cards-grid-horizontal::-webkit-scrollbar {
+    height: 8px;
+}
+
+.cards-grid-horizontal::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.cards-grid-horizontal::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+
+.cards-grid-horizontal::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* Book cards en modo horizontal */
+.cards-grid-horizontal .book-card {
+    min-width: 280px; /* Ancho mínimo fijo para cada card */
+    width: 280px; /* Ancho fijo */
+    flex-shrink: 0; /* Evita que se encojan */
+    border-radius: 16px;
+    padding: 20px;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    /* Mejorar rendimiento durante animaciones */
+    will-change: transform;
+}
+
+/* Hover effect mejorado para scroll horizontal */
+.cards-grid-horizontal .book-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(102, 126, 234, 0.25);
+}
+
+/* Prevenir hover durante drag */
+.cards-grid-horizontal.dragging .book-card:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* Indicador visual de scroll */
+.scroll-indicator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.scroll-hint {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    animation: fadeInOut 4s infinite;
+    transition: opacity 0.3s ease;
+}
+
+@keyframes fadeInOut {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+/* Ocultar hint durante drag */
+.cards-grid-horizontal.dragging ~ .scroll-indicator .scroll-hint {
+    opacity: 0.3;
+}
+
+/* Botones de navegación */
+.scroll-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    margin: 1rem 0;
+}
+
+.scroll-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--bg-card);
+    border: 1px solid var(--border-glass);
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(16px);
+    z-index: 10;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    font-size: 1.1rem;
+    font-weight: 600;
+
+    /* Aparecer/desaparecer suavemente */
+    opacity: 0;
+    visibility: hidden;
+    animation: buttonFadeIn 0.3s ease forwards;
+}
+
+@keyframes buttonFadeIn {
+    to {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+.scroll-btn:hover {
+    background: var(--bg-card-hover);
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+}
+
+.scroll-btn:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+.scroll-btn.prev {
+    left: -22px;
+}
+
+.scroll-btn.next {
+    right: -22px;
+}
+
+/* Efectos específicos para libros en tendencia */
 @keyframes flicker {
     0% { opacity: 0.7; }
     100% { opacity: 1; }
@@ -45,6 +212,8 @@
 .trending-footer {
     margin-top: 2rem;
     border-top: 1px solid var(--border-glass);
+    padding-top: 1rem;
+    text-align: center;
 }
 
 /* Mobile Responsive */
@@ -60,4 +229,93 @@
         padding: 0.4rem 0.8rem;
     }
 
+    /* En móvil, mantener scroll horizontal pero ajustar tamaños */
+    .cards-grid-horizontal {
+        gap: 1rem;
+        padding: 0.5rem 0;
+        /* Mejor scroll en móvil */
+        scroll-snap-type: x mandatory;
+    }
+
+    .cards-grid-horizontal .book-card {
+        min-width: 240px;
+        width: 240px;
+        scroll-snap-align: start;
+    }
+
+    .scroll-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+
+    .scroll-btn.prev {
+        left: -20px;
+    }
+
+    .scroll-btn.next {
+        right: -20px;
+    }
+
+    /* Mostrar hint de scroll en móvil */
+    .scroll-indicator {
+        margin-top: 0.5rem;
+    }
+
+    .scroll-hint {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .cards-grid-horizontal .book-card {
+        min-width: 200px;
+        width: 200px;
+    }
+
+    .cards-grid-horizontal {
+        gap: 0.75rem;
+    }
+
+    .scroll-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 0.9rem;
+    }
+
+    .scroll-btn.prev {
+        left: -18px;
+    }
+
+    .scroll-btn.next {
+        right: -18px;
+    }
+}
+
+/* Mejoras para accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+    .cards-grid-horizontal {
+        scroll-behavior: auto;
+    }
+
+    .scroll-btn,
+    .book-card {
+        transition: none;
+    }
+
+    .scroll-hint {
+        animation: none;
+        opacity: 0.7;
+    }
+}
+
+/* Focus states para navegación con teclado */
+.scroll-btn:focus {
+    outline: 2px solid var(--primary-gradient);
+    outline-offset: 2px;
+}
+
+.cards-grid-horizontal:focus {
+    outline: 2px solid var(--primary-gradient);
+    outline-offset: 2px;
 }
