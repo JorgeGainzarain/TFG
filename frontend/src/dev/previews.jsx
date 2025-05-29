@@ -11,6 +11,7 @@ import MobileNavbar from "../components/MobileNavbar/MobileNavbar";
 import BookCard from "../components/BookCard/BookCard";
 import SearchResults from "../components/SearchResults/SearchResults";
 import HomePage from "../pages/HomePage";
+import ReviewsSection from "../components/ReviewsSection/ReviewsSection";
 
 const ComponentPreviews = () => {
     return (
@@ -47,6 +48,9 @@ const ComponentPreviews = () => {
             </ComponentPreview>
             <ComponentPreview path="/HomePage">
                 <HomePage/>
+            </ComponentPreview>
+            <ComponentPreview path="/ReviewsSection">
+                <ReviewsSection/>
             </ComponentPreview>
         </Previews>
     )

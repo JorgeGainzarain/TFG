@@ -263,23 +263,11 @@ const SearchResults = ({
                         ))}
                     </div>
 
-                    {results.length > 0 && !isPlaceholderResults && !isRecommendations && (
+                    {results.length > 0 && (
                         <div className="search-actions">
                             <button className="load-more-btn disabled">
                                 📚 Cargar más resultados (próximamente)
                             </button>
-                        </div>
-                    )}
-
-                    {(isPlaceholderResults || isRecommendations) && (
-                        <div className="ai-footer">
-                            <div className="ai-footer-content">
-                                <h4>🎯 ¿Quieres recomendaciones más precisas?</h4>
-                                <p>Crea una cuenta para obtener sugerencias basadas en tus gustos de lectura y historial.</p>
-                                <button className="upgrade-ai-btn">
-                                    ✨ Mejorar recomendaciones
-                                </button>
-                            </div>
                         </div>
                     )}
                 </>

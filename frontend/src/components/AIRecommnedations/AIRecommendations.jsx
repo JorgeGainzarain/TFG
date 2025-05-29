@@ -1,11 +1,12 @@
 // noinspection GrazieInspection
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import BookCard from '../BookCard/BookCard';
 import FilterBar from '../FilterBar/FilterBar';
 import './AIRecommendations.css';
 
 const AIRecommendations = ({ user, isAuthenticated, onShowAuth }) => {
+    const scrollContainerRef = useRef(null);
     const [filters, setFilters] = useState({
         genre: '',
         year: '',
@@ -13,6 +14,13 @@ const AIRecommendations = ({ user, isAuthenticated, onShowAuth }) => {
     });
     const [showAuthPrompt, setShowAuthPrompt] = useState(false);
     const [showAllBooks, setShowAllBooks] = useState(false);
+
+    // Drag scroll state
+    const [isDragging, setIsDragging] = useState(false);
+    const [startX, setStartX] = useState(0);
+    const [scrollLeft, setScrollLeft] = useState(0);
+    const [showLeftButton, setShowLeftButton] = useState(false);
+    const [showRightButton, setShowRightButton] = useState(true);
 
     // Mostrar popup después de un delay si no está autenticado
     React.useEffect(() => {
@@ -137,6 +145,32 @@ const AIRecommendations = ({ user, isAuthenticated, onShowAuth }) => {
         }
     ];
 
+    // Función para actualizar la visibilidad de los botones
+    const updateButtonVisibility = () => {
+        if (scrollContainerRef.current) {
+            const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+            setShowLeftButton(scrollLeft > 0);
+            setShowRightButton(scrollLeft < scrollWidth - clientWidth - 1);
+        }
+    };
+
+    // Effect para monitorear el scroll y actualizar botones
+    useEffect(() => {
+        const container = scrollContainerRef.current;
+        if (container) {
+            updateButtonVisibility();
+            container.addEventListener('scroll', updateButtonVisibility);
+
+            // También actualizar en resize
+            window.addEventListener('resize', updateButtonVisibility);
+
+            return () => {
+                container.removeEventListener('scroll', updateButtonVisibility);
+                window.removeEventListener('resize', updateButtonVisibility);
+            };
+        }
+    }, []);
+
     // Filtrar y ordenar libros basado en los filtros
     const getFilteredBooks = () => {
         let filtered = [...allPlaceholderBooks];
@@ -201,7 +235,7 @@ const AIRecommendations = ({ user, isAuthenticated, onShowAuth }) => {
                 break;
         }
 
-        return filtered.slice(0, showAllBooks ? 8 : 4); // Mostrar 4 o todos
+        return filtered; // Mostrar todos los libros en scroll horizontal
     };
 
     const filteredBooks = getFilteredBooks();
@@ -239,6 +273,83 @@ const AIRecommendations = ({ user, isAuthenticated, onShowAuth }) => {
         onShowAuth(); // Abre modal principal
     };
 
+    // DRAG SCROLL FUNCTIONALITY
+
+    // Función para scroll hacia la izquierda
+    const scrollLeftBtn = () => {
+        if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollBy({
+                left: -300,
+                behavior: 'smooth'
+            });
+        }
+    };
+
+    // Función para scroll hacia la derecha
+    const scrollRightBtn = () => {
+        if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollBy({
+                left: 300,
+                behavior: 'smooth'
+            });
+        }
+    };
+
+    // Mouse events
+    const handleMouseDown = (e) => {
+        setIsDragging(true);
+        setStartX(e.pageX - scrollContainerRef.current.offsetLeft);
+        setScrollLeft(scrollContainerRef.current.scrollLeft);
+        scrollContainerRef.current.style.cursor = 'grabbing';
+        scrollContainerRef.current.style.userSelect = 'none';
+    };
+
+    const handleMouseUp = () => {
+        setIsDragging(false);
+        scrollContainerRef.current.style.cursor = 'grab';
+        scrollContainerRef.current.style.userSelect = 'auto';
+    };
+
+    const handleMouseMove = (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+        const x = e.pageX - scrollContainerRef.current.offsetLeft;
+        const walk = (x - startX) * 2; // Multiplica por 2 para mayor sensibilidad
+        scrollContainerRef.current.scrollLeft = scrollLeft - walk;
+    };
+
+    const handleMouseLeave = () => {
+        setIsDragging(false);
+        scrollContainerRef.current.style.cursor = 'grab';
+        scrollContainerRef.current.style.userSelect = 'auto';
+    };
+
+    // Touch events para móvil
+    const handleTouchStart = (e) => {
+        setIsDragging(true);
+        setStartX(e.touches[0].pageX - scrollContainerRef.current.offsetLeft);
+        setScrollLeft(scrollContainerRef.current.scrollLeft);
+    };
+
+    const handleTouchMove = (e) => {
+        if (!isDragging) return;
+        const x = e.touches[0].pageX - scrollContainerRef.current.offsetLeft;
+        const walk = (x - startX) * 1.5; // Sensibilidad para touch
+        scrollContainerRef.current.scrollLeft = scrollLeft - walk;
+    };
+
+    const handleTouchEnd = () => {
+        setIsDragging(false);
+    };
+
+    // Prevenir click en cards cuando se está arrastrando
+    const handleCardClick = (e) => {
+        if (isDragging) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    };
+
     return (
         <section className="ai-section">
             <div className="ai-header">
@@ -268,43 +379,56 @@ const AIRecommendations = ({ user, isAuthenticated, onShowAuth }) => {
                         </p>
                     </div>
 
-                    <div className="cards-grid">
-                        {filteredBooks.map((book) => (
-                            <BookCard
-                                key={book.id}
-                                title={book.title}
-                                author={book.author}
-                                genres={book.genres}
-                                rating={book.rating}
-                                reviewCount={book.reviewCount}
-                                coverEmoji={book.coverEmoji}
-                                thumbnail={book.thumbnail}
-                                onAddToLibrary={handleAddToLibrary}
-                            />
-                        ))}
+                    {/* Container con scroll horizontal y drag */}
+                    <div className="scroll-navigation">
+                        {showLeftButton && (
+                            <button
+                                className="scroll-btn prev"
+                                onClick={scrollLeftBtn}
+                                title="Ver anteriores"
+                            >
+                                ←
+                            </button>
+                        )}
+
+                        <div
+                            className={`cards-grid-horizontal ${isDragging ? 'dragging' : ''}`}
+                            ref={scrollContainerRef}
+                            onMouseDown={handleMouseDown}
+                            onMouseUp={handleMouseUp}
+                            onMouseMove={handleMouseMove}
+                            onMouseLeave={handleMouseLeave}
+                            onTouchStart={handleTouchStart}
+                            onTouchMove={handleTouchMove}
+                            onTouchEnd={handleTouchEnd}
+                            style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+                        >
+                            {filteredBooks.map((book) => (
+                                <div key={book.id} onClick={handleCardClick}>
+                                    <BookCard
+                                        title={book.title}
+                                        author={book.author}
+                                        genres={book.genres}
+                                        rating={book.rating}
+                                        reviewCount={book.reviewCount}
+                                        coverEmoji={book.coverEmoji}
+                                        thumbnail={book.thumbnail}
+                                        onAddToLibrary={handleAddToLibrary}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+
+                        {showRightButton && (
+                            <button
+                                className="scroll-btn next"
+                                onClick={scrollRightBtn}
+                                title="Ver siguientes"
+                            >
+                                →
+                            </button>
+                        )}
                     </div>
-
-                    {!showAllBooks && filteredBooks.length >= 4 && (
-                        <div className="show-more-container">
-                            <button
-                                className="show-more-btn"
-                                onClick={() => setShowAllBooks(true)}
-                            >
-                                📚 Ver todas las recomendaciones ({getFilteredBooks().length - 4} más)
-                            </button>
-                        </div>
-                    )}
-
-                    {showAllBooks && (
-                        <div className="show-less-container">
-                            <button
-                                className="show-less-btn"
-                                onClick={() => setShowAllBooks(false)}
-                            >
-                                📖 Ver menos recomendaciones
-                            </button>
-                        </div>
-                    )}
                 </>
             ) : (
                 <div className="empty-state">
@@ -325,7 +449,6 @@ const AIRecommendations = ({ user, isAuthenticated, onShowAuth }) => {
             {showAuthPrompt && !isAuthenticated && (
                 <div className="ai-auth-popup">
                     <div className="ai-auth-card">
-
                         <div className="ai-auth-content">
                             <div className="ai-auth-icon">🤖✨</div>
                             <h3 className="ai-auth-title">

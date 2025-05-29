@@ -111,7 +111,7 @@
     font-size: 0.9rem;
     font-style: italic;
     text-align: right;
-    flex: 1;
+    margin-left: auto;
 }
 
 /* Mobile Responsive */
@@ -149,7 +149,7 @@
     }
 
     .book-title {
-        text-align: left;
+        text-align: end;
         align-self: flex-end;
     }
 }
