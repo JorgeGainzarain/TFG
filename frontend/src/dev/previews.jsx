@@ -12,6 +12,7 @@ import BookCard from "../components/BookCard/BookCard";
 import SearchResults from "../components/SearchResults/SearchResults";
 import HomePage from "../pages/HomePage";
 import ReviewsSection from "../components/ReviewsSection/ReviewsSection";
+import BookDetails from "../components/BookDetails/BookDetails";
 
 const ComponentPreviews = () => {
     return (
@@ -51,6 +52,9 @@ const ComponentPreviews = () => {
             </ComponentPreview>
             <ComponentPreview path="/ReviewsSection">
                 <ReviewsSection/>
+            </ComponentPreview>
+            <ComponentPreview path="/BookDetails">
+                <BookDetails/>
             </ComponentPreview>
         </Previews>
     )

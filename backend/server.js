@@ -503,7 +503,12 @@ app.get("/api/books/search", async (req, res) => {
         console.log(`Searching books: ${q}`);
         const response = await makeGoogleBooksRequest(apiUrl);
 
+        console.log("Response: ", response.data.items);
+
         const books = response.data.items ? response.data.items.map(formatBookData) : [];
+
+       // console.log("Books found:", books.length);
+        //console.log("Books:", books);
 
         res.json({
             books,

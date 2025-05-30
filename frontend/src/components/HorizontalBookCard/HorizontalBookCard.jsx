@@ -7,7 +7,7 @@ const HorizontalBookCard = ({
                                 genres = [],
                                 rating,
                                 reviewCount,
-                                thumbnail, // Real cover image
+                                thumbnail,
                                 description,
                                 onAddToLibrary
                             }) => {
