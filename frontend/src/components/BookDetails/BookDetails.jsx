@@ -5,6 +5,7 @@ import './BookDetails.css';
 
 const BookDetails = ({ book, user, isAuthenticated, onShowAuth, onGoBack }) => {
     const [addingToLibrary, setAddingToLibrary] = useState(false);
+    const [imageError, setImageError] = useState(false);
 
     // Datos de ejemplo si no se pasa libro (para testing)
     const defaultBook = {
@@ -26,6 +27,56 @@ const BookDetails = ({ book, user, isAuthenticated, onShowAuth, onGoBack }) => {
 
     // Usar el libro pasado como prop o el por defecto
     const currentBook = book || defaultBook;
+
+    // Better cover image handling - try multiple possible property names
+    const getCoverImage = (book) => {
+        console.log('Getting cover image for book:', book);
+
+        // Try different possible property names for the cover image
+        const possibleImages = [
+            // Direct properties (formatted by server)
+            book.thumbnail,
+            book.cover,
+            book.coverImage,
+            book.image,
+
+            // Google Books API format (if passed directly)
+            book.volumeInfo?.imageLinks?.thumbnail,
+            book.volumeInfo?.imageLinks?.smallThumbnail,
+            book.volumeInfo?.imageLinks?.medium,
+            book.volumeInfo?.imageLinks?.large,
+
+            // Nested imageLinks (if formatted differently)
+            book.imageLinks?.thumbnail,
+            book.imageLinks?.smallThumbnail,
+            book.imageLinks?.medium,
+            book.imageLinks?.large,
+
+            // Sometimes the whole imageLinks object is passed as thumbnail
+            typeof book.thumbnail === 'object' ? book.thumbnail?.thumbnail : null,
+            typeof book.thumbnail === 'object' ? book.thumbnail?.smallThumbnail : null
+        ];
+
+        // Log all possible images for debugging
+        console.log('Possible images found:', possibleImages.filter(Boolean));
+
+        // Return the first valid image URL found
+        for (const img of possibleImages) {
+            if (img && typeof img === 'string' && img.trim() !== '') {
+                // Enhance quality and ensure HTTPS
+                let enhancedUrl = img
+                    .replace('zoom=1', 'zoom=2')
+                    .replace('http://', 'https://');
+                console.log('Using cover image URL:', enhancedUrl);
+                return enhancedUrl;
+            }
+        }
+
+        console.log('No valid cover image found, using fallback emoji');
+        return null;
+    };
+
+    const coverImageUrl = getCoverImage(currentBook);
 
     const renderStars = (rating) => {
         const stars = [];
@@ -78,6 +129,11 @@ const BookDetails = ({ book, user, isAuthenticated, onShowAuth, onGoBack }) => {
         }
     };
 
+    const handleImageError = () => {
+        console.log('Image failed to load:', coverImageUrl);
+        setImageError(true);
+    };
+
     const formatDate = (dateString) => {
         if (!dateString) return 'Desconocido';
         return new Date(dateString).getFullYear();
@@ -101,6 +157,11 @@ const BookDetails = ({ book, user, isAuthenticated, onShowAuth, onGoBack }) => {
         return cleaned.length > 1000 ? cleaned.slice(0, 1000) + '...' : cleaned;
     };
 
+    // Debug logging
+    console.log('BookDetails - Current book:', currentBook);
+    console.log('BookDetails - Cover image URL:', coverImageUrl);
+    console.log('BookDetails - Image error:', imageError);
+
     return (
         <div className="book-details">
             {/* Header con botón de regreso */}
@@ -119,22 +180,18 @@ const BookDetails = ({ book, user, isAuthenticated, onShowAuth, onGoBack }) => {
                     {/* Portada del libro */}
                     <div className="book-cover-section">
                         <div className="book-cover-large">
-                            {currentBook.thumbnail ? (
+                            {coverImageUrl && !imageError ? (
                                 <img
-                                    src={currentBook.thumbnail.replace('zoom=1', 'zoom=2')}
+                                    src={coverImageUrl}
                                     alt={`Portada de ${currentBook.title}`}
-                                    onError={(e) => {
-                                        e.target.style.display = 'none';
-                                        e.target.nextSibling.style.display = 'flex';
-                                    }}
+                                    onError={handleImageError}
+                                    onLoad={() => console.log('Image loaded successfully:', coverImageUrl)}
                                 />
-                            ) : null}
-                            <div
-                                className="cover-emoji-fallback"
-                                style={{ display: currentBook.thumbnail ? 'none' : 'flex' }}
-                            >
-                                {currentBook.coverEmoji || '📖'}
-                            </div>
+                            ) : (
+                                <div className="cover-emoji-fallback">
+                                    {currentBook.coverEmoji || '📖'}
+                                </div>
+                            )}
                         </div>
                     </div>
 

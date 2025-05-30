@@ -65,7 +65,6 @@
     margin: 0;
 }
 
-/* NUEVO: Container para scroll horizontal con drag */
 .cards-grid-horizontal {
     display: flex;
     gap: 1.5rem;
@@ -79,6 +78,7 @@
     /* Ocultar scrollbar pero mantener funcionalidad */
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+    height: 100%;
 
     /* Smooth momentum scrolling en iOS */
     -webkit-overflow-scrolling: touch;
@@ -125,8 +125,11 @@
     cursor: pointer;
     position: relative;
     overflow: hidden;
-    /* Mejorar rendimiento durante animaciones */
     will-change: transform;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 /* Hover effect mejorado para scroll horizontal */

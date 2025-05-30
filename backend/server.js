@@ -398,7 +398,29 @@ const formatBookData = (book) => {
     const volumeInfo = book.volumeInfo || {};
     const imageLinks = volumeInfo.imageLinks || {};
 
-    return {
+    // Enhanced image URL extraction with better fallbacks
+    const getThumbnailUrl = (imageLinks) => {
+        const possibleUrls = [
+            imageLinks.thumbnail,
+            imageLinks.smallThumbnail,
+            imageLinks.medium,
+            imageLinks.large,
+            imageLinks.extraLarge
+        ];
+
+        for (const url of possibleUrls) {
+            if (url && typeof url === 'string' && url.trim() !== '') {
+                // Enhance image quality and ensure HTTPS
+                return url
+                    .replace('zoom=1', 'zoom=2')
+                    .replace('http://', 'https://');
+            }
+        }
+
+        return "";
+    };
+
+    const formattedBook = {
         id: book.id,
         title: volumeInfo.title || "Título no disponible",
         author: volumeInfo.authors ? volumeInfo.authors.join(", ") : "Autor desconocido",
@@ -412,12 +434,27 @@ const formatBookData = (book) => {
         ratingsCount: volumeInfo.ratingsCount || 0,
         rating: Math.round(volumeInfo.averageRating || 0),
         reviewCount: volumeInfo.ratingsCount || 0,
-        thumbnail: imageLinks.thumbnail || imageLinks.smallThumbnail || "",
+        thumbnail: getThumbnailUrl(imageLinks), // Enhanced thumbnail extraction
         previewLink: volumeInfo.previewLink || "",
         infoLink: volumeInfo.infoLink || "",
         coverEmoji: getCoverEmoji(volumeInfo.categories),
-        language: volumeInfo.language || "es"
+        language: volumeInfo.language || "es",
+
+        // Additional debug info - remove in production
+        debug: {
+            originalImageLinks: imageLinks,
+            hasImageLinks: Object.keys(imageLinks).length > 0,
+            availableImageTypes: Object.keys(imageLinks)
+        }
     };
+
+    // Log for debugging - remove in production
+    console.log(`Book formatted: ${formattedBook.title} - Thumbnail: ${formattedBook.thumbnail ? 'Found' : 'Missing'}`);
+    if (!formattedBook.thumbnail && Object.keys(imageLinks).length > 0) {
+        console.log('Available image links:', imageLinks);
+    }
+
+    return formattedBook;
 };
 
 // Helper function to get emoji based on book category

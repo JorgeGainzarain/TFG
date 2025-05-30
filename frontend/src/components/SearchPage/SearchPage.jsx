@@ -1,6 +1,7 @@
+// frontend/src/components/SearchPage/SearchPage.jsx
 import React, { useState, useEffect } from 'react';
 import FilterBar from '../FilterBar/FilterBar';
-import HorizontalBookCard from '../HorizontalBookCard/HorizontalBookCard';
+import BookCard from '../BookCard/BookCard';
 import CategoryFilter from '../CategoryFilter/CategoryFilter';
 import SortDropdown from '../SortDropdown/SortDropdown';
 import './SearchPage.css';
@@ -23,88 +24,152 @@ const SearchPage = ({ searchQuery = "" }) => {
             title: "El Nombre del Viento",
             author: "Patrick Rothfuss",
             genres: ["Fantasía", "Aventura"],
+            categories: ["Fantasía", "Aventura"],
             rating: 5,
+            averageRating: 5,
             reviewCount: 2847,
+            ratingsCount: 2847,
             coverEmoji: "📖",
+            thumbnail: "",
+            publishedDate: "2007-03-27",
             year: 2007,
-            category: "fiction"
+            category: "fiction",
+            description: "Una historia épica sobre un joven héroe y su búsqueda de la verdad.",
+            pageCount: 662,
+            language: 'es'
         },
         {
             id: 2,
             title: "Atomic Habits",
             author: "James Clear",
             genres: ["Autoayuda", "Productividad"],
+            categories: ["Autoayuda", "Productividad"],
             rating: 5,
+            averageRating: 5,
             reviewCount: 1923,
+            ratingsCount: 1923,
             coverEmoji: "🌟",
+            thumbnail: "",
+            publishedDate: "2018-10-16",
             year: 2018,
-            category: "self-help"
+            category: "self-help",
+            description: "La guía definitiva para formar buenos hábitos y romper los malos.",
+            pageCount: 320,
+            language: 'en'
         },
         {
             id: 3,
             title: "Dune",
             author: "Frank Herbert",
             genres: ["Ciencia Ficción", "Épico"],
+            categories: ["Ciencia Ficción", "Épico"],
             rating: 4,
+            averageRating: 4,
             reviewCount: 3156,
+            ratingsCount: 3156,
             coverEmoji: "🚀",
+            thumbnail: "",
+            publishedDate: "1965-08-01",
             year: 1965,
-            category: "fiction"
+            category: "fiction",
+            description: "La obra maestra de la ciencia ficción que definió un género.",
+            pageCount: 688,
+            language: 'en'
         },
         {
             id: 4,
             title: "The Seven Husbands of Evelyn Hugo",
             author: "Taylor Jenkins Reid",
             genres: ["Drama", "Histórico"],
+            categories: ["Drama", "Histórico"],
             rating: 5,
+            averageRating: 5,
             reviewCount: 2234,
+            ratingsCount: 2234,
             coverEmoji: "🎭",
+            thumbnail: "",
+            publishedDate: "2017-06-13",
             year: 2017,
-            category: "fiction"
+            category: "fiction",
+            description: "Una historia cautivadora sobre amor, fama y los secretos que guardamos.",
+            pageCount: 400,
+            language: 'en'
         },
         {
             id: 5,
             title: "Educated",
             author: "Tara Westover",
             genres: ["Biografía", "Memoir"],
+            categories: ["Biografía", "Memoir"],
             rating: 4,
+            averageRating: 4,
             reviewCount: 1876,
+            ratingsCount: 1876,
             coverEmoji: "📚",
+            thumbnail: "",
+            publishedDate: "2018-02-20",
             year: 2018,
-            category: "biography"
+            category: "biography",
+            description: "Una poderosa historia sobre educación y superación personal.",
+            pageCount: 334,
+            language: 'en'
         },
         {
             id: 6,
             title: "The Silent Patient",
             author: "Alex Michaelides",
             genres: ["Thriller", "Misterio"],
+            categories: ["Thriller", "Misterio"],
             rating: 4,
+            averageRating: 4,
             reviewCount: 1456,
+            ratingsCount: 1456,
             coverEmoji: "🔍",
+            thumbnail: "",
+            publishedDate: "2019-02-05",
             year: 2019,
-            category: "mystery"
+            category: "mystery",
+            description: "Un thriller psicológico que te mantendrá adivinando hasta la última página.",
+            pageCount: 336,
+            language: 'en'
         },
         {
             id: 7,
             title: "Becoming",
             author: "Michelle Obama",
             genres: ["Autobiografía", "Política"],
+            categories: ["Autobiografía", "Política"],
             rating: 5,
+            averageRating: 5,
             reviewCount: 3421,
+            ratingsCount: 3421,
             coverEmoji: "👑",
+            thumbnail: "",
+            publishedDate: "2018-11-13",
             year: 2018,
-            category: "biography"
+            category: "biography",
+            description: "Las memorias inspiradoras de una de las primeras damas más influyentes.",
+            pageCount: 448,
+            language: 'en'
         },
         {
             id: 8,
             title: "The Midnight Library",
             author: "Matt Haig",
             genres: ["Ficción", "Filosofía"],
+            categories: ["Ficción", "Filosofía"],
             rating: 4,
+            averageRating: 4,
             reviewCount: 2156,
+            ratingsCount: 2156,
             coverEmoji: "🌙",
+            thumbnail: "",
+            publishedDate: "2020-08-13",
             year: 2020,
-            category: "fiction"
+            category: "fiction",
+            description: "Una reflexión profunda sobre las decisiones de la vida y las posibilidades infinitas.",
+            pageCount: 288,
+            language: 'en'
         }
     ];
 
@@ -157,13 +222,13 @@ const SearchPage = ({ searchQuery = "" }) => {
             // Ordenar
             switch (filters.sortBy) {
                 case 'rating':
-                    filteredBooks.sort((a, b) => b.rating - a.rating);
+                    filteredBooks.sort((a, b) => (b.rating || b.averageRating) - (a.rating || a.averageRating));
                     break;
                 case 'recent':
                     filteredBooks.sort((a, b) => b.year - a.year);
                     break;
                 case 'popular':
-                    filteredBooks.sort((a, b) => b.reviewCount - a.reviewCount);
+                    filteredBooks.sort((a, b) => (b.reviewCount || b.ratingsCount) - (a.reviewCount || a.ratingsCount));
                     break;
                 case 'title':
                     filteredBooks.sort((a, b) => a.title.localeCompare(b.title));
@@ -190,7 +255,7 @@ const SearchPage = ({ searchQuery = "" }) => {
 
     const handleAddToLibrary = (book) => {
         console.log('Añadiendo a la librería:', book);
-        // Aquí iría la lógica para añadir el libro a la librería
+        alert(`"${book.title}" será añadido a tu librería (funcionalidad pendiente)`);
     };
 
     return (
@@ -231,14 +296,12 @@ const SearchPage = ({ searchQuery = "" }) => {
                 ) : books.length > 0 ? (
                     <div className="books-list">
                         {books.map((book) => (
-                            <HorizontalBookCard
+                            <BookCard
                                 key={book.id}
-                                title={book.title}
-                                author={book.author}
-                                genres={book.genres}
-                                rating={book.rating}
-                                reviewCount={book.reviewCount}
-                                coverEmoji={book.coverEmoji}
+                                book={book}
+                                variant="horizontal"
+                                showDescription={true}
+                                showDate={true}
                                 onAddToLibrary={handleAddToLibrary}
                             />
                         ))}

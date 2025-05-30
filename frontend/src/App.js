@@ -5,6 +5,7 @@ import MobileNavbar from './components/MobileNavbar/MobileNavbar';
 import AuthOverlay from './components/AuthOverlay/AuthOverlay';
 import HomePage from './pages/HomePage';
 import SearchPage from './pages/SearchPage';
+import BookDetailsPage from './pages/BookDetailsPage';
 import { LibraryPage, AIRecommendationsPage, ProfilePage, NotFoundPage } from './pages/AdditionalPages';
 import { useAuth } from './hooks/useAuth';
 import { healthCheck } from './services/api';
@@ -177,6 +178,16 @@ const AppContent = () => {
                                 onClearSearch={clearSearch}
                                 user={user}
                                 isAuthenticated={isAuthenticated}
+                            />
+                        }
+                    />
+                    <Route
+                        path="/book/:bookId"
+                        element={
+                            <BookDetailsPage
+                                user={user}
+                                isAuthenticated={isAuthenticated}
+                                onShowAuth={handleShowAuth}
                             />
                         }
                     />

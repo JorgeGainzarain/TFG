@@ -99,6 +99,10 @@
     overflow: hidden;
     /* Mejorar rendimiento durante animaciones */
     will-change: transform;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 /* Hover effect mejorado para scroll horizontal */

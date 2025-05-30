@@ -1,5 +1,6 @@
+// frontend/src/components/SearchResults/SearchResults.jsx
 import React, { useState, useEffect } from 'react';
-import HorizontalBookCard from '../HorizontalBookCard/HorizontalBookCard';
+import BookCard from '../BookCard/BookCard';
 import FilterBar from '../FilterBar/FilterBar';
 import './SearchResults.css';
 
@@ -28,11 +29,12 @@ const SearchResults = ({
 
         // Apply genre filter
         if (filters.genre) {
-            filtered = filtered.filter(book =>
-                    book.genres && book.genres.some(genre =>
-                        genre.toLowerCase().includes(filters.genre.toLowerCase())
-                    )
-            );
+            filtered = filtered.filter(book => {
+                const bookGenres = book.genres || book.categories || [];
+                return bookGenres.some(genre =>
+                    genre.toLowerCase().includes(filters.genre.toLowerCase())
+                );
+            });
         }
 
         // Apply year filter
@@ -52,7 +54,7 @@ const SearchResults = ({
         // Apply sorting
         switch (filters.sortBy) {
             case 'rating':
-                filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+                filtered.sort((a, b) => (b.rating || b.averageRating || 0) - (a.rating || a.averageRating || 0));
                 break;
             case 'recent':
                 filtered.sort((a, b) => {
@@ -62,7 +64,7 @@ const SearchResults = ({
                 });
                 break;
             case 'popular':
-                filtered.sort((a, b) => (b.reviewCount || 0) - (a.reviewCount || 0));
+                filtered.sort((a, b) => (b.reviewCount || b.ratingsCount || 0) - (a.reviewCount || a.ratingsCount || 0));
                 break;
             case 'title':
                 filtered.sort((a, b) => a.title.localeCompare(b.title));
@@ -248,17 +250,11 @@ const SearchResults = ({
                 <>
                     <div className="results-grid">
                         {filteredResults.map((book) => (
-                            <HorizontalBookCard
+                            <BookCard
                                 key={book.id}
-                                title={book.title}
-                                author={book.author}
-                                genres={book.genres}
-                                rating={book.rating}
-                                reviewCount={book.reviewCount}
-                                coverEmoji={book.coverEmoji}
-                                thumbnail={book.thumbnail}
+                                variant={'horizontal'}
+                                book={book}
                                 onAddToLibrary={handleAddToLibrary}
-                                isPlaceholder={book.isPlaceholder}
                             />
                         ))}
                     </div>

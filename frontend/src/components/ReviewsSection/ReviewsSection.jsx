@@ -1,3 +1,4 @@
+// frontend/src/components/ReviewsSection/ReviewsSection.jsx
 import React from 'react';
 import ReviewCard from '../ReviewCard/ReviewCard';
 import './ReviewsSection.css';
@@ -5,6 +6,7 @@ import './ReviewsSection.css';
 const ReviewsSection = () => {
     const featuredReviews = [
         {
+            id: 'review-1',
             userName: "María González",
             userAvatar: null,
             reviewDate: "Hace 2 días",
@@ -14,6 +16,7 @@ const ReviewsSection = () => {
             bookTitle: "El Nombre del Viento"
         },
         {
+            id: 'review-2',
             userName: "Alex Chen",
             userAvatar: null,
             reviewDate: "Hace 1 semana",
@@ -23,6 +26,7 @@ const ReviewsSection = () => {
             bookTitle: "Atomic Habits"
         },
         {
+            id: 'review-3',
             userName: "Sofia Martínez",
             userAvatar: null,
             reviewDate: "Hace 3 días",
@@ -41,16 +45,10 @@ const ReviewsSection = () => {
             </div>
 
             <div className="reviews-container">
-                {featuredReviews.map((review, index) => (
+                {featuredReviews.map((review) => (
                     <ReviewCard
-                        key={index}
-                        userName={review.userName}
-                        userAvatar={review.userAvatar}
-                        reviewDate={review.reviewDate}
-                        reviewText={review.reviewText}
-                        rating={review.rating}
-                        likes={review.likes}
-                        bookTitle={review.bookTitle}
+                        key={review.id}
+                        review={review}
                     />
                 ))}
             </div>

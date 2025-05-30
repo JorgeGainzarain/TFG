@@ -1,3 +1,6 @@
+/* frontend/src/components/BookCard/BookCard.css */
+
+/* Estilos base compartidos */
 .book-card {
     border-radius: 16px;
     padding: 20px;
@@ -5,6 +8,9 @@
     cursor: pointer;
     position: relative;
     overflow: hidden;
+    /* Mejorar la interactividad de las cards clickeables */
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .book-card::before {
@@ -23,9 +29,66 @@
     opacity: 1;
 }
 
+.book-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+}
+
+/* Efectos especiales en click */
+.book-card:active {
+    transform: translateY(-1px) scale(0.98);
+    transition: all 0.1s ease;
+}
+
+/* Indicador visual de que la card es clickeable */
+.book-card::after {
+    content: '';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 24px;
+    height: 24px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.8)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M9 18l6-6-6-6'%3e%3c/path%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 12px;
+}
+
+.book-card:hover::after {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* Estados de focus para accesibilidad */
+.book-card:focus {
+    outline: 2px solid var(--primary-gradient);
+    outline-offset: 2px;
+}
+
+.book-card:focus::before {
+    opacity: 1;
+}
+
+/* Asegurar que los elementos internos no interfieran con el click */
+.book-card * {
+    pointer-events: none;
+}
+
+.book-card .add-btn {
+    pointer-events: auto; /* Restaurar pointer events solo para el botón */
+}
+
+.book-card .add-btn * {
+    pointer-events: none; /* Pero no para sus hijos */
+}
+
+/* Estilos para la portada del libro */
 .book-cover {
-    width: 100%;
-    height: 140px;
     border-radius: 8px;
     margin-bottom: 0.75rem;
     position: relative;
@@ -34,6 +97,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
 }
 
 .book-cover img {
@@ -58,11 +122,11 @@
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 2.2rem;
     background: var(--primary-gradient);
     border-radius: 8px;
 }
 
+/* Información del libro */
 .book-info {
     position: relative;
     z-index: 1;
@@ -84,16 +148,27 @@
 .book-author {
     color: var(--text-muted);
     font-size: 0.85rem;
-    margin-bottom: 0.6rem;
+    margin-bottom: 0.4rem;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    font-style: italic;
+}
+
+.book-date {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    margin-bottom: 0.6rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
 }
 
 .book-genres {
     display: flex;
     gap: 0.4rem;
-    margin-bottom: 0.8rem;
+    margin-bottom: 0.6rem;
     flex-wrap: wrap;
 }
 
@@ -114,7 +189,6 @@
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
-    margin-bottom: 0.8rem;
 }
 
 .stars {
@@ -147,18 +221,294 @@
     cursor: pointer;
     transition: all 0.3s ease;
     font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    position: relative;
+    z-index: 10; /* Asegurar que esté encima del click del card */
 }
 
 .add-btn:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-primary);
+    z-index: 11;
 }
 
 .add-btn:active {
     transform: translateY(0);
 }
 
-/* Loading state for book covers */
+.add-icon {
+    font-size: 1.1rem;
+    font-weight: 600;
+    line-height: 1;
+}
+
+/* VARIANTE VERTICAL (por defecto) */
+.book-card.vertical {
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* CRÍTICO: Toma toda la altura disponible */
+    min-height: 420px;
+    box-sizing: border-box; /* CRÍTICO: Incluir padding en cálculos */
+}
+
+.book-card.vertical .book-cover {
+    width: 100%;
+    height: 140px;
+    flex-shrink: 0; /* CRÍTICO: No se comprime nunca */
+}
+
+.book-card.vertical .cover-emoji-fallback {
+    font-size: 2.2rem;
+}
+
+
+.book-card.vertical .book-info h3 {
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+    color: var(--text-primary);
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    height: 2.6rem; /* Fixed height for title (2 lines max) */
+    flex-shrink: 0;
+}
+
+/* Contenedor para el contenido principal (todo excepto rating y botón) */
+.book-card.vertical .book-main-content {
+    flex: 1; /* CRÍTICO: Se expande para llenar el espacio disponible */
+    display: flex;
+    flex-direction: column;
+    min-height: 0; /* CRÍTICO: Permite que los elementos internos se compriman si es necesario */
+}
+
+/* Contenedor para rating y botón - siempre al final */
+.book-card.vertical .book-bottom-content {
+    margin-top: auto; /* CRÍTICO: Empuja hacia abajo */
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    flex-shrink: 0; /* CRÍTICO: Nunca se comprime */
+}
+
+/* En variante vertical, el rating no tiene margin-bottom ya que está en bottom-content */
+.book-card.vertical .book-rating {
+    margin-bottom: 0;
+}
+
+/* En variante vertical, los géneros están en main-content */
+.book-card.vertical .book-genres {
+    margin-bottom: auto; /* Empuja el rating y botón hacia abajo */
+    padding-bottom: 0.5rem;
+}
+
+/* VARIANTE HORIZONTAL */
+.book-card.horizontal {
+    display: flex;
+    gap: 1.5rem;
+    min-height: 160px;
+    width: 100%;
+    height: auto; /* En horizontal no forzamos altura completa */
+}
+
+.book-card.horizontal .book-cover {
+    width: 100px;
+    height: 130px;
+    margin-bottom: 0;
+    flex-shrink: 0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.book-card.horizontal .cover-emoji-fallback {
+    font-size: 2.5rem;
+}
+
+.book-content {
+    display: flex;
+    flex: 1;
+    gap: 1.5rem;
+    min-width: 0;
+}
+
+.book-main-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-width: 0;
+}
+
+.book-header {
+    margin-bottom: 0.5rem;
+}
+
+.book-card.horizontal .book-info h3,
+.book-card.horizontal .book-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: var(--text-primary);
+    line-height: 1.3;
+    display: block;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-align: left;
+    height: 2.6rem;
+}
+
+.book-card.horizontal .book-author {
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+}
+
+.book-card.horizontal .book-date {
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+}
+
+.book-description {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    flex: 1;
+    margin-bottom: 0.75rem;
+}
+
+.book-card.horizontal .book-genres {
+    margin-top: auto;
+    margin-bottom: 0;
+}
+
+.book-side-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+    min-width: 180px;
+    gap: 1rem;
+}
+
+.book-card.horizontal .book-rating {
+    align-items: flex-end;
+    margin-bottom: 0;
+}
+
+.book-card.horizontal .rating-text {
+    text-align: right;
+    white-space: normal;
+    line-height: 1.3;
+}
+
+.book-card.horizontal .add-btn {
+    width: auto;
+    padding: 0.7rem 1.2rem;
+    white-space: nowrap;
+    font-size: 0.9rem;
+}
+
+/* Asegurar que las cards en grids horizontales tengan altura uniforme */
+.cards-grid-horizontal {
+    display: flex;
+    gap: 1.5rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 1rem 0;
+    margin: 0;
+    scroll-behavior: smooth;
+    cursor: grab;
+    user-select: none;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+    -webkit-overflow-scrolling: touch;
+    align-items: stretch; /* Hace que todos los items tengan la misma altura */
+    min-height: 450px; /* CRÍTICO: Altura mínima del contenedor */
+}
+
+/* Container wrapper para cada card en grid horizontal */
+.cards-grid-horizontal > div {
+    display: flex;
+    height: 100%;
+    min-height: 450px; /* CRÍTICO: Debe coincidir con el contenedor */
+    flex-direction: column; /* CRÍTICO: Para que la card tome toda la altura */
+}
+
+/* Book cards en modo horizontal */
+.cards-grid-horizontal .book-card {
+    min-width: 280px;
+    width: 280px;
+    height: 100%; /* CRÍTICO: Toma toda la altura del div padre */
+    flex: 1; /* CRÍTICO: Se expande para llenar el contenedor */
+    flex-shrink: 0;
+    border-radius: 16px;
+    padding: 20px;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    will-change: transform;
+    box-sizing: border-box; /* CRÍTICO: Incluir padding en cálculos */
+}
+
+/* Efectos hover mejorados para las cards en grid horizontal */
+.cards-grid-horizontal .book-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(102, 126, 234, 0.25);
+}
+
+.cards-grid-horizontal .book-card:active {
+    transform: translateY(-4px) scale(1.01);
+}
+
+/* Prevenir hover durante drag */
+.cards-grid-horizontal.dragging .book-card:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.cards-grid-horizontal.dragging .book-card:active {
+    transform: none;
+}
+
+.cards-grid-horizontal.dragging {
+    cursor: grabbing;
+    scroll-behavior: auto;
+}
+
+.cards-grid-horizontal.dragging * {
+    pointer-events: none;
+}
+
+/* Webkit scrollbar styling */
+.cards-grid-horizontal::-webkit-scrollbar {
+    height: 8px;
+}
+
+.cards-grid-horizontal::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.cards-grid-horizontal::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+
+.cards-grid-horizontal::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* Loading state para portadas */
 .book-cover.loading {
     background: linear-gradient(
             90deg,
@@ -182,33 +532,213 @@
 /* Mobile Responsive */
 @media (max-width: 768px) {
     .book-card {
-        padding: 20px;
+        padding: 15px;
     }
 
-    .book-cover {
+    /* En móvil, mostrar siempre el indicador */
+    .book-card::after {
+        opacity: 0.6;
+    }
+
+    .book-card:hover::after {
+        opacity: 1;
+    }
+
+    .book-card.vertical .book-cover {
         height: 120px;
     }
 
-    .book-info h3 {
-        font-size: 0.95rem;
+    .book-card.vertical .cover-emoji-fallback {
+        font-size: 2rem;
     }
 
-    .book-genres {
-        margin-bottom: 0.6rem;
+    .book-card.vertical .book-info h3 {
+        font-weight: 600;
+        margin-bottom: 0.4rem;
+        color: var(--text-primary);
+        line-height: 1.3;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        height: 2.6rem; /* Fixed height for title (2 lines max) */
+        flex-shrink: 0;
     }
 
-    .genre-tag {
+    .book-card.vertical .book-genres {
+        margin-bottom: auto;
+        padding-bottom: 0.4rem;
+    }
+
+    .book-card.vertical .genre-tag {
         font-size: 0.7rem;
         padding: 0.15rem 0.5rem;
         max-width: 80px;
     }
 
-    .cover-emoji-fallback {
-        font-size: 2rem;
-    }
-
-    .add-btn {
+    .book-card.vertical .add-btn {
         padding: 0.55rem;
         font-size: 0.8rem;
     }
+
+    /* Ajustar altura mínima en móvil */
+    .cards-grid-horizontal {
+        min-height: 400px; /* CRÍTICO: Altura mínima en móvil */
+    }
+
+    .cards-grid-horizontal > div {
+        min-height: 400px; /* CRÍTICO: Debe coincidir con el contenedor */
+    }
+
+    .cards-grid-horizontal .book-card {
+        min-width: 240px;
+        width: 240px;
+        min-height: 380px; /* CRÍTICO: Altura mínima de la card en móvil */
+    }
+
+    /* Horizontal variant en móvil */
+    .book-card.horizontal {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1.25rem;
+        min-height: auto;
+        height: auto;
+    }
+
+    .book-card.horizontal .book-cover {
+        width: 80px;
+        height: 110px;
+        align-self: flex-start;
+    }
+
+    .book-card.horizontal .cover-emoji-fallback {
+        font-size: 2rem;
+    }
+
+    .book-content {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .book-main-info {
+        gap: 0.5rem;
+    }
+
+    .book-card.horizontal .book-title {
+        font-size: 1.1rem;
+    }
+
+    .book-card.horizontal .book-author {
+        font-size: 0.85rem;
+    }
+
+    .book-card.horizontal .book-date {
+        font-size: 0.8rem;
+    }
+
+    .book-description {
+        -webkit-line-clamp: 3;
+        font-size: 0.85rem;
+    }
+
+    .book-side-info {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        min-width: auto;
+        gap: 1rem;
+    }
+
+    .book-card.horizontal .book-rating {
+        align-items: flex-start;
+        flex: 1;
+    }
+
+    .book-card.horizontal .rating-text {
+        text-align: left;
+        font-size: 0.8rem;
+    }
+
+    .book-card.horizontal .add-btn {
+        padding: 0.6rem 1rem;
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .book-card {
+        padding: 1rem;
+    }
+
+    .cards-grid-horizontal {
+        min-height: 380px; /* CRÍTICO: Altura mínima en pantallas muy pequeñas */
+    }
+
+    .cards-grid-horizontal > div {
+        min-height: 380px; /* CRÍTICO: Debe coincidir */
+    }
+
+    .cards-grid-horizontal .book-card {
+        min-width: 200px;
+        width: 200px;
+        min-height: 360px; /* CRÍTICO: Altura mínima de la card */
+    }
+
+    .book-card.horizontal .book-cover {
+        width: 70px;
+        height: 95px;
+    }
+
+    .book-card.horizontal .cover-emoji-fallback {
+        font-size: 1.8rem;
+    }
+
+    .book-card.horizontal .book-title {
+        font-size: 1rem;
+    }
+
+    .book-card.horizontal .book-author {
+        font-size: 0.8rem;
+    }
+
+    .book-card.horizontal .book-date {
+        font-size: 0.75rem;
+    }
+
+    .book-description {
+        font-size: 0.8rem;
+    }
+
+    .genre-tag {
+        font-size: 0.7rem;
+        padding: 0.15rem 0.5rem;
+    }
+
+    .book-card.horizontal .add-btn {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* Mejoras para accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+    .cards-grid-horizontal {
+        scroll-behavior: auto;
+    }
+
+    .book-card,
+    .book-cover img {
+        transition: none;
+    }
+
+    .book-card::after {
+        transition: none;
+    }
+}
+
+/* Focus states para navegación con teclado */
+.cards-grid-horizontal:focus {
+    outline: 2px solid var(--primary-gradient);
+    outline-offset: 2px;
 }

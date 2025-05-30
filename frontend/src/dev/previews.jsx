@@ -6,7 +6,6 @@ import FilterBar from "../components/FilterBar/FilterBar";
 import AIRecommendations from "../components/AIRecommnedations/AIRecommendations";
 import SearchPage from "../components/SearchPage/SearchPage";
 import AuthOverlay from "../components/AuthOverlay/AuthOverlay";
-import HorizontalBookCard from "../components/HorizontalBookCard/HorizontalBookCard";
 import MobileNavbar from "../components/MobileNavbar/MobileNavbar";
 import BookCard from "../components/BookCard/BookCard";
 import SearchResults from "../components/SearchResults/SearchResults";
@@ -34,9 +33,6 @@ const ComponentPreviews = () => {
             </ComponentPreview>
             <ComponentPreview path="/AuthOverlay">
                 <AuthOverlay/>
-            </ComponentPreview>
-            <ComponentPreview path="/HorizontalBookCard">
-                <HorizontalBookCard/>
             </ComponentPreview>
             <ComponentPreview path="/MobileNavigation">
                 <MobileNavbar/>
