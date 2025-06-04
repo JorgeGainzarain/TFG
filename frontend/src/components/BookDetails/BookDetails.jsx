@@ -20,7 +20,7 @@ const BookDetails = ({ book, user, isAuthenticated, onShowAuth, onGoBack }) => {
         pageCount: 662,
         language: "es",
         thumbnail: "",
-        description: "En una posada en tierra de nadie, un hombre se dispone a relatar, por primera vez, la auténtica historia de su vida. Una historia que únicamente él conoce y que ha dado lugar a su leyenda. Arrebatador, íntimo y atemporal, El Nombre del Viento es una novela de aventuras, de magia y de misterio. Una historia épica narrada de forma magistral que nos recuerda por qué amamos las historias.",
+        description: "En una posada en tierra de nadie, un hombre se dispone a relatar, por primera vez, la auténtica historia de su vida. Una historia que únicamente él conoce y que ha dado lugar a su leyenda. Arrebatador, íntimo y atemporal, El Nombre del Viento es una novela de aventuras, de magia y de misterio. Una historia épica narrada de forma magistral que nos recuerda por qué amamos las historias. En una posada en tierra de nadie, un hombre se dispone a relatar, por primera vez, la auténtica historia de su vida. Una historia que únicamente él conoce y que ha dado lugar a su leyenda. Arrebatador, íntimo y atemporal, El Nombre del Viento es una novela de aventuras, de magia y de misterio. Una historia épica narrada de forma magistral que nos recuerda por qué amamos las historias.",
         previewLink: "https://books.google.com/preview",
         infoLink: "https://books.google.com/info"
     };
@@ -153,8 +153,8 @@ const BookDetails = ({ book, user, isAuthenticated, onShowAuth, onGoBack }) => {
         if (!description) return 'Descripción no disponible';
         // Limpiar HTML tags si existen
         const cleaned = description.replace(/<[^>]*>/g, '');
-        // Limitar a 1000 caracteres
-        return cleaned.length > 1000 ? cleaned.slice(0, 1000) + '...' : cleaned;
+        // No limitar caracteres para mostrar todo el contenido
+        return cleaned;
     };
 
     // Debug logging
@@ -228,14 +228,6 @@ const BookDetails = ({ book, user, isAuthenticated, onShowAuth, onGoBack }) => {
                                 <p>{formatLanguage(currentBook.language)}</p>
                             </div>
                         </div>
-
-                        {/* Descripción */}
-                        <div className="book-description-section">
-                            <h3>📋 Descripción</h3>
-                            <div className="book-description">
-                                {cleanDescription(currentBook.description)}
-                            </div>
-                        </div>
                     </div>
 
                     {/* Panel lateral con rating y acciones */}
@@ -279,19 +271,16 @@ const BookDetails = ({ book, user, isAuthenticated, onShowAuth, onGoBack }) => {
                                         👁️ Vista previa
                                     </a>
                                 )}
-
-                                {currentBook.infoLink && (
-                                    <a
-                                        href={currentBook.infoLink}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="book-link info-link"
-                                    >
-                                        ℹ️ Más información
-                                    </a>
-                                )}
                             </div>
                         )}
+                    </div>
+                </div>
+
+                {/* Descripción - Ahora en su propia sección de ancho completo */}
+                <div className="book-description-section">
+                    <h3>📋 Descripción</h3>
+                    <div className="book-description">
+                        {cleanDescription(currentBook.description)}
                     </div>
                 </div>
             </div>

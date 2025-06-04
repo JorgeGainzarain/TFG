@@ -200,6 +200,34 @@
     line-height: 1.6;
 }
 
+/* Book Details Reviews Wrapper - Integración con diseño libro */
+.book-details-reviews-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.book-details-reviews-wrapper .reviews-section {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+/* Asegurar continuidad visual entre book details y reviews */
+.book-details-reviews-wrapper .reviews-section.reviews-book-detail {
+    /* Pequeño gap para separar visualmente pero mantener cohesión */
+    margin-top: 1.5rem;
+}
+
+.book-description-section.full-width {
+    width: 100%;
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border-glass);
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
     .page-container {
@@ -254,5 +282,14 @@
 
     .user-card .user-details h3 {
         font-size: 1.3rem;
+    }
+
+    /* Mobile adjustments for book details reviews */
+    .book-details-reviews-wrapper {
+        padding: 0 1rem;
+    }
+
+    .book-details-reviews-wrapper .reviews-section.reviews-book-detail {
+        margin-top: 1rem;
     }
 }
