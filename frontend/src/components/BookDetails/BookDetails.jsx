@@ -28,51 +28,33 @@ const BookDetails = ({ book, user, isAuthenticated, onShowAuth, onGoBack }) => {
     // Usar el libro pasado como prop o el por defecto
     const currentBook = book || defaultBook;
 
-    // Better cover image handling - try multiple possible property names
+    // Better cover image handling
     const getCoverImage = (book) => {
-        console.log('Getting cover image for book:', book);
-
-        // Try different possible property names for the cover image
         const possibleImages = [
-            // Direct properties (formatted by server)
             book.thumbnail,
             book.cover,
             book.coverImage,
             book.image,
-
-            // Google Books API format (if passed directly)
             book.volumeInfo?.imageLinks?.thumbnail,
             book.volumeInfo?.imageLinks?.smallThumbnail,
             book.volumeInfo?.imageLinks?.medium,
             book.volumeInfo?.imageLinks?.large,
-
-            // Nested imageLinks (if formatted differently)
             book.imageLinks?.thumbnail,
             book.imageLinks?.smallThumbnail,
             book.imageLinks?.medium,
             book.imageLinks?.large,
-
-            // Sometimes the whole imageLinks object is passed as thumbnail
             typeof book.thumbnail === 'object' ? book.thumbnail?.thumbnail : null,
             typeof book.thumbnail === 'object' ? book.thumbnail?.smallThumbnail : null
         ];
 
-        // Log all possible images for debugging
-        console.log('Possible images found:', possibleImages.filter(Boolean));
-
-        // Return the first valid image URL found
         for (const img of possibleImages) {
             if (img && typeof img === 'string' && img.trim() !== '') {
-                // Enhance quality and ensure HTTPS
                 let enhancedUrl = img
                     .replace('zoom=1', 'zoom=2')
                     .replace('http://', 'https://');
-                console.log('Using cover image URL:', enhancedUrl);
                 return enhancedUrl;
             }
         }
-
-        console.log('No valid cover image found, using fallback emoji');
         return null;
     };
 
@@ -104,12 +86,8 @@ const BookDetails = ({ book, user, isAuthenticated, onShowAuth, onGoBack }) => {
 
         setAddingToLibrary(true);
         try {
-            // Aquí irá tu lógica para añadir a la librería
             console.log('Añadiendo a la librería:', currentBook);
-
-            // Simular delay
             await new Promise(resolve => setTimeout(resolve, 1500));
-
             alert(`"${currentBook.title}" añadido a tu librería!`);
         } catch (err) {
             console.error('Error adding to library:', err);
@@ -130,7 +108,6 @@ const BookDetails = ({ book, user, isAuthenticated, onShowAuth, onGoBack }) => {
     };
 
     const handleImageError = () => {
-        console.log('Image failed to load:', coverImageUrl);
         setImageError(true);
     };
 
@@ -151,32 +128,31 @@ const BookDetails = ({ book, user, isAuthenticated, onShowAuth, onGoBack }) => {
 
     const cleanDescription = (description) => {
         if (!description) return 'Descripción no disponible';
-        // Limpiar HTML tags si existen
         const cleaned = description.replace(/<[^>]*>/g, '');
-        // No limitar caracteres para mostrar todo el contenido
         return cleaned;
     };
-
-    // Debug logging
-    console.log('BookDetails - Current book:', currentBook);
-    console.log('BookDetails - Cover image URL:', coverImageUrl);
-    console.log('BookDetails - Image error:', imageError);
 
     return (
         <div className="book-details">
             {/* Header con botón de regreso */}
             <div className="book-details-header">
-                <button
-                    className="back-btn"
-                    onClick={handleGoBack}
-                >
+                <button className="back-btn" onClick={handleGoBack}>
                     ← Volver
                 </button>
             </div>
 
-            {/* Contenido principal */}
+            {/* Contenedor principal con diseño de libro */}
             <div className="book-details-container glass">
-                <div className="book-details-grid">
+
+                {/* Sección 1: Título y Autor - Ancho completo */}
+                <div className="book-title-header">
+                    <h1 className="book-title">{currentBook.title}</h1>
+                    <p className="book-author">por {currentBook.author}</p>
+                </div>
+
+                {/* Sección 2: Portada + Información */}
+                <div className="book-main-section">
+
                     {/* Portada del libro */}
                     <div className="book-cover-section">
                         <div className="book-cover-large">
@@ -185,7 +161,6 @@ const BookDetails = ({ book, user, isAuthenticated, onShowAuth, onGoBack }) => {
                                     src={coverImageUrl}
                                     alt={`Portada de ${currentBook.title}`}
                                     onError={handleImageError}
-                                    onLoad={() => console.log('Image loaded successfully:', coverImageUrl)}
                                 />
                             ) : (
                                 <div className="cover-emoji-fallback">
@@ -195,15 +170,13 @@ const BookDetails = ({ book, user, isAuthenticated, onShowAuth, onGoBack }) => {
                         </div>
                     </div>
 
-                    {/* Información principal */}
-                    <div className="book-main-content">
-                        <h1 className="book-title">{currentBook.title}</h1>
-                        <p className="book-author">por {currentBook.author}</p>
+                    {/* Información del libro */}
+                    <div className="book-info-section">
 
                         {/* Géneros */}
                         {currentBook.genres && currentBook.genres.length > 0 && (
                             <div className="book-genres">
-                                {currentBook.genres.slice(0, 5).map((genre, index) => (
+                                {currentBook.genres.map((genre, index) => (
                                     <span key={index} className="genre-tag">
                                         {genre}
                                     </span>
@@ -211,74 +184,77 @@ const BookDetails = ({ book, user, isAuthenticated, onShowAuth, onGoBack }) => {
                             </div>
                         )}
 
-                        {/* Información adicional */}
+                        {/* Metadatos */}
                         <div className="book-metadata">
-                            <div className="metadata-item">
-                                <h4>Fecha de publicación</h4>
-                                <p>{formatDate(currentBook.publishedDate)}</p>
-                            </div>
-
-                            <div className="metadata-item">
-                                <h4>Páginas</h4>
-                                <p>{formatPageCount(currentBook.pageCount)}</p>
-                            </div>
-
-                            <div className="metadata-item">
-                                <h4>Idioma</h4>
-                                <p>{formatLanguage(currentBook.language)}</p>
+                            <div className="metadata-grid">
+                                <div className="metadata-item">
+                                    <div className="metadata-icon">📅</div>
+                                    <div className="metadata-content">
+                                        <span className="metadata-value">{formatDate(currentBook.publishedDate)}</span>
+                                        <span className="metadata-label">Año</span>
+                                    </div>
+                                </div>
+                                <div className="metadata-item">
+                                    <div className="metadata-icon">📄</div>
+                                    <div className="metadata-content">
+                                        <span className="metadata-value">{formatPageCount(currentBook.pageCount)}</span>
+                                        <span className="metadata-label">Páginas</span>
+                                    </div>
+                                </div>
+                                <div className="metadata-item">
+                                    <div className="metadata-icon">🌐</div>
+                                    <div className="metadata-content">
+                                        <span className="metadata-value">{formatLanguage(currentBook.language)}</span>
+                                        <span className="metadata-label">Idioma</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    {/* Panel lateral con rating y acciones */}
-                    <div className="book-sidebar">
-                        {/* Rating */}
-                        <div className="rating-section">
-                            <h3>⭐ Valoración</h3>
+                        {/* Rating y Botones */}
+                        <div className="book-actions-row">
 
-                            <div className="stars-container">
-                                {renderStars(currentBook.rating)}
+                            {/* Rating */}
+                            <div className="rating-container">
+                                <div className="stars-container">
+                                    {renderStars(currentBook.rating)}
+                                </div>
+                                <p className="rating-number">
+                                    {currentBook.rating ? currentBook.rating.toFixed(1) : 'Sin calificar'}
+                                </p>
+                                <p className="rating-count">
+                                    {currentBook.reviewCount ? `${currentBook.reviewCount.toLocaleString()} reseñas` : 'Sin reseñas'}
+                                </p>
                             </div>
 
-                            <p className="rating-number">
-                                {currentBook.rating ? currentBook.rating.toFixed(1) : 'Sin calificar'}
-                            </p>
+                            {/* Botones de acción */}
+                            <div className="action-buttons">
+                                <button
+                                    className={`add-to-library-btn ${addingToLibrary ? 'loading' : ''}`}
+                                    onClick={handleAddToLibrary}
+                                    disabled={addingToLibrary}
+                                >
+                                    {addingToLibrary ? '⏳ Añadiendo...' : '📚 Add Library'}
+                                </button>
 
-                            <p className="rating-count">
-                                {currentBook.reviewCount ? `${currentBook.reviewCount.toLocaleString()} reseñas` : 'Sin reseñas'}
-                            </p>
-                        </div>
-
-                        {/* Botón de añadir a librería */}
-                        <button
-                            className={`add-to-library-btn ${addingToLibrary ? 'loading' : ''}`}
-                            onClick={handleAddToLibrary}
-                            disabled={addingToLibrary}
-                        >
-                            {addingToLibrary ? '⏳ Añadiendo...' : '📚 Añadir a mi librería'}
-                        </button>
-
-                        {/* Enlaces adicionales */}
-                        {(currentBook.previewLink || currentBook.infoLink) && (
-                            <div className="book-links">
                                 {currentBook.previewLink && (
                                     <a
                                         href={currentBook.previewLink}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="book-link preview-link"
+                                        className="preview-btn"
                                     >
-                                        👁️ Vista previa
+                                        👁️ Preview
                                     </a>
                                 )}
                             </div>
-                        )}
+                        </div>
                     </div>
                 </div>
 
-                {/* Descripción - Ahora en su propia sección de ancho completo */}
+                {/* Sección 3: Descripción - Ancho completo */}
                 <div className="book-description-section">
-                    <h3>📋 Descripción</h3>
+                    <h3 className="description-title">Description</h3>
                     <div className="book-description">
                         {cleanDescription(currentBook.description)}
                     </div>
