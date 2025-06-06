@@ -8,6 +8,10 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
+const { initDatabase } = require('./config/database');
+let db;
+initDatabase().then(database => { db = database; });
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -17,10 +21,6 @@ const JWT_SECRET = process.env.JWT_SECRET || "your-super-secret-jwt-key-change-i
 // Middleware
 app.use(cors());
 app.use(express.json());
-
-// Simulación de base de datos en memoria (en producción usar MongoDB, PostgresSQL, etc.)
-const users = [];
-const userLibraries = new Map(); // userId -> { favorites: [], toRead: [], reading: [], read: [] }
 
 // Google Books API configuration
 const GOOGLE_BOOKS_API_URL = "https://www.googleapis.com/books/v1/volumes";
@@ -44,10 +44,17 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
-// Función para generar tokens JWT
-const generateTokens = (userId) => {
+// Genera y almacena el refresh token en la base de datos
+const generateTokens = async (userId) => {
     const accessToken = jwt.sign({ userId }, JWT_SECRET, { expiresIn: '15m' });
     const refreshToken = jwt.sign({ userId }, JWT_SECRET, { expiresIn: '7d' });
+
+    // Guardar refresh token en la base de datos (borra los antiguos si quieres)
+    await db.run(
+        'INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES (?, ?, DATETIME("now", "+7 day"))',
+        userId, refreshToken
+    );
+
     return { accessToken, refreshToken };
 };
 
@@ -69,30 +76,10 @@ app.post("/api/auth/register", async (req, res) => {
     try {
         const { name, email, password } = req.body;
 
-        // Validaciones
-        if (!name || !email || !password) {
-            return res.status(400).json({
-                error: 'Todos los campos son requeridos',
-                details: 'Nombre, email y contraseña son obligatorios'
-            });
-        }
+        // ...validaciones...
 
-        if (!isValidEmail(email)) {
-            return res.status(400).json({
-                error: 'Email inválido',
-                details: 'Por favor ingresa un email válido'
-            });
-        }
-
-        if (!isValidPassword(password)) {
-            return res.status(400).json({
-                error: 'Contraseña inválida',
-                details: 'La contraseña debe tener al menos 6 caracteres'
-            });
-        }
-
-        // Verificar si el usuario ya existe
-        const existingUser = users.find(user => user.email === email.toLowerCase());
+        // Verificar si el usuario ya existe (ANTES era con users.find)
+        const existingUser = await db.get('SELECT * FROM users WHERE email = ?', email.toLowerCase());
         if (existingUser) {
             return res.status(409).json({
                 error: 'Usuario ya existe',
@@ -101,60 +88,24 @@ app.post("/api/auth/register", async (req, res) => {
         }
 
         // Encriptar contraseña
-        const saltRounds = 10;
-        const hashedPassword = await bcrypt.hash(password, saltRounds);
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Crear usuario
-        const newUser = {
-            id: Date.now().toString(),
-            name: name.trim(),
-            email: email.toLowerCase().trim(),
-            password: hashedPassword,
-            createdAt: new Date().toISOString(),
-            preferences: {
-                favoriteGenres: [],
-                language: 'es'
-            }
-        };
+        // Generar un id único (puedes usar uuid o similar)
+        const { v4: uuidv4 } = require('uuid');
+        const userId = uuidv4();
 
-        users.push(newUser);
+        // Guardar en la base de datos
+        await db.run(
+            'INSERT INTO users (id, name, email, password) VALUES (?, ?, ?, ?)',
+            userId, name, email.toLowerCase(), hashedPassword
+        );
 
-        // Inicializar librería del usuario
-        userLibraries.set(newUser.id, {
-            favorites: [],
-            toRead: [],
-            reading: [],
-            read: [],
-            reviews: []
-        });
-
-        // Generar tokens
-        const { accessToken, refreshToken } = generateTokens(newUser.id);
-
-        // Respuesta (sin incluir password)
-        const userResponse = {
-            id: newUser.id,
-            name: newUser.name,
-            email: newUser.email,
-            createdAt: newUser.createdAt,
-            preferences: newUser.preferences
-        };
-
-        res.status(201).json({
-            message: 'Usuario registrado exitosamente',
-            user: userResponse,
-            accessToken,
-            refreshToken
-        });
-
-        console.log(`✅ Usuario registrado: ${newUser.email}`);
-
+        // Generar tokens y retornar
+        const tokens = generateTokens(userId);
+        res.json({ user: { id: userId, name, email }, ...tokens });
     } catch (error) {
-        console.error("Error en registro:", error);
-        res.status(500).json({
-            error: 'Error interno del servidor',
-            details: 'No se pudo completar el registro'
-        });
+        console.error(error);
+        res.status(500).json({ error: 'Error al registrar usuario' });
     }
 });
 
@@ -163,88 +114,47 @@ app.post("/api/auth/login", async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // Validaciones
         if (!email || !password) {
-            return res.status(400).json({
-                error: 'Credenciales requeridas',
-                details: 'Email y contraseña son obligatorios'
-            });
+            return res.status(400).json({ error: 'Email y contraseña requeridos' });
         }
 
-        // Buscar usuario
-        const user = users.find(u => u.email === email.toLowerCase().trim());
+        // Buscar usuario en la base de datos
+        const user = await db.get('SELECT * FROM users WHERE email = ?', email.toLowerCase());
         if (!user) {
-            return res.status(401).json({
-                error: 'Credenciales inválidas',
-                details: 'Email o contraseña incorrectos'
-            });
+            return res.status(401).json({ error: 'Usuario o contraseña incorrectos' });
         }
 
-        // Verificar contraseña
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-        if (!isPasswordValid) {
-            return res.status(401).json({
-                error: 'Credenciales inválidas',
-                details: 'Email o contraseña incorrectos'
-            });
+        // Comparar contraseña
+        const validPassword = await bcrypt.compare(password, user.password);
+        if (!validPassword) {
+            return res.status(401).json({ error: 'Usuario o contraseña incorrectos' });
         }
 
-        // Generar tokens
-        const { accessToken, refreshToken } = generateTokens(user.id);
-
-        // Respuesta (sin incluir password)
-        const userResponse = {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            createdAt: user.createdAt,
-            preferences: user.preferences
-        };
-
-        res.json({
-            message: 'Login exitoso',
-            user: userResponse,
-            accessToken,
-            refreshToken
-        });
-
-        console.log(`✅ Usuario logueado: ${user.email}`);
-
+        // Generar tokens y retornar
+        const tokens = generateTokens(user.id);
+        res.json({ user: { id: user.id, name: user.name, email: user.email }, ...tokens });
     } catch (error) {
-        console.error("Error en login:", error);
-        res.status(500).json({
-            error: 'Error interno del servidor',
-            details: 'No se pudo completar el login'
-        });
+        console.error(error);
+        res.status(500).json({ error: 'Error al iniciar sesión' });
     }
 });
 
 // Refresh token
-app.post("/api/auth/refresh", (req, res) => {
-    try {
-        const { refreshToken } = req.body;
+app.post('/api/auth/refresh', async (req, res) => {
+    const { refreshToken } = req.body;
+    if (!refreshToken) return res.status(401).json({ error: 'Token requerido' });
 
-        if (!refreshToken) {
-            return res.status(401).json({ error: 'Refresh token requerido' });
-        }
+    // Buscar el refresh token en la BD
+    const tokenRow = await db.get('SELECT * FROM refresh_tokens WHERE token = ? AND expires_at > DATETIME("now")', refreshToken);
+    if (!tokenRow) return res.status(403).json({ error: 'Token inválido o expirado' });
 
-        jwt.verify(refreshToken, JWT_SECRET, (err, decoded) => {
-            if (err) {
-                return res.status(403).json({ error: 'Refresh token inválido' });
-            }
+    // Verificar y renovar
+    jwt.verify(refreshToken, JWT_SECRET, async (err, user) => {
+        if (err) return res.status(403).json({ error: 'Token inválido' });
 
-            const { accessToken, refreshToken: newRefreshToken } = generateTokens(decoded.userId);
-
-            res.json({
-                accessToken,
-                refreshToken: newRefreshToken
-            });
-        });
-
-    } catch (error) {
-        console.error("Error en refresh token:", error);
-        res.status(500).json({ error: 'Error interno del servidor' });
-    }
+        const newTokens = await generateTokens(user.userId);
+        res.json(newTokens);
+    });
 });
 
 // Logout (invalidar token - en una app real usarías una blacklist)
@@ -252,30 +162,6 @@ app.post("/api/auth/logout", authenticateToken, (req, res) => {
     // En una aplicación real, aquí añadirías el token a una blacklist
     res.json({ message: 'Logout exitoso' });
     console.log(`✅ Usuario deslogueado: ${req.user.userId}`);
-});
-
-// Obtener perfil del usuario
-app.get("/api/auth/profile", authenticateToken, (req, res) => {
-    try {
-        const user = users.find(u => u.id === req.user.userId);
-        if (!user) {
-            return res.status(404).json({ error: 'Usuario no encontrado' });
-        }
-
-        const userResponse = {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            createdAt: user.createdAt,
-            preferences: user.preferences
-        };
-
-        res.json({ user: userResponse });
-
-    } catch (error) {
-        console.error("Error obteniendo perfil:", error);
-        res.status(500).json({ error: 'Error interno del servidor' });
-    }
 });
 
 // RUTAS DE LIBRERÍA PERSONAL (requieren autenticación)
@@ -578,9 +464,23 @@ app.get("/api/health", (req, res) => {
         status: "OK",
         message: "BookHub API is running!",
         timestamp: new Date().toISOString(),
-        auth: "enabled",
-        users: users.length
+        auth: "enabled"
     });
+});
+
+// Nuevo endpoint para obtener el usuario autenticado desde la base de datos
+app.get("/api/auth/me", authenticateToken, async (req, res) => {
+    try {
+        const db = getDb();
+        const user = await db.get('SELECT id, name, email, created_at as createdAt, preferences FROM users WHERE id = ?', req.user.userId);
+        if (!user) {
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+        res.json({ user });
+    } catch (error) {
+        console.error("Error obteniendo perfil:", error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
 });
 
 // Error handling middleware

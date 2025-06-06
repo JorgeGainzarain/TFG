@@ -10,6 +10,7 @@ import { LibraryPage, AIRecommendationsPage, ProfilePage, NotFoundPage } from '.
 import { useAuth } from './hooks/useAuth';
 import { healthCheck } from './services/api';
 import './App.css';
+import {initializeAuth} from "./services/authService";
 
 // Componente interno que tiene acceso a useLocation
 const AppContent = () => {
@@ -33,7 +34,7 @@ const AppContent = () => {
         const checkIfMobile = () => {
             setIsMobile(window.innerWidth <= 768);
         };
-
+        // Check on mount and on resize
         checkIfMobile();
         window.addEventListener('resize', checkIfMobile);
         return () => window.removeEventListener('resize', checkIfMobile);
@@ -43,6 +44,18 @@ const AppContent = () => {
     useEffect(() => {
         checkApiHealth().then(r => {
             setApiStatus('connected');
+        });
+    }, []);
+
+    useEffect(() => {
+        initializeAuth().then(() => {
+            console.log('✅ Auth initialized');
+            setApiStatus('connected');
+
+            // Mostrar prompt de autenticación si no hay usuario autenticado
+            if (!isAuthenticated && location.pathname === '/') {
+                setShowAuthPrompt(true);
+            }
         });
     }, []);
 

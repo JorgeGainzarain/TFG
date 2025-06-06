@@ -242,22 +242,21 @@ export const logout = async () => {
 };
 
 export const getCurrentUser = async () => {
-    try {
-        const token = getAccessToken();
-        if (!token) {
-            return null;
+    const token = getAccessToken();
+    if (!token) return null;
+
+    const response = await fetch(`${API_BASE_URL}/auth/me`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
         }
+    });
 
-        const data = await authRequest('/auth/profile');
-        setUser(data.user);
-        return data.user;
+    if (!response.ok) return null;
 
-    } catch (error) {
-        console.error('Error getting current user:', error);
-        // Si hay error obteniendo el usuario, limpiar datos
-        await logout();
-        return null;
-    }
+    const data = await response.json();
+    return data.user;
 };
 
 // Inicializar estado de autenticación al cargar
