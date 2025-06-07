@@ -1,7 +1,6 @@
 // src/services/api.js
 // noinspection ExceptionCaughtLocallyJS
-
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
 
 // Generic API request function
 const apiRequest = async (endpoint, options = {}) => {
@@ -56,53 +55,6 @@ export const bookAPI = {
         return apiRequest(`/books/${bookId}`);
     },
 
-    // Get trending books
-    getTrendingBooks: async () => {
-        return apiRequest('/books/trending');
-    },
-
-    // Get AI recommendations
-    getRecommendations: async (genre = null) => {
-        const params = genre ? `?genre=${encodeURIComponent(genre)}` : '';
-        return apiRequest(`/books/recommendations${params}`);
-    },
-
-    // Advanced search with filters
-    advancedSearch: async (filters) => {
-        const {
-            query = '',
-            genre = '',
-            author = '',
-            year = '',
-            sortBy = 'relevance',
-            maxResults = 12,
-            startIndex = 0
-        } = filters;
-
-        // Build search query
-        let searchQuery = query;
-
-        if (author) {
-            searchQuery += `+inauthor:${author}`;
-        }
-
-        if (genre) {
-            searchQuery += `+subject:${genre}`;
-        }
-
-        if (year) {
-            searchQuery += `+publishedDate:${year}`;
-        }
-
-        const params = new URLSearchParams({
-            q: searchQuery || '',
-            maxResults: maxResults.toString(),
-            startIndex: startIndex.toString(),
-            orderBy: sortBy
-        });
-
-        return apiRequest(`/books/search?${params}`);
-    }
 };
 
 // Health check

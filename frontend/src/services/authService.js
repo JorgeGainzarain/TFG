@@ -2,12 +2,7 @@
 // noinspection UnnecessaryLocalVariableJS,ExceptionCaughtLocallyJS
 
 const React = require('react');
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-
-// Claves para localStorage
-const TOKEN_KEY = 'bookHub_accessToken';
-const REFRESH_TOKEN_KEY = 'bookHub_refreshToken';
-const USER_KEY = 'bookHub_user';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
 
 // Estado de autenticación
 let authState = {
@@ -150,7 +145,7 @@ export const register = async (userData) => {
         authState.loading = true;
         notifyAuthChange();
 
-        const response = await fetch(`${API_BASE_URL}/auth/register`, {
+        const response = await fetch(`${API_BASE_URL}/register`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -188,7 +183,7 @@ export const login = async (credentials) => {
         authState.loading = true;
         notifyAuthChange();
 
-        const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        const response = await fetch(`${API_BASE_URL}/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
