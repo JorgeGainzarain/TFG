@@ -33,35 +33,17 @@ const apiRequest = async (endpoint, options = {}) => {
 export const bookAPI = {
     // Search books - este endpoint necesita ser implementado
     searchBooks: async (query, options = {}) => {
-        const {
-            maxResults = 12,
-            startIndex = 0,
-            orderBy = 'relevance'
-        } = options;
-
-        const params = new URLSearchParams({
-            q: query,
-            maxResults: maxResults.toString(),
-            startIndex: startIndex.toString(),
-            orderBy
-        });
-
-        // Por ahora, devolver datos mock hasta que implementes este endpoint
-        console.warn('searchBooks endpoint not implemented yet, returning mock data');
-        return {
-            books: [],
-            totalItems: 0,
-            query: query,
-            startIndex: parseInt(startIndex),
-            maxResults: parseInt(maxResults)
-        };
+        try {
+            console.log(`Searching books with query: ${query}`);
+            const response = await apiRequest(`/book/?q=${encodeURIComponent(query)}`, options);
+            console.log(`Search response:`, response);
+            return response.data || [];
+        } catch (error) {
+            console.error('Error searching books:', error);
+            throw error;
+        }
     },
 
-    // Get book by ID - este endpoint necesita ser implementado
-    getBook: async (bookId) => {
-        console.warn('getBook endpoint not implemented yet');
-        return null;
-    },
 };
 
 // Health check

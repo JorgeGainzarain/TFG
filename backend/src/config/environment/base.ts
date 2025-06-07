@@ -4,6 +4,7 @@ import { User } from "../../app/user/user.model";
 import { Audit } from "../../app/audit/audit.model";
 import { EntityConfig } from "../../app/base/base.model";
 import { DBOptions } from "../../database/models/db-options";
+import {Book} from "../../app/book/book.model";
 
 export const baseConfig: {
     port: number;
@@ -11,6 +12,7 @@ export const baseConfig: {
     entityValues: {
         audit: EntityConfig<Audit>;
         review: EntityConfig<Review>;
+        book: EntityConfig<Book>;
         user: EntityConfig<User>;
     };
 } = {
@@ -42,6 +44,22 @@ export const baseConfig: {
                 { name: 'comment', type: 'TEXT' },
                 { name: 'createdAt', type: 'DATETIME' },
                 { name: 'likes', type: 'INTEGER' }
+            ]
+        },
+        book: {
+            table_name: 'books',
+            unit: 'Book',
+            requiredFields: [
+                { name: 'bookId', type: 'TEXT' },
+                { name: 'title', type: 'TEXT' },
+                { name: 'authors', type: 'TEXT' },
+                { name: 'publishedDate', type: 'DATETIME' },
+                { name: 'description', type: 'TEXT' },
+                { name: 'pageCount', type: 'INTEGER' },
+                { name: 'categories', type: 'TEXT' },
+                { name: 'thumbnail', type: 'TEXT' },
+                { name: 'language', type: 'TEXT' },
+                { name: 'previewLink', type: 'TEXT' },
             ]
         },
         user: {

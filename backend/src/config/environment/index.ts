@@ -7,6 +7,7 @@ const all = {
   env: process.env.NODE_ENV,
   port: process.env.PORT ? Number(process.env.PORT) : 5000,
   ip: process.env.IP || '0.0.0.0',
+  googleBooksApiKey: process.env.GOOGLE_BOOKS_API_KEY,
   user_forgot_pass_key: '3ac1194d22d53db7e2425d8f',
   user_sessions: {
     // Secret to sign the session ID

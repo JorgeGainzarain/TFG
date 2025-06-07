@@ -1,7 +1,7 @@
-import React, { useState, forwardRef, useImperativeHandle } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { bookAPI, handleApiError } from '../../services/api';
-import { logout } from '../../services/authService';
+import React, {forwardRef, useImperativeHandle, useState} from 'react';
+import {Link, useNavigate} from 'react-router-dom';
+import {bookAPI, handleApiError} from '../../services/api';
+import {logout} from '../../services/authService';
 import './Navbar.css';
 
 const Navbar = forwardRef(({ onSearchResults, onSearchLoading, onSearchError, user, isAuthenticated, onShowAuth }, ref) => {
@@ -196,17 +196,11 @@ const Navbar = forwardRef(({ onSearchResults, onSearchLoading, onSearchError, us
             if (!query) {
                 console.log('Empty search - showing AI placeholder recommendations');
                 results = getPlaceholderBooks();
-                query = ''; // Mantener query vacío para las recomendaciones
-
+                query = '';
                 // Simular delay para hacer más realista
                 await new Promise(resolve => setTimeout(resolve, 500));
             } else {
-                console.log('Searching for:', query);
-                const response = await bookAPI.searchBooks(query, {
-                    maxResults: 12,
-                    orderBy: 'relevance'
-                });
-                results = response.books;
+                results = await bookAPI.searchBooks(query);
             }
 
             console.log('Search results:', results);

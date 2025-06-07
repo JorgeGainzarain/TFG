@@ -19,7 +19,10 @@ const BookDetails = ({ book, user, isAuthenticated, onShowAuth, onGoBack }) => {
         publishedDate: "2007-03-27",
         pageCount: 662,
         language: "es",
-        thumbnail: "",
+        imageLinks: {
+            thumbnail: "https://example.com/thumbnail.jpg",
+            smallThumbnail: "https://example.com/small-thumbnail.jpg"
+        },
         description: "En una posada en tierra de nadie, un hombre se dispone a relatar, por primera vez, la auténtica historia de su vida. Una historia que únicamente él conoce y que ha dado lugar a su leyenda. Arrebatador, íntimo y atemporal, El Nombre del Viento es una novela de aventuras, de magia y de misterio. Una historia épica narrada de forma magistral que nos recuerda por qué amamos las historias. En una posada en tierra de nadie, un hombre se dispone a relatar, por primera vez, la auténtica historia de su vida. Una historia que únicamente él conoce y que ha dado lugar a su leyenda. Arrebatador, íntimo y atemporal, El Nombre del Viento es una novela de aventuras, de magia y de misterio. Una historia épica narrada de forma magistral que nos recuerda por qué amamos las historias.",
         previewLink: "https://books.google.com/preview",
         infoLink: "https://books.google.com/info"
@@ -30,32 +33,7 @@ const BookDetails = ({ book, user, isAuthenticated, onShowAuth, onGoBack }) => {
 
     // Better cover image handling
     const getCoverImage = (book) => {
-        const possibleImages = [
-            book.thumbnail,
-            book.cover,
-            book.coverImage,
-            book.image,
-            book.volumeInfo?.imageLinks?.thumbnail,
-            book.volumeInfo?.imageLinks?.smallThumbnail,
-            book.volumeInfo?.imageLinks?.medium,
-            book.volumeInfo?.imageLinks?.large,
-            book.imageLinks?.thumbnail,
-            book.imageLinks?.smallThumbnail,
-            book.imageLinks?.medium,
-            book.imageLinks?.large,
-            typeof book.thumbnail === 'object' ? book.thumbnail?.thumbnail : null,
-            typeof book.thumbnail === 'object' ? book.thumbnail?.smallThumbnail : null
-        ];
-
-        for (const img of possibleImages) {
-            if (img && typeof img === 'string' && img.trim() !== '') {
-                let enhancedUrl = img
-                    .replace('zoom=1', 'zoom=2')
-                    .replace('http://', 'https://');
-                return enhancedUrl;
-            }
-        }
-        return null;
+        return book.thumbnail;
     };
 
     const coverImageUrl = getCoverImage(currentBook);
@@ -147,7 +125,7 @@ const BookDetails = ({ book, user, isAuthenticated, onShowAuth, onGoBack }) => {
                 {/* Sección 1: Título y Autor - Ancho completo */}
                 <div className="book-title-header">
                     <h1 className="book-title">{currentBook.title}</h1>
-                    <p className="book-author">por {currentBook.author}</p>
+                    <p className="book-author">por {currentBook.authors.join(',')}</p>
                 </div>
 
                 {/* Sección 2: Portada + Información */}

@@ -101,7 +101,7 @@ const BookCard = ({
                     <div className="book-main-info">
                         <div className="book-header">
                             <h3 className="book-title">{book.title}</h3>
-                            <p className="book-author">por {book.author}</p>
+                            <p className="book-author">por {book?.authors.join(',')}</p>
                             {showDate && publishedYear && (
                                 <p className="book-date">📅 {publishedYear}</p>
                             )}
@@ -167,7 +167,7 @@ const BookCard = ({
             <div className="book-info">
                 <div className="book-main-content">
                     <h3 title={book.title}>{book.title}</h3>
-                    <p className="book-author" title={book.author}>{book.author}</p>
+                    <p className="book-author" title={book.authors.join(', ')}>{book.authors.join(',')}</p>
                     {showDate && publishedYear && (
                         <p className="book-date">📅 {publishedYear}</p>
                     )}
