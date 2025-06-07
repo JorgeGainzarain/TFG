@@ -51,7 +51,6 @@ const AppContent = () => {
         initializeAuth().then(() => {
             console.log('✅ Auth initialized');
             setApiStatus('connected');
-
         });
     }, []);
 
@@ -265,6 +264,13 @@ const AppContent = () => {
             </main>
 
             {isMobile && <MobileNavbar />}
+
+            {/* Auth Modal */}
+            <AuthOverlay
+                isVisible={showAuthOverlay}
+                onClose={handleCloseAuth}
+                onAuthSuccess={handleAuthSuccess}
+            />
 
             {/* Auth Prompt - Solo en home */}
             {showAuthPrompt && !isAuthenticated && location.pathname === '/' && (

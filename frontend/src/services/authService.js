@@ -215,7 +215,7 @@ export const login = async (credentials) => {
         const result = await response.json();
 
         if (!response.ok) {
-            throw new Error(result.message || 'Error en el login');
+            throw new Error(result.error || 'Error en el login');
         }
 
         if (result.status === 'success' && result.data) {
@@ -282,30 +282,43 @@ export const getCurrentUser = async () => {
 // Inicializar estado de autenticación al cargar
 export const initializeAuth = async () => {
     try {
+        console.log('🔄 Initializing auth...');
+
         const storedUser = getStoredUser();
         const token = getAccessToken();
 
+        console.log('Stored user:', storedUser ? 'exists' : 'none');
+        console.log('Token:', token ? 'exists' : 'none');
+
         if (storedUser && token) {
-            // Verificar si el token sigue siendo válido
+            // Primero establecer el usuario del localStorage
+            authState.user = storedUser;
+            authState.isAuthenticated = true;
+
+            // Luego verificar si el token sigue siendo válido (opcional)
             try {
                 const currentUser = await getCurrentUser();
                 if (currentUser) {
+                    // Token válido, actualizar con datos más recientes
                     authState.user = currentUser;
-                    authState.isAuthenticated = true;
+                    setUser(currentUser);
+                    console.log('✅ Auth restored and verified');
                 } else {
-                    // Token inválido, limpiar
-                    clearTokens();
+                    console.log('⚠️ Token invalid, keeping stored user');
                 }
             } catch (error) {
-                // Error verificando usuario, limpiar
-                clearTokens();
+                console.log('⚠️ Error verifying token, keeping stored user');
             }
+        } else {
+            console.log('❌ No stored auth data');
+            clearTokens();
         }
     } catch (error) {
         console.error('Error initializing auth:', error);
         clearTokens();
     } finally {
         notifyAuthChange();
+        console.log('Auth state after init:', authState);
     }
 };
 
@@ -352,7 +365,15 @@ export const isAuthenticated = () => {
 
 // Función para obtener el estado actual
 export const getAuthState = () => {
-    return { ...authState };
+    // Inicializar con datos del localStorage si existen
+    const storedUser = getStoredUser();
+    const token = getAccessToken();
+
+    return {
+        user: storedUser,
+        isAuthenticated: !!(storedUser && token),
+        loading: false
+    };
 };
 
 // Validaciones del lado cliente
