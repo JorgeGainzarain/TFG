@@ -12,7 +12,7 @@ const BookDetails = ({ book, user, isAuthenticated, onShowAuth, onGoBack }) => {
         id: "example-book-1",
         title: "El Nombre del Viento",
         author: "Patrick Rothfuss",
-        genres: ["Fantasía", "Aventura", "Épico"],
+        categories: ["Fantasía", "Aventura", "Épico"],
         rating: 4.8,
         reviewCount: 28470,
         coverEmoji: "🌪️",
@@ -65,7 +65,7 @@ const BookDetails = ({ book, user, isAuthenticated, onShowAuth, onGoBack }) => {
         setAddingToLibrary(true);
         try {
             console.log('Añadiendo a la librería:', currentBook);
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            // Añadir aqui la lógica para añadir el libro a la librería del usuario
             alert(`"${currentBook.title}" añadido a tu librería!`);
         } catch (err) {
             console.error('Error adding to library:', err);
@@ -112,12 +112,6 @@ const BookDetails = ({ book, user, isAuthenticated, onShowAuth, onGoBack }) => {
 
     return (
         <div className="book-details">
-            {/* Header con botón de regreso */}
-            <div className="book-details-header">
-                <button className="back-btn" onClick={handleGoBack}>
-                    ← Volver
-                </button>
-            </div>
 
             {/* Contenedor principal con diseño de libro */}
             <div className="book-details-container glass">
@@ -152,9 +146,9 @@ const BookDetails = ({ book, user, isAuthenticated, onShowAuth, onGoBack }) => {
                     <div className="book-info-section">
 
                         {/* Géneros */}
-                        {currentBook.genres && currentBook.genres.length > 0 && (
+                        {currentBook.categories && currentBook.categories.length > 0 && (
                             <div className="book-genres">
-                                {currentBook.genres.map((genre, index) => (
+                                {currentBook.categories.map((genre, index) => (
                                     <span key={index} className="genre-tag">
                                         {genre}
                                     </span>
@@ -208,11 +202,10 @@ const BookDetails = ({ book, user, isAuthenticated, onShowAuth, onGoBack }) => {
                             {/* Botones de acción */}
                             <div className="action-buttons">
                                 <button
-                                    className={`add-to-library-btn ${addingToLibrary ? 'loading' : ''}`}
+                                    className="add-to-library-btn"
                                     onClick={handleAddToLibrary}
-                                    disabled={addingToLibrary}
                                 >
-                                    {addingToLibrary ? '⏳ Añadiendo...' : '📚 Add Library'}
+                                    📚 Add Library
                                 </button>
 
                                 {currentBook.previewLink && (
@@ -232,7 +225,6 @@ const BookDetails = ({ book, user, isAuthenticated, onShowAuth, onGoBack }) => {
 
                 {/* Sección 3: Descripción - Ancho completo */}
                 <div className="book-description-section">
-                    <h3 className="description-title">Description</h3>
                     <div className="book-description">
                         {cleanDescription(currentBook.description)}
                     </div>
