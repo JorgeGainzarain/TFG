@@ -14,15 +14,6 @@ const FilterBar = ({ filters, onFilterChange }) => {
                 onChange={(e) => handleSelectChange('genre', e.target.value)}
             >
                 <option value="">Todos los géneros</option>
-                <option value="ficcion">Ficción</option>
-                <option value="no-ficcion">No ficción</option>
-                <option value="fantasia">Fantasía</option>
-                <option value="romance">Romance</option>
-                <option value="misterio">Misterio</option>
-                <option value="ciencia-ficcion">Ciencia Ficción</option>
-                <option value="autoayuda">Autoayuda</option>
-                <option value="drama">Drama</option>
-                <option value="historico">Histórico</option>
             </select>
 
             <select
@@ -30,12 +21,12 @@ const FilterBar = ({ filters, onFilterChange }) => {
                 value={filters.year || ''}
                 onChange={(e) => handleSelectChange('year', e.target.value)}
             >
-                <option value="">Cualquier año</option>
-                <option value="2024">2024</option>
-                <option value="2023">2023</option>
-                <option value="2022">2022</option>
-                <option value="2021">2021</option>
-                <option value="2020">2020</option>
+                <option value="">Cualquier década</option>
+                <option value="2020-2029">2020 - 2029</option>
+                <option value="2010-2019">2010 - 2019</option>
+                <option value="2000-2009">2000 - 2009</option>
+                <option value="1990-1999">1990 - 1999</option>
+                <option value="1980-1989">1980 - 1989</option>
                 <option value="clasicos">Clásicos</option>
             </select>
 

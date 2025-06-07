@@ -45,9 +45,11 @@ const SearchResults = ({
                     return year < 2000;
                 });
             } else {
-                filtered = filtered.filter(book =>
-                    book.publishedDate && book.publishedDate.includes(filters.year)
-                );
+                const [startYear, endYear] = filters.year.split('-').map(Number);
+                filtered = filtered.filter(book => {
+                    const year = book.publishedDate ? parseInt(book.publishedDate.split('-')[0]) : 0;
+                    return year >= startYear && year <= endYear;
+                });
             }
         }
 

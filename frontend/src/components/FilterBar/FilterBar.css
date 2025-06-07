@@ -1,72 +1,63 @@
-.filters {
+.filter-bar {
     display: flex;
     gap: 1rem;
+    align-items: center;
     margin-bottom: 1.5rem;
     flex-wrap: wrap;
-    justify-content: start;
-    align-items: start;
-    border-radius: 6px;
-    padding: 0.8rem;
+    background: rgba(245, 247, 250, 0.6);
+    padding: 1rem 1.5rem;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
 }
 
-.filter-select {
-    padding: 0.6rem 0.8rem;
+.filter-bar select {
+    padding: 0.5rem 1.2rem 0.5rem 0.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 1rem;
+    background: #fff;
+    color: #333;
+    outline: none;
+    transition: border-color 0.2s;
+    min-width: 140px;
+    appearance: none;
+    cursor: pointer;
+}
+
+.filter-bar select:focus {
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 2px #bae6fd;
+}
+
+.filter-bar button {
+    padding: 0.5rem 1.2rem;
+    background: #f87171;
+    color: #fff;
+    font-weight: 600;
     border: none;
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.08);
-    color: var(--text-primary);
-    font-size: 0.85rem;
-    backdrop-filter: blur(16px);
     cursor: pointer;
-    transition: all 0.3s ease;
-    min-width: 130px;
-}
-
-.filter-select:focus {
     outline: none;
-    box-shadow: 0 0 15px rgba(102, 126, 234, 0.3);
-    background: var(--bg-card-hover);
+    font-size: 1rem;
+    transition: background 0.2s, box-shadow 0.2s;
 }
 
-.filter-select:hover {
-    background: var(--bg-card-hover);
+.filter-bar button:hover {
+    background: #ef4444;
+    box-shadow: 0 2px 8px rgba(248, 113, 113, 0.18);
 }
 
-.filter-select option {
-    background: var(--bg-dark);
-    color: var(--text-primary);
-    padding: 0.5rem;
-}
-
-/* Mobile Responsive */
-@media (max-width: 768px) {
-    .filters {
-        display: flex;
-        gap: 0.8rem;
-        margin-bottom: 1.2rem;
-        flex-wrap: wrap;
-        justify-content: center;
-        align-items: center;
-        padding: 0.6rem;
+/* Responsive: stack on small screens */
+@media (max-width: 600px) {
+    .filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.7rem;
+        padding: 1rem;
     }
-
-    .filters::-webkit-scrollbar {
-        height: 4px;
-    }
-
-    .filters::-webkit-scrollbar-track {
-        background: transparent;
-    }
-
-    .filters::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.3);
-        border-radius: 2px;
-    }
-
-    .filter-select {
-        min-width: 120px;
-        flex-shrink: 0;
-        padding: 0.5rem 0.7rem;
-        font-size: 0.8rem;
+    .filter-bar select,
+    .filter-bar button {
+        min-width: 0;
+        width: 100%;
     }
 }

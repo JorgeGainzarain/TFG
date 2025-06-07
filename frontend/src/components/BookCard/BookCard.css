@@ -531,115 +531,48 @@
 
 /* Mobile Responsive */
 @media (max-width: 768px) {
-    .book-card {
-        padding: 15px;
-    }
-
-    /* En móvil, mostrar siempre el indicador */
-    .book-card::after {
-        opacity: 0.6;
-    }
-
-    .book-card:hover::after {
-        opacity: 1;
-    }
-
-    .book-card.vertical .book-cover {
-        height: 120px;
-    }
-
-    .book-card.vertical .cover-emoji-fallback {
-        font-size: 2rem;
-    }
-
-    .book-card.vertical .book-info h3 {
-        font-weight: 600;
-        margin-bottom: 0.4rem;
-        color: var(--text-primary);
-        line-height: 1.3;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        height: 2.6rem; /* Fixed height for title (2 lines max) */
-        flex-shrink: 0;
-    }
-
-    .book-card.vertical .book-genres {
-        margin-bottom: auto;
-        padding-bottom: 0.4rem;
-    }
-
-    .book-card.vertical .genre-tag {
-        font-size: 0.7rem;
-        padding: 0.15rem 0.5rem;
-        max-width: 80px;
-    }
-
-    .book-card.vertical .add-btn {
-        padding: 0.55rem;
-        font-size: 0.8rem;
-    }
-
-    /* Ajustar altura mínima en móvil */
-    .cards-grid-horizontal {
-        min-height: 400px; /* CRÍTICO: Altura mínima en móvil */
-    }
-
-    .cards-grid-horizontal > div {
-        min-height: 400px; /* CRÍTICO: Debe coincidir con el contenedor */
-    }
-
-    .cards-grid-horizontal .book-card {
-        min-width: 240px;
-        width: 240px;
-        min-height: 380px; /* CRÍTICO: Altura mínima de la card en móvil */
-    }
-
-    /* Horizontal variant en móvil */
     .book-card.horizontal {
-        flex-direction: column;
-        gap: 1rem;
-        padding: 1.25rem;
+        flex-direction: row;
+        gap: 0.8rem;
+        padding: 0.8rem;
         min-height: auto;
         height: auto;
     }
 
     .book-card.horizontal .book-cover {
-        width: 80px;
-        height: 110px;
+        width: 60px;
+        height: 80px;
         align-self: flex-start;
     }
 
     .book-card.horizontal .cover-emoji-fallback {
-        font-size: 2rem;
+        font-size: 1.5rem;
     }
 
     .book-content {
         flex-direction: column;
-        gap: 1rem;
-    }
-
-    .book-main-info {
         gap: 0.5rem;
     }
 
+    .book-main-info {
+        gap: 0.4rem;
+    }
+
     .book-card.horizontal .book-title {
-        font-size: 1.1rem;
+        font-size: 0.9rem;
     }
 
     .book-card.horizontal .book-author {
-        font-size: 0.85rem;
+        font-size: 0.75rem;
     }
 
     .book-card.horizontal .book-date {
-        font-size: 0.8rem;
+        font-size: 0.7rem;
     }
 
     .book-description {
-        -webkit-line-clamp: 3;
-        font-size: 0.85rem;
+        -webkit-line-clamp: 2;
+        font-size: 0.75rem;
     }
 
     .book-side-info {
@@ -647,7 +580,7 @@
         justify-content: space-between;
         align-items: center;
         min-width: auto;
-        gap: 1rem;
+        gap: 0.5rem;
     }
 
     .book-card.horizontal .book-rating {
@@ -657,12 +590,12 @@
 
     .book-card.horizontal .rating-text {
         text-align: left;
-        font-size: 0.8rem;
+        font-size: 0.7rem;
     }
 
     .book-card.horizontal .add-btn {
-        padding: 0.6rem 1rem;
-        font-size: 0.85rem;
+        padding: 0.4rem 0.6rem;
+        font-size: 0.75rem;
     }
 }
 

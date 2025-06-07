@@ -427,8 +427,10 @@ app.get("/api/books/search", async (req, res) => {
         const response = await makeGoogleBooksRequest(apiUrl);
 
         console.log("Response: ", response.data.items);
+        console.log("Response Lenght: ", response.data.items ? response.data.items.length : 0);
 
         const books = response.data.items ? response.data.items.map(formatBookData) : [];
+        console.log("Number of books", books.length);
 
        // console.log("Books found:", books.length);
         //console.log("Books:", books);
