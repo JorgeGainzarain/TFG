@@ -5,7 +5,7 @@ import { production } from './production';
 
 const all = {
   env: process.env.NODE_ENV,
-  port: process.env.PORT ? Number(process.env.PORT) : 3000,
+  port: process.env.PORT ? Number(process.env.PORT) : 5000,
   ip: process.env.IP || '0.0.0.0',
   user_forgot_pass_key: '3ac1194d22d53db7e2425d8f',
   user_sessions: {

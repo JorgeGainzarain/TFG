@@ -347,10 +347,10 @@ const Navbar = forwardRef(({ onSearchResults, onSearchLoading, onSearchError, us
                                 onClick={toggleUserMenu}
                             >
                                 <div className="user-avatar">
-                                    {getInitials(user.name)}
+                                    {getInitials(user.username)}
                                 </div>
                                 <div className="user-info">
-                                    <span className="user-name">{user.name}</span>
+                                    <span className="user-name">{user.username}</span>
                                     <span className="user-status">✨ Premium</span>
                                 </div>
                                 <span className="menu-arrow">
@@ -362,10 +362,10 @@ const Navbar = forwardRef(({ onSearchResults, onSearchLoading, onSearchError, us
                                 <div className="user-dropdown">
                                     <div className="user-dropdown-header">
                                         <div className="user-avatar large">
-                                            {getInitials(user.name)}
+                                            {getInitials(user.username)}
                                         </div>
                                         <div className="user-details">
-                                            <span className="user-name">{user.name}</span>
+                                            <span className="user-name">{user.username}</span>
                                             <span className="user-email">{user.email}</span>
                                         </div>
                                     </div>

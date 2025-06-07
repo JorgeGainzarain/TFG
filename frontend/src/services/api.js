@@ -1,6 +1,5 @@
 // src/services/api.js
-// noinspection ExceptionCaughtLocallyJS
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 // Generic API request function
 const apiRequest = async (endpoint, options = {}) => {
@@ -30,9 +29,9 @@ const apiRequest = async (endpoint, options = {}) => {
     }
 };
 
-// Book API functions
+// Book API functions - estos endpoints necesitarán ser implementados en tu backend
 export const bookAPI = {
-    // Search books
+    // Search books - este endpoint necesita ser implementado
     searchBooks: async (query, options = {}) => {
         const {
             maxResults = 12,
@@ -47,14 +46,22 @@ export const bookAPI = {
             orderBy
         });
 
-        return apiRequest(`/books/search?${params}`);
+        // Por ahora, devolver datos mock hasta que implementes este endpoint
+        console.warn('searchBooks endpoint not implemented yet, returning mock data');
+        return {
+            books: [],
+            totalItems: 0,
+            query: query,
+            startIndex: parseInt(startIndex),
+            maxResults: parseInt(maxResults)
+        };
     },
 
-    // Get book by ID
+    // Get book by ID - este endpoint necesita ser implementado
     getBook: async (bookId) => {
-        return apiRequest(`/books/${bookId}`);
+        console.warn('getBook endpoint not implemented yet');
+        return null;
     },
-
 };
 
 // Health check

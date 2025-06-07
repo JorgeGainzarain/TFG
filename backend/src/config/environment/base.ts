@@ -14,7 +14,7 @@ export const baseConfig: {
         user: EntityConfig<User>;
     };
 } = {
-    port: 3000,
+    port: 5000,
 
     dbOptions: {
         user: 'dbUser',
@@ -49,7 +49,9 @@ export const baseConfig: {
             unit: 'User',
             requiredFields: [
                 { name: 'username', type: 'TEXT' },
-                { name: 'password', type: 'TEXT' }
+                { name: 'email', type: 'TEXT' },
+                { name: 'password', type: 'TEXT' },
+                { name: 'createdAt', type: 'DATETIME' },
             ]
         }
     }

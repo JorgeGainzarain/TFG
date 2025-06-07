@@ -4,7 +4,8 @@ import { User } from "./user.model";
 import { BaseController } from "../base/base.controller";
 import { config } from "../../config/environment";
 import { NextFunction, Request, Response } from "express";
-import {createResponse} from "../../utils/response";
+import { createResponse } from "../../utils/response";
+import { authenticateJWT } from '../../middleware/authentificate_JWT';
 
 @Service()
 export class UserController extends BaseController<User> {
@@ -14,43 +15,109 @@ export class UserController extends BaseController<User> {
         protected userService: UserService
     ) {
         super(userService);
-        this.getRouter().post('/register', this.register.bind(this));
-        this.getRouter().post('/login', this.login.bind(this));
-        this.getRouter().post('/logout', this.logout.bind(this));
+
+        // Rutas de autenticación (sin JWT)
+        this.getRouter().post('/auth/register', this.register.bind(this));
+        this.getRouter().post('/auth/login', this.login.bind(this));
+        this.getRouter().post('/auth/logout', this.logout.bind(this));
+        this.getRouter().post('/auth/refresh', this.refresh.bind(this));
+
+        // Rutas protegidas (con JWT)
+        this.getRouter().get('/auth/me', authenticateJWT, this.getCurrentUser.bind(this));
+        this.getRouter().get('/health', this.healthCheck.bind(this));
     }
 
     async register(req: Request, res: Response, next: NextFunction): Promise<void> {
-        return this.userService.register(req.body)
-            .then((entity: Omit<User, 'password'>) => {
-                res.status(201).json(createResponse('success', 'registration successful', entity));
-            })
-            .catch((error: any) => {
-                next(error);
-            });
+        try {
+            const { user, token } = await this.userService.register(req.body);
+            req.session.token = token;
+            res.status(201).json(createResponse('success', 'User registered successfully', {
+                user,
+                accessToken: token,
+                refreshToken: token // Por ahora usamos el mismo token
+            }));
+        } catch (error: any) {
+            next(error);
+        }
     }
 
     async login(req: Request, res: Response, next: NextFunction): Promise<void> {
-        return this.userService.login(req.body)
-            .then(({ user, token } : {user: Omit<User,'password'>, token: string}) => {
-                req.session.token = token;
-                res.status(200).json(createResponse('success', 'login successful', { user, token }));
-            })
-            .catch((error: any) => {
-                next(error);
-            });
+        try {
+            const { user, token } = await this.userService.login(req.body);
+            req.session.token = token;
+            res.status(200).json(createResponse('success', 'Login successful', {
+                user,
+                accessToken: token,
+                refreshToken: token // Por ahora usamos el mismo token
+            }));
+        } catch (error: any) {
+            next(error);
+        }
     }
 
     async logout(req: Request, res: Response, next: NextFunction): Promise<void> {
-        if (!req.session.token) {
-            res.status(200).json(createResponse('success', 'no active session'));
-            return;
-        }
-        req.session.destroy((err: any) => {
-            if (err) {
-                next(err);
+        try {
+            if (!req.session.token) {
+                res.status(200).json(createResponse('success', 'No active session'));
+                return;
             }
-            res.status(200).json(createResponse('success', 'logout successful'));
-        });
+
+            req.session.destroy((err: any) => {
+                if (err) {
+                    next(err);
+                    return;
+                }
+                res.status(200).json(createResponse('success', 'Logout successful'));
+            });
+        } catch (error: any) {
+            next(error);
+        }
     }
 
+    async refresh(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const { refreshToken } = req.body;
+            if (!refreshToken) {
+                res.status(401).json(createResponse('error', 'Refresh token required'));
+                return;
+            }
+
+            // Por ahora, simplemente devolvemos el mismo token
+            // En una implementación real, validarías y generarías un nuevo token
+            res.status(200).json(createResponse('success', 'Token refreshed', {
+                accessToken: refreshToken,
+                refreshToken: refreshToken
+            }));
+        } catch (error: any) {
+            next(error);
+        }
+    }
+
+    async getCurrentUser(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const userId = (req as any).user?.id;
+            if (!userId) {
+                res.status(401).json(createResponse('error', 'User not authenticated'));
+                return;
+            }
+
+            const user = await this.userService.getById(userId);
+            res.status(200).json(createResponse('success', 'User retrieved successfully', { user }));
+        } catch (error: any) {
+            next(error);
+        }
+    }
+
+    async healthCheck(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            res.status(200).json({
+                status: "OK",
+                message: "BookHub API is running!",
+                timestamp: new Date().toISOString(),
+                auth: "enabled"
+            });
+        } catch (error: any) {
+            next(error);
+        }
+    }
 }

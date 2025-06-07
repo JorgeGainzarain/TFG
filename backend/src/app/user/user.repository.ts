@@ -20,8 +20,8 @@ export class UserRepository extends BaseRepository<User> {
     async findByFields(fields: any): Promise<User | undefined> {
 
         const queryDoc = {
-            sql: `SELECT * FROM ${this.entityConfig.table_name} WHERE username = ?`,
-            params: [fields.username]
+            sql: `SELECT * FROM ${this.entityConfig.table_name} WHERE email = ?`,
+            params: [fields.email]
         };
         const result = await this.databaseService.execQuery(queryDoc);
 

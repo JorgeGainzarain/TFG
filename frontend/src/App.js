@@ -52,10 +52,6 @@ const AppContent = () => {
             console.log('✅ Auth initialized');
             setApiStatus('connected');
 
-            // Mostrar prompt de autenticación si no hay usuario autenticado
-            if (!isAuthenticated && location.pathname === '/') {
-                setShowAuthPrompt(true);
-            }
         });
     }, []);
 
@@ -269,13 +265,6 @@ const AppContent = () => {
             </main>
 
             {isMobile && <MobileNavbar />}
-
-            {/* Auth Modal */}
-            <AuthOverlay
-                isVisible={showAuthOverlay}
-                onClose={handleCloseAuth}
-                onAuthSuccess={handleAuthSuccess}
-            />
 
             {/* Auth Prompt - Solo en home */}
             {showAuthPrompt && !isAuthenticated && location.pathname === '/' && (

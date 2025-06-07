@@ -8,7 +8,7 @@ import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { StatusError } from "../../utils/status_error";
-import {validateObject} from "../../utils/validation";
+import { validateObject, validatePartialObject } from "../../utils/validation";
 
 dotenv.config();
 
@@ -23,30 +23,96 @@ export class UserService extends BaseService<User> {
         super(auditService, userRepository);
     }
 
-    public async register(part_user: Partial<User>): Promise<Omit<User, 'password'>> {
-        const user = validateObject(part_user, this.entityConfig.requiredFields)
+    public async register(part_user: Partial<User>): Promise<{ user: Omit<User, 'password'>, token: string }> {
+
+        console .log('Registering user:', part_user);
+
+        // Validar que el username no exista
+        const existingUser = await this.userRepository.findByFields({ email: part_user.email });
+        if (existingUser) {
+            throw new StatusError(409, 'A user with this username already exists');
+        }
+        // Añadir createdAt si no se proporciona
+        if (!part_user.createdAt) {
+            part_user.createdAt = new Date();
+        }
+
+        // Validar los campos requeridos
+        const user = validateObject(part_user, this.entityConfig.requiredFields);
+
+        console.log('User to register:', user);
 
         const saltRounds = 10;
         user.password = await bcrypt.hash(user.password, saltRounds);
         const createdUser = await this.userRepository.create(user);
         const { password, ...userWithoutPassword } = createdUser;
 
-        await this.auditAction({ ...userWithoutPassword, password: ''} as User , 'registered');
-        return userWithoutPassword;
+
+        // Generar token JWT
+        const token = jwt.sign(
+            { id: createdUser.id, email: createdUser.email },
+            process.env.JWT_SECRET!,
+            { expiresIn: '24h' }
+        );
+
+        await this.auditAction({ ...userWithoutPassword, password: '' } as User, 'registered');
+        return { user: userWithoutPassword, token };
     }
 
     public async login(part_user: Partial<User>): Promise<{ user: Omit<User, 'password'>, token: string }> {
-        const user = validateObject(part_user, this.entityConfig.requiredFields);
+        const user = validatePartialObject(part_user, this.entityConfig.requiredFields);
+        if (!user.email || !user.password) {
+            throw new StatusError(400, 'Email and password are required');
+        }
 
-        const foundUser = await this.userRepository.findByFields({ username: user.username });
-        if (foundUser && await bcrypt.compare(user.password, foundUser.password)) {
-            const token = jwt.sign({ id: foundUser.id, username: foundUser.username }, process.env.JWT_SECRET!, { expiresIn: '1h' });
-            const { password, ...userWithoutPassword } = foundUser;
+        const foundUser = await this.userRepository.findByFields({ email: user.email });
+        if (!foundUser) {
+            throw new StatusError(401, 'Invalid email or password');
+        }
 
-            await this.auditAction({ ...userWithoutPassword, password: ''}, 'logged in');
-            return { user: userWithoutPassword, token };
-        } else {
-            throw new StatusError(401, 'Invalid username or password');
+        const isValidPassword = bcrypt.compare(user.password, foundUser.password);
+        if (!isValidPassword) {
+            throw new StatusError(401, 'Invalid email or password');
+        }
+
+        // Generar token JWT
+        const token = jwt.sign(
+            { id: foundUser.id, email: foundUser.email },
+            process.env.JWT_SECRET!,
+            { expiresIn: '24h' }
+        );
+
+        const { password, ...userWithoutPassword } = foundUser;
+
+        await this.auditAction({ ...userWithoutPassword, password: '' }, 'logged in');
+        return { user: userWithoutPassword, token };
+    }
+
+    public async verifyToken(token: string): Promise<{ id: number, email: string } | null> {
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+            return { id: decoded.id, email: decoded.email };
+        } catch (error) {
+            return null;
+        }
+    }
+
+    public async getUserFromToken(token: string): Promise<Omit<User, 'password'> | null> {
+        try {
+            const decoded = await this.verifyToken(token);
+            if (!decoded) {
+                return null;
+            }
+
+            const user = await this.userRepository.findById(decoded.id);
+            if (!user) {
+                return null;
+            }
+
+            const { password, ...userWithoutPassword } = user;
+            return userWithoutPassword;
+        } catch (error) {
+            return null;
         }
     }
 }

@@ -1,8 +1,10 @@
 // src/services/authService.js
-// noinspection UnnecessaryLocalVariableJS,ExceptionCaughtLocallyJS
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
-const React = require('react');
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
+// Claves para localStorage
+const TOKEN_KEY = 'bookhub_access_token';
+const REFRESH_TOKEN_KEY = 'bookhub_refresh_token';
+const USER_KEY = 'bookhub_user';
 
 // Estado de autenticación
 let authState = {
@@ -22,56 +24,12 @@ const notifyAuthChange = () => {
 // Función para suscribirse a cambios de autenticación
 export const subscribeToAuthChanges = (listener) => {
     authListeners.push(listener);
-
-    // Retornar función para desuscribirse
     return () => {
         const index = authListeners.indexOf(listener);
         if (index > -1) {
             authListeners.splice(index, 1);
         }
     };
-};
-
-// Función para hacer requests con auth
-const authRequest = async (endpoint, options = {}) => {
-    const token = getAccessToken();
-
-    const config = {
-        headers: {
-            'Content-Type': 'application/json',
-            ...(token && { 'Authorization': `Bearer ${token}` }),
-            ...options.headers,
-        },
-        ...options,
-    };
-
-    try {
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-
-        // Si el token expiró, intentar refresh
-        if (response.status === 403 && token) {
-            const refreshed = await refreshAccessToken();
-            if (refreshed) {
-                // Reintentar la request original con el nuevo token
-                config.headers['Authorization'] = `Bearer ${getAccessToken()}`;
-                return await fetch(`${API_BASE_URL}${endpoint}`, config);
-            } else {
-                // Refresh falló, logout automático
-                await logout();
-                throw new Error('Sesión expirada. Por favor inicia sesión nuevamente.');
-            }
-        }
-
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.details || errorData.error || `HTTP error! status: ${response.status}`);
-        }
-
-        return await response.json();
-    } catch (error) {
-        console.error('Auth request failed:', error);
-        throw error;
-    }
 };
 
 // Funciones de token management
@@ -110,6 +68,47 @@ export const getStoredUser = () => {
     }
 };
 
+// Función para hacer requests con auth
+const authRequest = async (endpoint, options = {}) => {
+    const token = getAccessToken();
+
+    const config = {
+        headers: {
+            'Content-Type': 'application/json',
+            ...(token && { 'Authorization': `Bearer ${token}` }),
+            ...options.headers,
+        },
+        ...options,
+    };
+
+    try {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+
+        // Si el token expiró, intentar refresh
+        if (response.status === 403 && token) {
+            const refreshed = await refreshAccessToken();
+            if (refreshed) {
+                config.headers['Authorization'] = `Bearer ${getAccessToken()}`;
+                return await fetch(`${API_BASE_URL}${endpoint}`, config);
+            } else {
+                await logout();
+                throw new Error('Sesión expirada. Por favor inicia sesión nuevamente.');
+            }
+        }
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || `HTTP error! status: ${response.status}`);
+        }
+
+        return data;
+    } catch (error) {
+        console.error('Auth request failed:', error);
+        throw error;
+    }
+};
+
 // Refresh token automático
 export const refreshAccessToken = async () => {
     try {
@@ -130,9 +129,13 @@ export const refreshAccessToken = async () => {
             return false;
         }
 
-        const data = await response.json();
-        setTokens(data.accessToken, data.refreshToken);
-        return true;
+        const result = await response.json();
+        if (result.status === 'success' && result.data) {
+            setTokens(result.data.accessToken, result.data.refreshToken);
+            return true;
+        }
+
+        return false;
     } catch (error) {
         console.error('Error refreshing token:', error);
         return false;
@@ -145,29 +148,41 @@ export const register = async (userData) => {
         authState.loading = true;
         notifyAuthChange();
 
-        const response = await fetch(`${API_BASE_URL}/register`, {
+        const registrationData = {
+            username: userData.name,
+            email: userData.email,
+            password: userData.password
+        };
+
+        const response = await fetch(`${API_BASE_URL}/auth/register`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(userData),
+            body: JSON.stringify(registrationData),
         });
 
-        const data = await response.json();
+        const result = await response.json();
+
+        console.log("Result of registration:", result);
 
         if (!response.ok) {
-            throw new Error(data.details || data.error || 'Error en el registro');
+            throw new Error(result.message || 'Error en el registro');
         }
 
-        // Guardar tokens y usuario
-        setTokens(data.accessToken, data.refreshToken);
-        setUser(data.user);
+        if (result.status === 'success' && result.data) {
+            // Guardar tokens y usuario
+            setTokens(result.data.accessToken, result.data.refreshToken);
+            setUser(result.data.user);
 
-        return {
-            success: true,
-            user: data.user,
-            message: data.message
-        };
+            return {
+                success: true,
+                user: result.data.user,
+                message: result.message
+            };
+        }
+
+        throw new Error('Respuesta inválida del servidor');
 
     } catch (error) {
         console.error('Registration error:', error);
@@ -183,29 +198,39 @@ export const login = async (credentials) => {
         authState.loading = true;
         notifyAuthChange();
 
-        const response = await fetch(`${API_BASE_URL}/login`, {
+        // Convertir email a username si se proporciona email
+        const loginData = {
+            email: credentials.email,
+            password: credentials.password
+        };
+
+        const response = await fetch(`${API_BASE_URL}/auth/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(credentials),
+            body: JSON.stringify(loginData),
         });
 
-        const data = await response.json();
+        const result = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.details || data.error || 'Error en el login');
+            throw new Error(result.message || 'Error en el login');
         }
 
-        // Guardar tokens y usuario
-        setTokens(data.accessToken, data.refreshToken);
-        setUser(data.user);
+        if (result.status === 'success' && result.data) {
+            // Guardar tokens y usuario
+            setTokens(result.data.accessToken, result.data.refreshToken);
+            setUser(result.data.user);
 
-        return {
-            success: true,
-            user: data.user,
-            message: data.message
-        };
+            return {
+                success: true,
+                user: result.data.user,
+                message: result.message
+            };
+        }
+
+        throw new Error('Respuesta inválida del servidor');
 
     } catch (error) {
         console.error('Login error:', error);
@@ -237,21 +262,21 @@ export const logout = async () => {
 };
 
 export const getCurrentUser = async () => {
-    const token = getAccessToken();
-    if (!token) return null;
+    try {
+        const token = getAccessToken();
+        if (!token) return null;
 
-    const response = await fetch(`${API_BASE_URL}/auth/me`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
+        const result = await authRequest('/auth/me');
+
+        if (result.status === 'success' && result.data) {
+            return result.data.user;
         }
-    });
 
-    if (!response.ok) return null;
-
-    const data = await response.json();
-    return data.user;
+        return null;
+    } catch (error) {
+        console.error('Error getting current user:', error);
+        return null;
+    }
 };
 
 // Inicializar estado de autenticación al cargar
@@ -284,7 +309,7 @@ export const initializeAuth = async () => {
     }
 };
 
-// Funciones para la librería personal
+// Funciones para la librería personal (stub - implementar cuando tengas el backend)
 export const getUserLibrary = async () => {
     try {
         const data = await authRequest('/library');
@@ -342,22 +367,4 @@ export const validatePassword = (password) => {
 
 export const validateName = (name) => {
     return name && name.trim().length >= 2;
-};
-
-// Hook personalizado para React (opcional)
-export const useAuth = () => {
-    const [state, setState] = React.useState(authState);
-
-    React.useEffect(() => {
-        const unsubscribe = subscribeToAuthChanges(setState);
-        return unsubscribe;
-    }, []);
-
-    return {
-        ...state,
-        login,
-        register,
-        logout,
-        isAuthenticated: isAuthenticated(),
-    };
 };

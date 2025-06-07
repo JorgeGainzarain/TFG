@@ -35,11 +35,11 @@ export class Server {
     // Use the error handler middleware
     this.app.use(errorHandler);
 
-    this.serverInstance = this.app.listen(config.PORT, this.onHttpServerListening);
+    this.serverInstance = this.app.listen(config.port, this.onHttpServerListening);
   }
 
   private onHttpServerListening(): void {
-    console.log(`Server express started in ${config.env} mode (ip:${config.ip}, port:${config.PORT})`);
+    console.log(`Server express started in ${config.env} mode (ip:${config.ip}, port:${config.port})`);
   }
 
   public async closeServer(): Promise<void> {
