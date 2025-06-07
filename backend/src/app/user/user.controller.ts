@@ -17,14 +17,13 @@ export class UserController extends BaseController<User> {
         super(userService);
 
         // Rutas de autenticación (sin JWT)
-        this.getRouter().post('/auth/register', this.register.bind(this));
-        this.getRouter().post('/auth/login', this.login.bind(this));
-        this.getRouter().post('/auth/logout', this.logout.bind(this));
-        this.getRouter().post('/auth/refresh', this.refresh.bind(this));
+        this.getRouter().post('/register', this.register.bind(this));
+        this.getRouter().post('/login', this.login.bind(this));
+        this.getRouter().post('/logout', this.logout.bind(this));
+        this.getRouter().post('/refresh', this.refresh.bind(this));
 
         // Rutas protegidas (con JWT)
-        this.getRouter().get('/auth/me', authenticateJWT, this.getCurrentUser.bind(this));
-        this.getRouter().get('/health', this.healthCheck.bind(this));
+        this.getRouter().get('/me', authenticateJWT, this.getCurrentUser.bind(this));
     }
 
     async register(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -103,19 +102,6 @@ export class UserController extends BaseController<User> {
 
             const user = await this.userService.getById(userId);
             res.status(200).json(createResponse('success', 'User retrieved successfully', { user }));
-        } catch (error: any) {
-            next(error);
-        }
-    }
-
-    async healthCheck(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            res.status(200).json({
-                status: "OK",
-                message: "BookHub API is running!",
-                timestamp: new Date().toISOString(),
-                auth: "enabled"
-            });
         } catch (error: any) {
             next(error);
         }
