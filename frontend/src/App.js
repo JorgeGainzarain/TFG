@@ -6,7 +6,8 @@ import AuthOverlay from './components/AuthOverlay/AuthOverlay';
 import HomePage from './pages/HomePage';
 import SearchPage from './pages/SearchPage';
 import BookDetailsPage from './pages/BookDetailsPage';
-import { LibraryPage, AIRecommendationsPage, ProfilePage, NotFoundPage } from './pages/AdditionalPages';
+import LibraryPage from './pages/LibraryPage';
+import { AIRecommendationsPage, ProfilePage, NotFoundPage } from './pages/AdditionalPages';
 import { useAuth } from './hooks/useAuth';
 import { healthCheck } from './services/api';
 import './App.css';
@@ -201,13 +202,10 @@ const AppContent = () => {
                     />
                     <Route
                         path="/library"
-                        element={
-                            <LibraryPage
-                                user={user}
-                                isAuthenticated={isAuthenticated}
-                                onShowAuth={handleShowAuth}
-                            />
-                        }
+                        element={<LibraryPage
+
+                        />
+                    }
                     />
                     <Route
                         path="/ai-recommendations"
@@ -231,13 +229,7 @@ const AppContent = () => {
                     />
                     <Route
                         path="/favorites"
-                        element={
-                            <LibraryPage
-                                user={user}
-                                isAuthenticated={isAuthenticated}
-                                onShowAuth={handleShowAuth}
-                            />
-                        }
+                        element={<LibraryPage />}
                     />
                     <Route
                         path="/stats"

@@ -1,38 +1,6 @@
 import React from 'react';
 import './Pages.css';
 
-// Página de Librería
-export const LibraryPage = ({ user, isAuthenticated, onShowAuth }) => {
-    if (!isAuthenticated) {
-        return (
-            <div className="page-container">
-                <div className="auth-required">
-                    <div className="auth-required-icon">📚</div>
-                    <h2>Inicia sesión para ver tu librería</h2>
-                    <p>Guarda y organiza tus libros favoritos creando una cuenta.</p>
-                    <button className="btn btn-primary" onClick={onShowAuth}>
-                        🔑 Iniciar Sesión
-                    </button>
-                </div>
-            </div>
-        );
-    }
-
-    return (
-        <div className="page-container">
-            <div className="page-header">
-                <h1>📚 Mi Librería</h1>
-                <p>Organiza y gestiona tu colección personal de libros</p>
-            </div>
-            <div className="coming-soon">
-                <div className="coming-soon-icon">🚧</div>
-                <h3>Próximamente</h3>
-                <p>Esta funcionalidad estará disponible pronto.</p>
-            </div>
-        </div>
-    );
-};
-
 // Página de Recomendaciones IA
 export const AIRecommendationsPage = ({ user, isAuthenticated, onShowAuth }) => {
     return (
@@ -76,10 +44,10 @@ export const ProfilePage = ({ user, isAuthenticated, onShowAuth }) => {
             <div className="profile-info">
                 <div className="user-card glass">
                     <div className="user-avatar large">
-                        {user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                        {user.username.split(' ').map(n => n[0]).join('').toUpperCase()}
                     </div>
                     <div className="user-details">
-                        <h3>{user.name}</h3>
+                        <h3>{user.username}</h3>
                         <p>{user.email}</p>
                     </div>
                 </div>
