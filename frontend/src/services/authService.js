@@ -322,42 +322,6 @@ export const initializeAuth = async () => {
     }
 };
 
-// Funciones para la librería personal (stub - implementar cuando tengas el backend)
-export const getUserLibrary = async () => {
-    try {
-        const data = await authRequest('/library');
-        return data.library;
-    } catch (error) {
-        console.error('Error getting user library:', error);
-        throw error;
-    }
-};
-
-export const addBookToShelf = async (shelf, bookId, bookData) => {
-    try {
-        const data = await authRequest(`/library/${shelf}`, {
-            method: 'POST',
-            body: JSON.stringify({ bookId, bookData }),
-        });
-        return data;
-    } catch (error) {
-        console.error('Error adding book to shelf:', error);
-        throw error;
-    }
-};
-
-export const removeBookFromShelf = async (shelf, bookId) => {
-    try {
-        const data = await authRequest(`/library/${shelf}/${bookId}`, {
-            method: 'DELETE',
-        });
-        return data;
-    } catch (error) {
-        console.error('Error removing book from shelf:', error);
-        throw error;
-    }
-};
-
 // Función para verificar si está autenticado
 export const isAuthenticated = () => {
     return authState.isAuthenticated && !!getAccessToken();
@@ -374,18 +338,4 @@ export const getAuthState = () => {
         isAuthenticated: !!(storedUser && token),
         loading: false
     };
-};
-
-// Validaciones del lado cliente
-export const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-};
-
-export const validatePassword = (password) => {
-    return password && password.length >= 6;
-};
-
-export const validateName = (name) => {
-    return name && name.trim().length >= 2;
 };

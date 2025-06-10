@@ -8,9 +8,6 @@ import {
     register,
     logout,
     initializeAuth,
-    getUserLibrary,
-    addBookToShelf,
-    removeBookFromShelf
 } from '../services/authService';
 
 export const useAuth = () => {
@@ -46,10 +43,5 @@ export const useAuth = () => {
         login,
         register,
         logout,
-
-        // Funciones de librería
-        getUserLibrary,
-        addBookToShelf,
-        removeBookFromShelf,
     };
 };

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { login, register, validateEmail, validatePassword, validateName } from '../../services/authService';
+import { login, register } from '../../services/authService';
+import { validateEmail, validatePassword, validateName } from '../../services/api';
 import './AuthOverlay.css';
 
 const AuthOverlay = ({ isVisible, onClose, onAuthSuccess }) => {

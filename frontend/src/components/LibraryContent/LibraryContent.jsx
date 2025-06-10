@@ -1,415 +1,413 @@
-// frontend/src/components/Library/LibraryContent.jsx
-import React, { useState, useRef, useEffect } from 'react';
-import BookCard from '../BookCard/BookCard';
-import LibraryStats from '../LibraryStats/LibraryStats';
+// frontend/src/components/LibraryContent/LibraryContent.jsx
+import React, { useState, useEffect } from 'react';
 import './LibraryContent.css';
 
-const LibraryContent = ({ user, isAuthenticated }) => {
-    const [activeShelf, setActiveShelf] = useState('all');
+const LibraryContent = ({ userBooks = [], onBookSelect, onAddBook, user }) => {
+    const [currentShelf, setCurrentShelf] = useState('all');
+    const [currentView, setCurrentView] = useState('grid');
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState('recent');
-    const [viewMode, setViewMode] = useState('grid');
-    const scrollContainerRef = useRef(null);
-    const [isDragging, setIsDragging] = useState(false);
-    const [startX, setStartX] = useState(0);
-    const [scrollLeft, setScrollLeft] = useState(0);
+    const [filteredBooks, setFilteredBooks] = useState([]);
 
-    // Datos placeholder para la librería del usuario
-    const [libraryData] = useState({
-        reading: [
-            {
-                id: 'reading-1',
-                title: 'El Nombre del Viento',
-                authors: ['Patrick Rothfuss'],
-                genres: ['Fantasía', 'Aventura'],
-                rating: 5,
-                reviewCount: 28470,
-                coverEmoji: '🌪️',
-                publishedDate: '2007-03-27',
-                addedDate: '2024-12-01',
-                progress: 65,
-                currentPage: 430,
-                totalPages: 662,
-                thumbnail: '',
-                description: 'Una historia épica sobre un joven héroe y su búsqueda de la verdad.',
-                notes: 'Increíble worldbuilding, me encanta el sistema de magia.'
-            },
-            {
-                id: 'reading-2',
-                title: 'Atomic Habits',
-                authors: ['James Clear'],
-                genres: ['Autoayuda', 'Productividad'],
-                rating: 4,
-                reviewCount: 89430,
-                coverEmoji: '⚡',
-                publishedDate: '2018-10-16',
-                addedDate: '2024-11-28',
-                progress: 35,
-                currentPage: 112,
-                totalPages: 320,
-                thumbnail: '',
-                description: 'La guía definitiva para formar buenos hábitos y romper los malos.',
-                notes: 'Métodos muy prácticos, ya estoy implementando varios consejos.'
+    // Datos de estantes
+    const shelfData = {
+        all: { title: "📚 Todos los libros", icon: "📚" },
+        reading: { title: "📖 Leyendo actualmente", icon: "📖" },
+        toread: { title: "📋 Por leer", icon: "📋" },
+        read: { title: "✅ Libros leídos", icon: "✅" },
+        favorites: { title: "⭐ Mis favoritos", icon: "⭐" }
+    };
+
+    // Calcular estadísticas
+    const stats = {
+        total: userBooks.length,
+        reading: userBooks.filter(book => book.status === 'reading').length,
+        read: userBooks.filter(book => book.status === 'read').length,
+        toread: userBooks.filter(book => book.status === 'toread').length,
+        favorites: userBooks.filter(book => book.isFavorite).length,
+        totalPages: userBooks.reduce((acc, book) => acc + (book.pageCount || 0), 0),
+        avgRating: userBooks.length > 0 ?
+            (userBooks.reduce((acc, book) => acc + (book.rating || 0), 0) / userBooks.length).toFixed(1) : 0
+    };
+
+    // Filtrar y ordenar libros
+    useEffect(() => {
+        let filtered = userBooks;
+
+        // Filtrar por estante
+        if (currentShelf !== 'all') {
+            if (currentShelf === 'favorites') {
+                filtered = filtered.filter(book => book.isFavorite);
+            } else {
+                filtered = filtered.filter(book => book.status === currentShelf);
             }
-        ],
-        toRead: [
-            {
-                id: 'toread-1',
-                title: 'Dune',
-                authors: ['Frank Herbert'],
-                genres: ['Ciencia Ficción', 'Épico'],
-                rating: 4,
-                reviewCount: 198760,
-                coverEmoji: '🏜️',
-                publishedDate: '1965-08-01',
-                addedDate: '2024-11-25',
-                thumbnail: '',
-                description: 'La obra maestra de la ciencia ficción que definió un género.',
-                priority: 'high'
-            },
-            {
-                id: 'toread-2',
-                title: 'The Midnight Library',
-                authors: ['Matt Haig'],
-                genres: ['Ficción', 'Filosofía'],
-                rating: 4,
-                reviewCount: 54320,
-                coverEmoji: '🌙',
-                publishedDate: '2020-08-13',
-                addedDate: '2024-11-20',
-                thumbnail: '',
-                description: 'Una reflexión profunda sobre las decisiones de la vida.',
-                priority: 'medium'
-            }
-        ],
-        read: [
-            {
-                id: 'read-1',
-                title: 'Sapiens',
-                authors: ['Yuval Noah Harari'],
-                genres: ['Historia', 'Antropología'],
-                rating: 5,
-                reviewCount: 156780,
-                coverEmoji: '🧠',
-                publishedDate: '2014-09-04',
-                addedDate: '2024-10-15',
-                completedDate: '2024-11-15',
-                thumbnail: '',
-                description: 'Una mirada fascinante a la historia de la humanidad.',
-                userRating: 5,
-                userReview: 'Cambió completamente mi perspectiva sobre la historia humana. Fascinante.',
-                readingTime: 12
-            },
-            {
-                id: 'read-2',
-                title: 'The Hobbit',
-                authors: ['J.R.R. Tolkien'],
-                genres: ['Fantasía', 'Aventura'],
-                rating: 5,
-                reviewCount: 234560,
-                coverEmoji: '🏔️',
-                publishedDate: '1937-09-21',
-                addedDate: '2024-09-10',
-                completedDate: '2024-10-05',
-                thumbnail: '',
-                description: 'La aventura que cambió la literatura fantástica para siempre.',
-                userRating: 5,
-                userReview: 'Un clásico que nunca pasa de moda. Tolkien es un genio.',
-                readingTime: 8
-            }
-        ],
-        favorites: [
-            {
-                id: 'fav-1',
-                title: 'Cien años de soledad',
-                authors: ['Gabriel García Márquez'],
-                genres: ['Realismo Mágico', 'Literatura'],
-                rating: 5,
-                reviewCount: 245230,
-                coverEmoji: '📖',
-                publishedDate: '1967-05-30',
-                addedDate: '2024-08-15',
-                thumbnail: '',
-                description: 'Una obra maestra del realismo mágico latinoamericano.',
-                userRating: 5,
-                userReview: 'Mi libro favorito de todos los tiempos. Una obra de arte literaria.',
-                tags: ['Clásico', 'Obra maestra']
-            }
-        ]
-    });
-
-    const shelves = [
-        { id: 'all', name: 'Todos los libros', icon: '📚', count: getTotalBooks() },
-        { id: 'reading', name: 'Leyendo', icon: '📖', count: libraryData.reading.length },
-        { id: 'toRead', name: 'Por leer', icon: '📋', count: libraryData.toRead.length },
-        { id: 'read', name: 'Leídos', icon: '✅', count: libraryData.read.length },
-        { id: 'favorites', name: 'Favoritos', icon: '⭐', count: libraryData.favorites.length }
-    ];
-
-    function getTotalBooks() {
-        return Object.values(libraryData).reduce((total, shelf) => total + shelf.length, 0);
-    }
-
-    const getFilteredBooks = () => {
-        let books = [];
-
-        if (activeShelf === 'all') {
-            books = [
-                ...libraryData.reading.map(book => ({ ...book, shelf: 'reading' })),
-                ...libraryData.toRead.map(book => ({ ...book, shelf: 'toRead' })),
-                ...libraryData.read.map(book => ({ ...book, shelf: 'read' })),
-                ...libraryData.favorites.map(book => ({ ...book, shelf: 'favorites' }))
-            ];
-        } else {
-            books = libraryData[activeShelf]?.map(book => ({ ...book, shelf: activeShelf })) || [];
         }
 
-        // Filtrar por término de búsqueda
+        // Filtrar por búsqueda
         if (searchTerm) {
-            books = books.filter(book =>
-                book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                book.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                book.genres.some(genre => genre.toLowerCase().includes(searchTerm.toLowerCase()))
+            filtered = filtered.filter(book =>
+                book.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                book.authors?.some(author => author.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                book.categories?.some(cat => cat.toLowerCase().includes(searchTerm.toLowerCase()))
             );
         }
 
-        // Ordenar
+        // Ordenar libros
         switch (sortBy) {
-            case 'recent':
-                books.sort((a, b) => new Date(b.addedDate) - new Date(a.addedDate));
-                break;
             case 'title':
-                books.sort((a, b) => a.title.localeCompare(b.title));
+                filtered.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
                 break;
             case 'author':
-                books.sort((a, b) => a.author.localeCompare(b.author));
+                filtered.sort((a, b) => {
+                    const authorA = a.authors?.[0] || '';
+                    const authorB = b.authors?.[0] || '';
+                    return authorA.localeCompare(authorB);
+                });
                 break;
             case 'rating':
-                books.sort((a, b) => (b.userRating || b.rating) - (a.userRating || a.rating));
+                filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
                 break;
             case 'progress':
-                books.sort((a, b) => (b.progress || 0) - (a.progress || 0));
+                filtered.sort((a, b) => (b.progress || 0) - (a.progress || 0));
                 break;
             default:
+                // Mantener orden original para 'recent'
                 break;
         }
 
-        return books;
+        setFilteredBooks(filtered);
+    }, [userBooks, currentShelf, searchTerm, sortBy]);
+
+    // Cambiar estante
+    const switchShelf = (shelf) => {
+        setCurrentShelf(shelf);
     };
 
-    const filteredBooks = getFilteredBooks();
-
-    const handleAddToLibrary = (book) => {
-        console.log('Actualizando libro en librería:', book);
-        alert(`Funcionalidad de gestión de librería próximamente`);
+    // Cambiar vista
+    const switchView = (view) => {
+        setCurrentView(view);
     };
 
-    // Drag scroll functionality para vista horizontal
-    const handleMouseDown = (e) => {
-        if (viewMode !== 'horizontal') return;
-        setIsDragging(true);
-        setStartX(e.pageX - scrollContainerRef.current.offsetLeft);
-        setScrollLeft(scrollContainerRef.current.scrollLeft);
+    // Renderizar estrellas
+    const renderStars = (rating) => {
+        const stars = [];
+        for (let i = 1; i <= 5; i++) {
+            stars.push(
+                <span key={i} className={`star ${i <= rating ? 'filled' : ''}`}>
+                    {i <= rating ? '★' : '☆'}
+                </span>
+            );
+        }
+        return stars;
     };
 
-    const handleMouseUp = () => {
-        setIsDragging(false);
+    // Renderizar tarjeta de libro
+    const renderBookCard = (book) => {
+        const getStatusText = () => {
+            switch (book.status) {
+                case 'reading':
+                    return `${book.progress || 0}% • Página ${book.currentPage || 0} de ${book.pageCount || 0}`;
+                case 'read':
+                    return '✅ Completado';
+                case 'toread':
+                    return '📋 En lista de lectura';
+                default:
+                    return 'Sin estado';
+            }
+        };
+
+        const getBookEmoji = (book) => {
+            if (book.categories && book.categories.length > 0) {
+                const category = book.categories[0].toLowerCase();
+                if (category.includes('fantasy')) return '🏰';
+                if (category.includes('science')) return '🚀';
+                if (category.includes('romance')) return '💕';
+                if (category.includes('mystery')) return '🔍';
+                if (category.includes('horror')) return '👻';
+                if (category.includes('history')) return '📜';
+                if (category.includes('biography')) return '👤';
+                if (category.includes('business')) return '💼';
+            }
+            return '📖';
+        };
+
+        return (
+            <div
+                key={book.id}
+                className="book-card"
+                onClick={() => onBookSelect && onBookSelect(book)}
+            >
+                <div className="book-content">
+                    <div className="book-cover">
+                        {book.thumbnail ? (
+                            <img
+                                src={book.thumbnail}
+                                alt={book.title}
+                                onError={(e) => {
+                                    e.target.style.display = 'none';
+                                    e.target.nextSibling.style.display = 'flex';
+                                }}
+                            />
+                        ) : null}
+                        <div className="book-cover-fallback" style={{display: book.thumbnail ? 'none' : 'flex'}}>
+                            {getBookEmoji(book)}
+                        </div>
+                    </div>
+                    <h4 className="book-title">{book.title}</h4>
+                    <p className="book-author">{book.authors?.join(', ') || 'Autor desconocido'}</p>
+
+                    {book.status === 'reading' && (
+                        <div className="book-progress-section">
+                            <div className="book-progress">
+                                <div
+                                    className="progress-fill"
+                                    style={{width: `${book.progress || 0}%`}}
+                                ></div>
+                            </div>
+                            <p className="progress-text">{getStatusText()}</p>
+                        </div>
+                    )}
+
+                    {book.status === 'read' && book.rating && (
+                        <div className="book-rating">
+                            {renderStars(book.rating)}
+                        </div>
+                    )}
+
+                    {book.status !== 'reading' && (
+                        <p className="progress-text">{getStatusText()}</p>
+                    )}
+
+                    {book.isFavorite && (
+                        <div className="favorite-indicator">⭐</div>
+                    )}
+                </div>
+            </div>
+        );
     };
 
-    const handleMouseMove = (e) => {
-        if (!isDragging || viewMode !== 'horizontal') return;
-        e.preventDefault();
-        const x = e.pageX - scrollContainerRef.current.offsetLeft;
-        const walk = (x - startX) * 2;
-        scrollContainerRef.current.scrollLeft = scrollLeft - walk;
-    };
+    // Estado vacío
+    const renderEmptyState = () => (
+        <div className="empty-state">
+            <div className="empty-icon">📚</div>
+            <h3>
+                {searchTerm ? 'No se encontraron libros' : `No tienes libros en ${shelfData[currentShelf].title.toLowerCase()}`}
+            </h3>
+            <p>
+                {searchTerm
+                    ? `No hay resultados para "${searchTerm}"`
+                    : 'Agrega algunos libros para empezar tu biblioteca'
+                }
+            </p>
+            {searchTerm && (
+                <button
+                    className="clear-search-btn"
+                    onClick={() => setSearchTerm('')}
+                >
+                    Limpiar búsqueda
+                </button>
+            )}
+            {!searchTerm && onAddBook && (
+                <button
+                    className="add-book-btn"
+                    onClick={onAddBook}
+                >
+                    Buscar libros
+                </button>
+            )}
+        </div>
+    );
 
     return (
-        <div className="library-content">
-            {/* Header de la librería */}
-            <div className="library-header">
-                <div className="library-title-section">
-                    <h1 className="library-title">📚 Mi Librería Personal</h1>
-                    <p className="library-subtitle">
-                        ¡Hola {user?.username}! Aquí tienes tu colección personalizada de libros
-                    </p>
-                </div>
-            </div>
+        <div className="library-container">
+            {/* Hero Header */}
+            <div className="library-hero">
+                <div className="hero-background"></div>
+                <h1 className="library-title">Mi Librería Personal</h1>
+                <p className="library-subtitle">
+                    ¡Hola {user?.name || 'Usuario'}! Bienvenido a tu espacio de lectura personal.
+                    Aquí puedes gestionar y disfrutar de tu colección de libros.
+                </p>
 
-            {/* Estadísticas */}
-            <LibraryStats libraryData={libraryData} />
-
-            {/* Controles */}
-            <div className="library-controls">
-                <div className="library-shelves">
-                    {shelves.map((shelf) => (
-                        <button
-                            key={shelf.id}
-                            className={`shelf-btn ${activeShelf === shelf.id ? 'active' : ''}`}
-                            onClick={() => setActiveShelf(shelf.id)}
-                        >
-                            <span className="shelf-icon">{shelf.icon}</span>
-                            <span className="shelf-name">{shelf.name}</span>
-                            <span className="shelf-count">{shelf.count}</span>
-                        </button>
-                    ))}
-                </div>
-
-                <div className="library-search-controls">
-                    <div className="search-input-container">
-                        <input
-                            type="text"
-                            className="library-search"
-                            placeholder="Buscar en tu librería..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                        <span className="search-icon">🔍</span>
+                <div className="hero-stats">
+                    <div className="hero-stat">
+                        <span className="hero-stat-number">{stats.total}</span>
+                        <span className="hero-stat-label">Total Libros</span>
                     </div>
-
-                    <select
-                        className="sort-select"
-                        value={sortBy}
-                        onChange={(e) => setSortBy(e.target.value)}
-                    >
-                        <option value="recent">Agregados recientemente</option>
-                        <option value="title">Por título</option>
-                        <option value="author">Por autor</option>
-                        <option value="rating">Por puntuación</option>
-                        {activeShelf === 'reading' && <option value="progress">Por progreso</option>}
-                    </select>
-
-                    <div className="view-controls">
-                        <button
-                            className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
-                            onClick={() => setViewMode('grid')}
-                            title="Vista en cuadrícula"
-                        >
-                            ⊞
-                        </button>
-                        <button
-                            className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
-                            onClick={() => setViewMode('list')}
-                            title="Vista en lista"
-                        >
-                            ☰
-                        </button>
-                        <button
-                            className={`view-btn ${viewMode === 'horizontal' ? 'active' : ''}`}
-                            onClick={() => setViewMode('horizontal')}
-                            title="Vista horizontal"
-                        >
-                            ↔
-                        </button>
+                    <div className="hero-stat">
+                        <span className="hero-stat-number">{stats.reading}</span>
+                        <span className="hero-stat-label">Leyendo</span>
+                    </div>
+                    <div className="hero-stat">
+                        <span className="hero-stat-number">{stats.read}</span>
+                        <span className="hero-stat-label">Completados</span>
+                    </div>
+                    <div className="hero-stat">
+                        <span className="hero-stat-number">{stats.toread}</span>
+                        <span className="hero-stat-label">Por Leer</span>
                     </div>
                 </div>
             </div>
 
-            {/* Contenido de la librería */}
-            <div className="library-books-section">
-                {filteredBooks.length === 0 ? (
-                    <div className="empty-library">
-                        <div className="empty-icon">📚</div>
-                        <h3>
-                            {searchTerm
-                                ? `No se encontraron libros para "${searchTerm}"`
-                                : activeShelf === 'all'
-                                    ? 'Tu librería está vacía'
-                                    : `No tienes libros en "${shelves.find(s => s.id === activeShelf)?.name}"`
-                            }
-                        </h3>
-                        <p>
-                            {searchTerm
-                                ? 'Intenta con otros términos de búsqueda'
-                                : '¡Empieza a agregar libros a tu colección personal!'
-                            }
-                        </p>
-                        {searchTerm && (
-                            <button
-                                className="clear-search-btn"
-                                onClick={() => setSearchTerm('')}
-                            >
-                                Limpiar búsqueda
-                            </button>
-                        )}
+            {/* Main Layout */}
+            <div className="library-main">
+                {/* Library Content */}
+                <div className="library-content">
+                    {/* Navigation */}
+                    <div className="library-nav">
+                        <div className="nav-tabs">
+                            {Object.entries(shelfData).map(([key, data]) => (
+                                <button
+                                    key={key}
+                                    className={`nav-tab ${currentShelf === key ? 'active' : ''}`}
+                                    onClick={() => switchShelf(key)}
+                                >
+                                    <span className="tab-icon">{data.icon}</span>
+                                    <span className="tab-label">{data.title.replace(/[📚📖📋✅⭐]\s/, '')}</span>
+                                    <span className="tab-count">
+                                        {key === 'all' ? stats.total :
+                                            key === 'favorites' ? stats.favorites :
+                                                stats[key] || 0}
+                                    </span>
+                                </button>
+                            ))}
+                        </div>
                     </div>
-                ) : (
-                    <div
-                        className={`books-container ${viewMode}`}
-                        ref={scrollContainerRef}
-                        onMouseDown={handleMouseDown}
-                        onMouseUp={handleMouseUp}
-                        onMouseMove={handleMouseMove}
-                        onMouseLeave={handleMouseUp}
-                        style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
-                    >
-                        {filteredBooks.map((book) => (
-                            <div
-                                key={`${book.shelf}-${book.id}`}
-                                className="book-container"
-                                onClick={(e) => isDragging && e.preventDefault()}
-                            >
-                                <BookCard
-                                    book={book}
-                                    variant={viewMode === 'list' ? 'horizontal' : 'vertical'}
-                                    showDescription={viewMode === 'list'}
-                                    showDate={true}
-                                    onAddToLibrary={handleAddToLibrary}
-                                    libraryMode={true}
-                                    shelfInfo={book.shelf}
+
+                    {/* Controls */}
+                    <div className="library-controls">
+                        <div className="controls-grid">
+                            <div className="search-container">
+                                <input
+                                    type="text"
+                                    className="search-input"
+                                    placeholder="Buscar libros por título, autor o género..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
                                 />
-
-                                {/* Información adicional de la librería */}
-                                <div className="library-book-info">
-                                    {book.shelf === 'reading' && book.progress && (
-                                        <div className="reading-progress">
-                                            <div className="progress-bar">
-                                                <div
-                                                    className="progress-fill"
-                                                    style={{ width: `${book.progress}%` }}
-                                                ></div>
-                                            </div>
-                                            <span className="progress-text">
-                                                {book.progress}% • Página {book.currentPage} de {book.totalPages}
-                                            </span>
-                                        </div>
-                                    )}
-
-                                    {book.shelf === 'toRead' && book.priority && (
-                                        <div className={`priority-badge ${book.priority}`}>
-                                            {book.priority === 'high' ? '🔥' : book.priority === 'medium' ? '📌' : '⏳'}
-                                            {book.priority === 'high' ? 'Alta prioridad' : book.priority === 'medium' ? 'Media' : 'Baja'}
-                                        </div>
-                                    )}
-
-                                    {book.shelf === 'read' && book.userRating && (
-                                        <div className="user-rating">
-                                            <span className="rating-label">Tu puntuación:</span>
-                                            <div className="stars">
-                                                {[1, 2, 3, 4, 5].map(star => (
-                                                    <span key={star} className={`star ${star <= book.userRating ? 'filled' : ''}`}>
-                                                        ★
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {book.shelf && (
-                                        <div className="shelf-badge">
-                                            <span className="shelf-icon">
-                                                {shelves.find(s => s.id === book.shelf)?.icon}
-                                            </span>
-                                            <span className="shelf-label">
-                                                {shelves.find(s => s.id === book.shelf)?.name}
-                                            </span>
-                                        </div>
-                                    )}
-                                </div>
+                                <span className="search-icon">🔍</span>
                             </div>
-                        ))}
+
+                            <select
+                                className="sort-select"
+                                value={sortBy}
+                                onChange={(e) => setSortBy(e.target.value)}
+                            >
+                                <option value="recent">Agregados recientemente</option>
+                                <option value="title">Por título A-Z</option>
+                                <option value="author">Por autor A-Z</option>
+                                <option value="progress">Por progreso</option>
+                                <option value="rating">Por puntuación</option>
+                            </select>
+
+                            <div className="view-controls">
+                                <button
+                                    className={`view-btn ${currentView === 'grid' ? 'active' : ''}`}
+                                    onClick={() => switchView('grid')}
+                                    title="Vista en cuadrícula"
+                                >
+                                    ⊞
+                                </button>
+                                <button
+                                    className={`view-btn ${currentView === 'list' ? 'active' : ''}`}
+                                    onClick={() => switchView('list')}
+                                    title="Vista en lista"
+                                >
+                                    ☰
+                                </button>
+                                <button
+                                    className={`view-btn ${currentView === 'horizontal' ? 'active' : ''}`}
+                                    onClick={() => switchView('horizontal')}
+                                    title="Vista horizontal"
+                                >
+                                    ↔
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                )}
+
+                    {/* Bookshelf */}
+                    <div className="bookshelf">
+                        <div className="shelf-header">
+                            <h3 className="shelf-title">
+                                {shelfData[currentShelf].title}
+                            </h3>
+                            <span className="book-count">
+                                {filteredBooks.length} libro{filteredBooks.length !== 1 ? 's' : ''}
+                            </span>
+                        </div>
+
+                        {/* Books Grid */}
+                        <div className={`books-grid ${currentView}`}>
+                            {filteredBooks.length > 0
+                                ? filteredBooks.map(renderBookCard)
+                                : renderEmptyState()
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                {/* Statistics Sidebar */}
+                <div className="stats-sidebar">
+                    <h3 className="stats-title">📊 Estadísticas de Lectura</h3>
+
+                    <div className="stats-grid">
+                        <div className="stat-card">
+                            <div className="stat-content">
+                                <span className="stat-number">{stats.totalPages.toLocaleString()}</span>
+                                <span className="stat-label">Páginas totales</span>
+                            </div>
+                        </div>
+
+                        <div className="stat-card">
+                            <div className="stat-content">
+                                <span className="stat-number">{Math.round(stats.totalPages / 60)}h</span>
+                                <span className="stat-label">Tiempo estimado</span>
+                            </div>
+                        </div>
+
+                        <div className="stat-card">
+                            <div className="stat-content">
+                                <span className="stat-number">{stats.avgRating}</span>
+                                <span className="stat-label">Rating promedio</span>
+                            </div>
+                        </div>
+
+                        <div className="stat-card">
+                            <div className="stat-content">
+                                <span className="stat-number">{stats.favorites}</span>
+                                <span className="stat-label">Favoritos</span>
+                            </div>
+                        </div>
+
+                        <div className="stat-card">
+                            <div className="stat-content">
+                                <span className="stat-number">7 días</span>
+                                <span className="stat-label">Racha actual</span>
+                            </div>
+                        </div>
+
+                        <div className="stat-card">
+                            <div className="stat-content">
+                                <span className="stat-number">{((stats.read / Math.max(stats.total, 1)) * 100).toFixed(0)}%</span>
+                                <span className="stat-label">Completado</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="reading-goal">
+                        <h4 className="goal-title">🎯 Meta Anual 2024</h4>
+                        <div className="goal-progress">
+                            <div className="goal-bar">
+                                <div
+                                    className="goal-fill"
+                                    style={{width: `${Math.min((stats.read / 15) * 100, 100)}%`}}
+                                ></div>
+                            </div>
+                            <p className="goal-text">{stats.read} de 15 libros completados</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     );

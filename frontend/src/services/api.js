@@ -67,3 +67,32 @@ export const handleApiError = (error) => {
 
     return error.message || 'Ha ocurrido un error inesperado.';
 };
+
+// Library API functions
+
+export const getLibrariesFromUser = async (userId) => {
+    try {
+        const response = await apiRequest(`/library/${userId}`);
+        return response.data || [];
+    } catch (error) {
+        console.error('Error fetching user libraries:', error);
+        throw error;
+    }
+}
+
+export const addBookToShelf = async (shelf, bookId, bookData) => {
+};
+
+// Validaciones del lado cliente
+export const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+};
+
+export const validatePassword = (password) => {
+    return password && password.length >= 6;
+};
+
+export const validateName = (name) => {
+    return name && name.trim().length >= 2;
+};
