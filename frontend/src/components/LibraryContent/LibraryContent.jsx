@@ -1,8 +1,9 @@
 // frontend/src/components/LibraryContent/LibraryContent.jsx
 import React, { useState, useEffect } from 'react';
+import { getLibrariesFromUser } from "../../services/api";
 import './LibraryContent.css';
 
-const LibraryContent = ({ userBooks = [], onBookSelect, onAddBook, user }) => {
+const LibraryContent = ({ onBookSelect, onAddBook, user }) => {
     const [currentShelf, setCurrentShelf] = useState('all');
     const [currentView, setCurrentView] = useState('grid');
     const [searchTerm, setSearchTerm] = useState('');
@@ -11,64 +12,128 @@ const LibraryContent = ({ userBooks = [], onBookSelect, onAddBook, user }) => {
 
     // Datos de estantes
     const shelfData = {
-        all: { title: "📚 Todos los libros", icon: "📚" },
-        reading: { title: "📖 Leyendo actualmente", icon: "📖" },
-        toread: { title: "📋 Por leer", icon: "📋" },
-        read: { title: "✅ Libros leídos", icon: "✅" },
-        favorites: { title: "⭐ Mis favoritos", icon: "⭐" }
+        all: { title: "📚 Todos los libros", icon: "📚" }
     };
 
-    // Calcular estadísticas
+    // Get user books with proper error handling and empty array support
+    const getUserBooks = () => {
+        try {
+            if (!user || !user.id) {
+                return [];
+            }
+
+            let libraries = [];
+            getLibrariesFromUser(user.id).then(
+                (data) => {
+                    libraries = data || [];
+                }
+            )
+
+            console.log('Libraries:', libraries); // Debugging line to check libraries
+
+
+            const userBooks = [];
+
+            for (const library of libraries) {
+                // Handle different possible structures for books in library
+                if (library.bookIds && Array.isArray(library.bookIds)) {
+                    userBooks.push(...library.bookIds);
+                } else if (library.books && Array.isArray(library.books)) {
+                    userBooks.push(...library.books);
+                } else if (Array.isArray(library)) {
+                    // In case the library itself is an array of books
+                    userBooks.push(...library);
+                }
+            }
+
+            return userBooks;
+        } catch (error) {
+            console.error('Error getting user books:', error);
+            return [];
+        }
+    };
+
+    const userBooks = getUserBooks();
+
+    // Calcular estadísticas con manejo de arrays vacíos
     const stats = {
         total: userBooks.length,
-        reading: userBooks.filter(book => book.status === 'reading').length,
-        read: userBooks.filter(book => book.status === 'read').length,
-        toread: userBooks.filter(book => book.status === 'toread').length,
-        favorites: userBooks.filter(book => book.isFavorite).length,
-        totalPages: userBooks.reduce((acc, book) => acc + (book.pageCount || 0), 0),
+        reading: userBooks.filter(book => book && book.status === 'reading').length,
+        read: userBooks.filter(book => book && book.status === 'read').length,
+        toread: userBooks.filter(book => book && book.status === 'toread').length,
+        favorites: userBooks.filter(book => book && book.isFavorite === true).length,
+        totalPages: userBooks.reduce((acc, book) => acc + (book && book.pageCount ? book.pageCount : 0), 0),
         avgRating: userBooks.length > 0 ?
-            (userBooks.reduce((acc, book) => acc + (book.rating || 0), 0) / userBooks.length).toFixed(1) : 0
+            (userBooks.reduce((acc, book) => acc + (book && book.rating ? book.rating : 0), 0) / userBooks.length).toFixed(1) : 0
     };
 
     // Filtrar y ordenar libros
     useEffect(() => {
-        let filtered = userBooks;
+        let filtered = [...userBooks]; // Create a copy to avoid mutation
+
+        // Handle empty books array
+        if (!Array.isArray(filtered) || filtered.length === 0) {
+            setFilteredBooks([]);
+            return;
+        }
+
+        // Filter out any null or undefined books
+        filtered = filtered.filter(book => book != null);
 
         // Filtrar por estante
         if (currentShelf !== 'all') {
             if (currentShelf === 'favorites') {
-                filtered = filtered.filter(book => book.isFavorite);
+                filtered = filtered.filter(book => book.isFavorite === true);
             } else {
                 filtered = filtered.filter(book => book.status === currentShelf);
             }
         }
 
         // Filtrar por búsqueda
-        if (searchTerm) {
-            filtered = filtered.filter(book =>
-                book.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                book.authors?.some(author => author.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                book.categories?.some(cat => cat.toLowerCase().includes(searchTerm.toLowerCase()))
-            );
+        if (searchTerm && searchTerm.trim() !== '') {
+            const searchLower = searchTerm.toLowerCase().trim();
+            filtered = filtered.filter(book => {
+                if (!book) return false;
+
+                const titleMatch = book.title && book.title.toLowerCase().includes(searchLower);
+                const authorMatch = book.authors && Array.isArray(book.authors) &&
+                    book.authors.some(author => author && author.toLowerCase().includes(searchLower));
+                const categoryMatch = book.categories && Array.isArray(book.categories) &&
+                    book.categories.some(cat => cat && cat.toLowerCase().includes(searchLower));
+
+                return titleMatch || authorMatch || categoryMatch;
+            });
         }
 
         // Ordenar libros
         switch (sortBy) {
             case 'title':
-                filtered.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+                filtered.sort((a, b) => {
+                    const titleA = a && a.title ? a.title : '';
+                    const titleB = b && b.title ? b.title : '';
+                    return titleA.localeCompare(titleB);
+                });
                 break;
             case 'author':
                 filtered.sort((a, b) => {
-                    const authorA = a.authors?.[0] || '';
-                    const authorB = b.authors?.[0] || '';
+                    const authorA = a && a.authors && a.authors[0] ? a.authors[0] : '';
+                    const authorB = b && b.authors && b.authors[0] ? b.authors[0] : '';
                     return authorA.localeCompare(authorB);
                 });
                 break;
             case 'rating':
-                filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+                filtered.sort((a, b) => {
+                    const ratingA = a && a.rating ? a.rating : 0;
+                    const ratingB = b && b.rating ? b.rating : 0;
+                    return ratingB - ratingA;
+                });
                 break;
             case 'progress':
-                filtered.sort((a, b) => (b.progress || 0) - (a.progress || 0));
+                filtered.sort((a, b) => {
+                    const progressA = a && a.progress ? a.progress : 0;
+                    const progressB = b && b.progress ? b.progress : 0;
+                    return progressB - progressA;
+                });
                 break;
             default:
                 // Mantener orden original para 'recent'
@@ -76,7 +141,7 @@ const LibraryContent = ({ userBooks = [], onBookSelect, onAddBook, user }) => {
         }
 
         setFilteredBooks(filtered);
-    }, [userBooks, currentShelf, searchTerm, sortBy]);
+    }, [currentShelf, searchTerm, sortBy, userBooks.length]); // Add userBooks.length as dependency
 
     // Cambiar estante
     const switchShelf = (shelf) => {
@@ -91,10 +156,11 @@ const LibraryContent = ({ userBooks = [], onBookSelect, onAddBook, user }) => {
     // Renderizar estrellas
     const renderStars = (rating) => {
         const stars = [];
+        const numRating = rating || 0;
         for (let i = 1; i <= 5; i++) {
             stars.push(
-                <span key={i} className={`star ${i <= rating ? 'filled' : ''}`}>
-                    {i <= rating ? '★' : '☆'}
+                <span key={i} className={`star ${i <= numRating ? 'filled' : ''}`}>
+                    {i <= numRating ? '★' : '☆'}
                 </span>
             );
         }
@@ -103,6 +169,11 @@ const LibraryContent = ({ userBooks = [], onBookSelect, onAddBook, user }) => {
 
     // Renderizar tarjeta de libro
     const renderBookCard = (book) => {
+        // Safety check for book object
+        if (!book) {
+            return null;
+        }
+
         const getStatusText = () => {
             switch (book.status) {
                 case 'reading':
@@ -117,7 +188,7 @@ const LibraryContent = ({ userBooks = [], onBookSelect, onAddBook, user }) => {
         };
 
         const getBookEmoji = (book) => {
-            if (book.categories && book.categories.length > 0) {
+            if (book.categories && Array.isArray(book.categories) && book.categories.length > 0) {
                 const category = book.categories[0].toLowerCase();
                 if (category.includes('fantasy')) return '🏰';
                 if (category.includes('science')) return '🚀';
@@ -133,7 +204,7 @@ const LibraryContent = ({ userBooks = [], onBookSelect, onAddBook, user }) => {
 
         return (
             <div
-                key={book.id}
+                key={book.id || Math.random()} // Fallback key if book.id is missing
                 className="book-card"
                 onClick={() => onBookSelect && onBookSelect(book)}
             >
@@ -142,7 +213,7 @@ const LibraryContent = ({ userBooks = [], onBookSelect, onAddBook, user }) => {
                         {book.thumbnail ? (
                             <img
                                 src={book.thumbnail}
-                                alt={book.title}
+                                alt={book.title || 'Book cover'}
                                 onError={(e) => {
                                     e.target.style.display = 'none';
                                     e.target.nextSibling.style.display = 'flex';
@@ -153,8 +224,13 @@ const LibraryContent = ({ userBooks = [], onBookSelect, onAddBook, user }) => {
                             {getBookEmoji(book)}
                         </div>
                     </div>
-                    <h4 className="book-title">{book.title}</h4>
-                    <p className="book-author">{book.authors?.join(', ') || 'Autor desconocido'}</p>
+                    <h4 className="book-title">{book.title || 'Título no disponible'}</h4>
+                    <p className="book-author">
+                        {book.authors && Array.isArray(book.authors) && book.authors.length > 0
+                            ? book.authors.join(', ')
+                            : 'Autor desconocido'
+                        }
+                    </p>
 
                     {book.status === 'reading' && (
                         <div className="book-progress-section">
@@ -186,37 +262,65 @@ const LibraryContent = ({ userBooks = [], onBookSelect, onAddBook, user }) => {
         );
     };
 
-    // Estado vacío
-    const renderEmptyState = () => (
-        <div className="empty-state">
-            <div className="empty-icon">📚</div>
-            <h3>
-                {searchTerm ? 'No se encontraron libros' : `No tienes libros en ${shelfData[currentShelf].title.toLowerCase()}`}
-            </h3>
-            <p>
-                {searchTerm
-                    ? `No hay resultados para "${searchTerm}"`
-                    : 'Agrega algunos libros para empezar tu biblioteca'
-                }
-            </p>
-            {searchTerm && (
-                <button
-                    className="clear-search-btn"
-                    onClick={() => setSearchTerm('')}
-                >
-                    Limpiar búsqueda
-                </button>
-            )}
-            {!searchTerm && onAddBook && (
-                <button
-                    className="add-book-btn"
-                    onClick={onAddBook}
-                >
-                    Buscar libros
-                </button>
-            )}
-        </div>
-    );
+    // Estado vacío mejorado
+    const renderEmptyState = () => {
+        const getEmptyMessage = () => {
+            if (searchTerm && searchTerm.trim() !== '') {
+                return {
+                    title: 'No se encontraron libros',
+                    message: `No hay resultados para "${searchTerm}"`,
+                    showClearSearch: true,
+                    showAddBook: false
+                };
+            }
+
+            if (currentShelf === 'all' && userBooks.length === 0) {
+                return {
+                    title: 'Tu biblioteca está vacía',
+                    message: 'Agrega algunos libros para empezar tu biblioteca personal',
+                    showClearSearch: false,
+                    showAddBook: true
+                };
+            }
+
+            return {
+                title: `No tienes libros en ${shelfData[currentShelf].title.replace(/[📚📖📋✅⭐]\s/, '').toLowerCase()}`,
+                message: currentShelf === 'favorites'
+                    ? 'Marca algunos libros como favoritos para verlos aquí'
+                    : `Agrega libros con estado "${currentShelf}" para verlos en este estante`,
+                showClearSearch: false,
+                showAddBook: true
+            };
+        };
+
+        const emptyInfo = getEmptyMessage();
+
+        return (
+            <div className="empty-state">
+                <div className="empty-icon">📚</div>
+                <h3>{emptyInfo.title}</h3>
+                <p>{emptyInfo.message}</p>
+
+                {emptyInfo.showClearSearch && (
+                    <button
+                        className="clear-search-btn"
+                        onClick={() => setSearchTerm('')}
+                    >
+                        Limpiar búsqueda
+                    </button>
+                )}
+
+                {emptyInfo.showAddBook && onAddBook && (
+                    <button
+                        className="add-book-btn"
+                        onClick={onAddBook}
+                    >
+                        Buscar libros
+                    </button>
+                )}
+            </div>
+        );
+    };
 
     return (
         <div className="library-container">
@@ -265,9 +369,7 @@ const LibraryContent = ({ userBooks = [], onBookSelect, onAddBook, user }) => {
                                     <span className="tab-icon">{data.icon}</span>
                                     <span className="tab-label">{data.title.replace(/[📚📖📋✅⭐]\s/, '')}</span>
                                     <span className="tab-count">
-                                        {key === 'all' ? stats.total :
-                                            key === 'favorites' ? stats.favorites :
-                                                stats[key] || 0}
+                                        {key === 'all' ? stats.total : stats[key] || 0}
                                     </span>
                                 </button>
                             ))}
@@ -340,7 +442,7 @@ const LibraryContent = ({ userBooks = [], onBookSelect, onAddBook, user }) => {
                         {/* Books Grid */}
                         <div className={`books-grid ${currentView}`}>
                             {filteredBooks.length > 0
-                                ? filteredBooks.map(renderBookCard)
+                                ? filteredBooks.map(renderBookCard).filter(card => card !== null)
                                 : renderEmptyState()
                             }
                         </div>

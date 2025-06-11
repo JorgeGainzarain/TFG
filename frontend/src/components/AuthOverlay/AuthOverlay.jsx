@@ -97,15 +97,6 @@ const AuthOverlay = ({ isVisible, onClose, onAuthSuccess }) => {
             if (result.success) {
                 onAuthSuccess?.(result.user);
                 onClose();
-
-                // Show success message
-                const message = mode === 'login'
-                    ? `¡Bienvenido de vuelta, ${result.user.name}!`
-                    : `¡Cuenta creada exitosamente! Bienvenido, ${result.user.name}!`;
-
-                setTimeout(() => {
-                    alert(message); // Cambiar mas adelante
-                }, 100);
             }
 
         } catch (error) {

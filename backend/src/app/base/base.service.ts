@@ -1,8 +1,8 @@
-import { BaseRepository } from "./base.repository";
-import { AuditService } from "../audit/audit.service";
+import {BaseRepository} from "./base.repository";
+import {AuditService} from "../audit/audit.service";
 import {validateObject, validatePartialObject, validateRequiredParams} from "../../utils/validation";
-import { EntityConfig } from "./base.model";
-import { StatusError } from "../../utils/status_error";
+import {EntityConfig} from "./base.model";
+import {StatusError} from "../../utils/status_error";
 
 export abstract class BaseService<T extends { id?: number }> {
     protected constructor(
@@ -53,6 +53,11 @@ export abstract class BaseService<T extends { id?: number }> {
         const entities = await this.repository.findAll();
         await this.auditAction(entities, 'retrieved');
         return entities;
+    }
+
+    async existsByFields(fields: Partial<T>): Promise<T | undefined> {
+        validatePartialObject(fields, this.entityConfig.requiredFields);
+        return await this.repository.findByFields(fields);
     }
 
     async getById(id: number): Promise<T> {

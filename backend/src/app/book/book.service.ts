@@ -69,4 +69,5 @@ export class BookService extends BaseService<Book> {
             previewLink: item.volumeInfo.previewLink || ''
         } as Book;
     }
+
 }

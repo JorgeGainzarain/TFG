@@ -89,4 +89,5 @@ export class DatabaseService {
 
     await this.closeDatabase();
   }
+
 }

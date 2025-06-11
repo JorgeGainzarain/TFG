@@ -6,7 +6,15 @@ import { StatusError } from '../utils/status_error';
 dotenv.config();
 
 export const authenticateJWT = (req: Request, res: Response, next: NextFunction) => {
-    const token = req.session.token;
+    // Check Authorization header first, then fallback to session
+    const authHeader = req.headers.authorization;
+    let token = null;
+
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7); // Remove 'Bearer ' prefix
+    } else {
+        token = req.session.token;
+    }
 
     if (!token) {
         return next(new StatusError(401, 'Access token is missing or invalid'));

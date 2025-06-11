@@ -9,7 +9,8 @@ const SearchPage = ({
                         searchError,
                         onClearSearch,
                         user,
-                        isAuthenticated
+                        isAuthenticated,
+                        handleAddToLibrary
                     }) => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
@@ -41,6 +42,7 @@ const SearchPage = ({
             user={user}
             isAuthenticated={isAuthenticated}
             isRecommendations={isRecommendations}
+            handleAddToLibrary={handleAddToLibrary}
         />
     );
 };

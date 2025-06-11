@@ -5,6 +5,7 @@ import { Audit } from "../../app/audit/audit.model";
 import { EntityConfig } from "../../app/base/base.model";
 import { DBOptions } from "../../database/models/db-options";
 import {Book} from "../../app/book/book.model";
+import {Library} from "../../app/library/library.model";
 
 export const baseConfig: {
     port: number;
@@ -14,6 +15,7 @@ export const baseConfig: {
         review: EntityConfig<Review>;
         book: EntityConfig<Book>;
         user: EntityConfig<User>;
+        library: EntityConfig<Library>
     };
 } = {
     port: 5000,
@@ -70,6 +72,15 @@ export const baseConfig: {
                 { name: 'email', type: 'TEXT' },
                 { name: 'password', type: 'TEXT' },
                 { name: 'createdAt', type: 'DATETIME' },
+            ]
+        },
+        library: {
+            table_name: 'libraries',
+            unit: 'Library',
+            requiredFields: [
+                { name: 'userId', type: 'INTEGER' },
+                { name: 'title', type: 'TEXT' },
+                { name: 'bookIds', type: 'TEXT[]' }
             ]
         }
     }

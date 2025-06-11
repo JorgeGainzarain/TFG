@@ -13,8 +13,6 @@ const apiRequest = async (endpoint, options = {}) => {
             ...options,
         };
 
-        console.log(`API Request: ${config.method || 'GET'} ${url}`);
-
         const response = await fetch(url, config);
 
         if (!response.ok) {
@@ -34,9 +32,7 @@ export const bookAPI = {
     // Search books - este endpoint necesita ser implementado
     searchBooks: async (query, options = {}) => {
         try {
-            console.log(`Searching books with query: ${query}`);
             const response = await apiRequest(`/book/?q=${encodeURIComponent(query)}`, options);
-            console.log(`Search response:`, response);
             return response.data || [];
         } catch (error) {
             console.error('Error searching books:', error);
@@ -72,13 +68,40 @@ export const handleApiError = (error) => {
 
 export const getLibrariesFromUser = async (userId) => {
     try {
-        const response = await apiRequest(`/library/${userId}`);
+        const response = await apiRequest(`/library/${userId}/`);
         return response.data || [];
     } catch (error) {
         console.error('Error fetching user libraries:', error);
         throw error;
     }
 }
+
+export  const createLibrary = async (userId, libraryTitle) => {
+    try {
+        const response = await apiRequest(`/library/${userId}/`, {
+            method: 'POST',
+            body: JSON.stringify({ title: libraryTitle }),
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error creating library:', error);
+        throw error;
+    }
+}
+
+export const addBookToLibrary = async (userId, book) => {
+    try {
+        console.log("Book", book);
+        const response = await apiRequest(`/library/${userId}/${book.bookId}`, {
+            method: 'POST',
+            body: JSON.stringify(book),
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error adding book to library:', error);
+        throw error;
+    }
+};
 
 export const addBookToShelf = async (shelf, bookId, bookData) => {
 };

@@ -164,7 +164,9 @@ export const register = async (userData) => {
 
         const result = await response.json();
 
-        console.log("Result of registration:", result);
+        if (response.status === 409) {
+            throw new Error('El correo electrónico ya existe');
+        }
 
         if (!response.ok) {
             throw new Error(result.message || 'Error en el registro');
@@ -175,10 +177,26 @@ export const register = async (userData) => {
             setTokens(result.data.accessToken, result.data.refreshToken);
             setUser(result.data.user);
 
+            const id = result.data.user.id;
+
+            const response2 = await fetch(`${API_BASE_URL}/library/${id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ title: 'default' }),
+            });
+
+            const result2 = await response2.json();
+            if (!response2.ok) {
+                throw new Error(result2.error || 'Error creando biblioteca del usuario');
+            }
+            console.log("Library created for user:", result2);
+
             return {
                 success: true,
                 user: result.data.user,
-                message: result.message
+                message: result.error
             };
         }
 
@@ -282,13 +300,9 @@ export const getCurrentUser = async () => {
 // Inicializar estado de autenticación al cargar
 export const initializeAuth = async () => {
     try {
-        console.log('🔄 Initializing auth...');
 
         const storedUser = getStoredUser();
         const token = getAccessToken();
-
-        console.log('Stored user:', storedUser ? 'exists' : 'none');
-        console.log('Token:', token ? 'exists' : 'none');
 
         if (storedUser && token) {
             // Primero establecer el usuario del localStorage
@@ -302,15 +316,11 @@ export const initializeAuth = async () => {
                     // Token válido, actualizar con datos más recientes
                     authState.user = currentUser;
                     setUser(currentUser);
-                    console.log('✅ Auth restored and verified');
-                } else {
-                    console.log('⚠️ Token invalid, keeping stored user');
                 }
             } catch (error) {
                 console.log('⚠️ Error verifying token, keeping stored user');
             }
         } else {
-            console.log('❌ No stored auth data');
             clearTokens();
         }
     } catch (error) {
@@ -318,7 +328,6 @@ export const initializeAuth = async () => {
         clearTokens();
     } finally {
         notifyAuthChange();
-        console.log('Auth state after init:', authState);
     }
 };
 

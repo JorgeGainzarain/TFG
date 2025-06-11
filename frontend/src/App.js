@@ -9,7 +9,7 @@ import BookDetailsPage from './pages/BookDetailsPage';
 import LibraryPage from './pages/LibraryPage';
 import { AIRecommendationsPage, ProfilePage, NotFoundPage } from './pages/AdditionalPages';
 import { useAuth } from './hooks/useAuth';
-import { healthCheck } from './services/api';
+import { healthCheck, addBookToLibrary } from './services/api';
 import './App.css';
 import {initializeAuth} from "./services/authService";
 
@@ -50,7 +50,6 @@ const AppContent = () => {
 
     useEffect(() => {
         initializeAuth().then(() => {
-            console.log('✅ Auth initialized');
             setApiStatus('connected');
         });
     }, []);
@@ -69,7 +68,6 @@ const AppContent = () => {
         try {
             await healthCheck();
             setApiStatus('connected');
-            console.log('✅ Connected to BookHub API');
         } catch (error) {
             setApiStatus('error');
             console.error('❌ Failed to connect to BookHub API:', error);
@@ -106,7 +104,6 @@ const AppContent = () => {
     };
 
     const handleAuthSuccess = (userData) => {
-        console.log('Usuario autenticado:', userData);
         setShowAuthPrompt(false);
     };
 
@@ -122,6 +119,10 @@ const AppContent = () => {
     const handleCloseAuthPrompt = () => {
         setShowAuthPrompt(false);
     };
+
+    const handleAddToLibrary = async (book) => {
+        await addBookToLibrary(user.id, book);
+    }
 
     // Mostrar loading mientras se inicializa la auth
     if (!initialized) {
@@ -187,6 +188,7 @@ const AppContent = () => {
                                 onClearSearch={clearSearch}
                                 user={user}
                                 isAuthenticated={isAuthenticated}
+                                handleAddToLibrary={handleAddToLibrary}
                             />
                         }
                     />

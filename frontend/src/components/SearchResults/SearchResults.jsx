@@ -11,6 +11,7 @@ const SearchResults = ({
                            error,
                            onClearSearch,
                            onRetry,
+                           handleAddToLibrary,
                            isRecommendations = false
                        }) => {
     const [filteredResults, setFilteredResults] = useState(results);
@@ -87,15 +88,6 @@ const SearchResults = ({
             ...prev,
             [filterType]: value
         }));
-    };
-
-    const handleAddToLibrary = (book) => {
-        console.log('Añadiendo a la librería:', book);
-        if (book.isPlaceholder) {
-            alert(`"${book.title}" es una recomendación de IA. ¡Funcionalidad completa próximamente!`);
-        } else {
-            alert(`"${book.title}" será añadido a tu librería (funcionalidad pendiente)`);
-        }
     };
 
     const clearFilters = () => {
