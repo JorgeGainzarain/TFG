@@ -36,13 +36,8 @@ const LibraryContent = ({ onBookSelect, onAddBook, user }) => {
 
             for (const library of libraries) {
                 // Handle different possible structures for books in library
-                if (library.bookIds && Array.isArray(library.bookIds)) {
-                    userBooks.push(...library.bookIds);
-                } else if (library.books && Array.isArray(library.books)) {
+                if (library.books && Array.isArray(library.books)) {
                     userBooks.push(...library.books);
-                } else if (Array.isArray(library)) {
-                    // In case the library itself is an array of books
-                    userBooks.push(...library);
                 }
             }
 

@@ -36,10 +36,30 @@ export class LibraryService extends BaseService<Library> {
     }
 
     async getAllByUser(userId: number) {
+        console.log("Retrieving all libraries for user with ID:", userId);
         const libraries = await this.libraryRepository.getAllByUser(userId);
+        console.log("Libraries retrieved:", libraries);
         if (!libraries) {
             throw new StatusError(404, 'No libraries found for this user');
         }
+
+        const books = [];
+
+        for (const library of libraries) {
+            if (library.bookIds.length > 0) {
+                console.log("Library has books, retrieving book details:", library.bookIds);
+                for (const bookId of library.bookIds) {
+                    const book = await this.bookService.getById(bookId);
+                    if (book) {
+                        books.push(book);
+                    } else {
+                        console.warn(`Book with ID ${bookId} not found in the database.`);
+                    }
+                }
+                library.books = books;
+            }
+        }
+
         return libraries;
     }
 

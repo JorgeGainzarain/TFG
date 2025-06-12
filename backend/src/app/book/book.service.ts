@@ -19,6 +19,21 @@ export class BookService extends BaseService<Book> {
         super(auditService, bookRepository);
     }
 
+    async getById(id: string | number): Promise<Book> {
+        if (typeof id == 'number') {
+            return await super.getById(id);
+        }
+        else {
+            const book = await this.bookRepository.findByFields( { bookId: id })
+            if (!book) {
+                throw new StatusError(404, `Book with ID "${id}" not found.`);
+            }
+            else {
+                return book;
+            }
+        }
+    }
+
     public async searchBooks(searchQuery: string): Promise<Book[]> {
         if (!searchQuery || searchQuery.trim() === '') {
             throw new StatusError(400, 'Search query cannot be empty');

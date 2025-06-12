@@ -57,7 +57,7 @@ export class LibraryRepository extends BaseRepository<Library> {
             }
         }
 
-        return result;
+        return result.rows;
     }
 
     async addBook(userId: any, title: string, bookId: any) {

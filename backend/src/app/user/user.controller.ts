@@ -22,8 +22,7 @@ export class UserController extends BaseController<User> {
         this.getRouter().post('/logout', this.logout.bind(this));
         this.getRouter().post('/refresh', this.refresh.bind(this));
 
-        // Rutas protegidas (con JWT)
-        this.getRouter().get('/me', authenticateJWT, this.getCurrentUser.bind(this));
+        this.getRouter().get('/me', this.getCurrentUser.bind(this));
     }
 
     async register(req: Request, res: Response, next: NextFunction): Promise<void> {
