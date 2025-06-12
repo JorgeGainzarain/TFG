@@ -60,6 +60,8 @@ export class LibraryService extends BaseService<Library> {
             }
         }
 
+        console.log("Final libraries with books:", libraries);
+
         return libraries;
     }
 

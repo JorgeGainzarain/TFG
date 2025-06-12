@@ -69,7 +69,8 @@ export const handleApiError = (error) => {
 export const getLibrariesFromUser = async (userId) => {
     try {
         const response = await apiRequest(`/library/${userId}/`);
-        return response.data || [];
+        console.log("Response from getLibrariesFromUser:", response);
+        return response || [];
     } catch (error) {
         console.error('Error fetching user libraries:', error);
         throw error;

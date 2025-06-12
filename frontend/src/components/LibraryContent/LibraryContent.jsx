@@ -1,70 +1,44 @@
-// frontend/src/components/LibraryContent/LibraryContent.jsx
+// ACTUALIZAR frontend/src/components/LibraryContent/LibraryContent.jsx
+// Solo cambios en la parte superior del archivo:
+
 import React, { useState, useEffect } from 'react';
-import { getLibrariesFromUser } from "../../services/api";
 import './LibraryContent.css';
 
-const LibraryContent = ({ onBookSelect, onAddBook, user }) => {
+// Añadir onRefresh como prop opcional
+const LibraryContent = ({ userBooks = [], onBookSelect, onAddBook, user, onRefresh }) => {
     const [currentShelf, setCurrentShelf] = useState('all');
     const [currentView, setCurrentView] = useState('grid');
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState('recent');
     const [filteredBooks, setFilteredBooks] = useState([]);
 
-    // Datos de estantes
+    // Datos de estantes (añadir más estantes)
     const shelfData = {
-        all: { title: "📚 Todos los libros", icon: "📚" }
+        all: { title: "📚 Todos los libros", icon: "📚" },
+        reading: { title: "📖 Leyendo", icon: "📖" },
+        read: { title: "✅ Completados", icon: "✅" },
+        toread: { title: "📋 Por leer", icon: "📋" },
+        favorites: { title: "⭐ Favoritos", icon: "⭐" }
     };
 
-    // Get user books with proper error handling and empty array support
-    const getUserBooks = () => {
-        try {
-            if (!user || !user.id) {
-                return [];
-            }
-
-            let libraries = [];
-            getLibrariesFromUser(user.id).then(
-                (data) => {
-                    libraries = data || [];
-                }
-            )
-
-            console.log('Libraries:', libraries); // Debugging line to check libraries
-
-
-            const userBooks = [];
-
-            for (const library of libraries) {
-                // Handle different possible structures for books in library
-                if (library.books && Array.isArray(library.books)) {
-                    userBooks.push(...library.books);
-                }
-            }
-
-            return userBooks;
-        } catch (error) {
-            console.error('Error getting user books:', error);
-            return [];
-        }
-    };
-
-    const userBooks = getUserBooks();
+    // Asegurar que userBooks es siempre un array
+    const safeUserBooks = Array.isArray(userBooks) ? userBooks : [];
 
     // Calcular estadísticas con manejo de arrays vacíos
     const stats = {
-        total: userBooks.length,
-        reading: userBooks.filter(book => book && book.status === 'reading').length,
-        read: userBooks.filter(book => book && book.status === 'read').length,
-        toread: userBooks.filter(book => book && book.status === 'toread').length,
-        favorites: userBooks.filter(book => book && book.isFavorite === true).length,
-        totalPages: userBooks.reduce((acc, book) => acc + (book && book.pageCount ? book.pageCount : 0), 0),
-        avgRating: userBooks.length > 0 ?
-            (userBooks.reduce((acc, book) => acc + (book && book.rating ? book.rating : 0), 0) / userBooks.length).toFixed(1) : 0
+        total: safeUserBooks.length,
+        reading: safeUserBooks.filter(book => book && book.status === 'reading').length,
+        read: safeUserBooks.filter(book => book && book.status === 'read').length,
+        toread: safeUserBooks.filter(book => book && book.status === 'toread').length,
+        favorites: safeUserBooks.filter(book => book && book.isFavorite === true).length,
+        totalPages: safeUserBooks.reduce((acc, book) => acc + (book && book.pageCount ? book.pageCount : 0), 0),
+        avgRating: safeUserBooks.length > 0 ?
+            (safeUserBooks.reduce((acc, book) => acc + (book && book.rating ? book.rating : 0), 0) / safeUserBooks.length).toFixed(1) : 0
     };
 
     // Filtrar y ordenar libros
     useEffect(() => {
-        let filtered = [...userBooks]; // Create a copy to avoid mutation
+        let filtered = [...safeUserBooks]; // Create a copy to avoid mutation
 
         // Handle empty books array
         if (!Array.isArray(filtered) || filtered.length === 0) {
@@ -136,195 +110,29 @@ const LibraryContent = ({ onBookSelect, onAddBook, user }) => {
         }
 
         setFilteredBooks(filtered);
-    }, [currentShelf, searchTerm, sortBy, userBooks.length]); // Add userBooks.length as dependency
+    }, [currentShelf, searchTerm, sortBy, safeUserBooks.length]); // Use safeUserBooks
 
-    // Cambiar estante
-    const switchShelf = (shelf) => {
-        setCurrentShelf(shelf);
-    };
-
-    // Cambiar vista
-    const switchView = (view) => {
-        setCurrentView(view);
-    };
-
-    // Renderizar estrellas
-    const renderStars = (rating) => {
-        const stars = [];
-        const numRating = rating || 0;
-        for (let i = 1; i <= 5; i++) {
-            stars.push(
-                <span key={i} className={`star ${i <= numRating ? 'filled' : ''}`}>
-                    {i <= numRating ? '★' : '☆'}
-                </span>
-            );
-        }
-        return stars;
-    };
-
-    // Renderizar tarjeta de libro
-    const renderBookCard = (book) => {
-        // Safety check for book object
-        if (!book) {
-            return null;
-        }
-
-        const getStatusText = () => {
-            switch (book.status) {
-                case 'reading':
-                    return `${book.progress || 0}% • Página ${book.currentPage || 0} de ${book.pageCount || 0}`;
-                case 'read':
-                    return '✅ Completado';
-                case 'toread':
-                    return '📋 En lista de lectura';
-                default:
-                    return 'Sin estado';
-            }
-        };
-
-        const getBookEmoji = (book) => {
-            if (book.categories && Array.isArray(book.categories) && book.categories.length > 0) {
-                const category = book.categories[0].toLowerCase();
-                if (category.includes('fantasy')) return '🏰';
-                if (category.includes('science')) return '🚀';
-                if (category.includes('romance')) return '💕';
-                if (category.includes('mystery')) return '🔍';
-                if (category.includes('horror')) return '👻';
-                if (category.includes('history')) return '📜';
-                if (category.includes('biography')) return '👤';
-                if (category.includes('business')) return '💼';
-            }
-            return '📖';
-        };
-
-        return (
-            <div
-                key={book.id || Math.random()} // Fallback key if book.id is missing
-                className="book-card"
-                onClick={() => onBookSelect && onBookSelect(book)}
-            >
-                <div className="book-content">
-                    <div className="book-cover">
-                        {book.thumbnail ? (
-                            <img
-                                src={book.thumbnail}
-                                alt={book.title || 'Book cover'}
-                                onError={(e) => {
-                                    e.target.style.display = 'none';
-                                    e.target.nextSibling.style.display = 'flex';
-                                }}
-                            />
-                        ) : null}
-                        <div className="book-cover-fallback" style={{display: book.thumbnail ? 'none' : 'flex'}}>
-                            {getBookEmoji(book)}
-                        </div>
-                    </div>
-                    <h4 className="book-title">{book.title || 'Título no disponible'}</h4>
-                    <p className="book-author">
-                        {book.authors && Array.isArray(book.authors) && book.authors.length > 0
-                            ? book.authors.join(', ')
-                            : 'Autor desconocido'
-                        }
-                    </p>
-
-                    {book.status === 'reading' && (
-                        <div className="book-progress-section">
-                            <div className="book-progress">
-                                <div
-                                    className="progress-fill"
-                                    style={{width: `${book.progress || 0}%`}}
-                                ></div>
-                            </div>
-                            <p className="progress-text">{getStatusText()}</p>
-                        </div>
-                    )}
-
-                    {book.status === 'read' && book.rating && (
-                        <div className="book-rating">
-                            {renderStars(book.rating)}
-                        </div>
-                    )}
-
-                    {book.status !== 'reading' && (
-                        <p className="progress-text">{getStatusText()}</p>
-                    )}
-
-                    {book.isFavorite && (
-                        <div className="favorite-indicator">⭐</div>
-                    )}
-                </div>
-            </div>
-        );
-    };
-
-    // Estado vacío mejorado
-    const renderEmptyState = () => {
-        const getEmptyMessage = () => {
-            if (searchTerm && searchTerm.trim() !== '') {
-                return {
-                    title: 'No se encontraron libros',
-                    message: `No hay resultados para "${searchTerm}"`,
-                    showClearSearch: true,
-                    showAddBook: false
-                };
-            }
-
-            if (currentShelf === 'all' && userBooks.length === 0) {
-                return {
-                    title: 'Tu biblioteca está vacía',
-                    message: 'Agrega algunos libros para empezar tu biblioteca personal',
-                    showClearSearch: false,
-                    showAddBook: true
-                };
-            }
-
-            return {
-                title: `No tienes libros en ${shelfData[currentShelf].title.replace(/[📚📖📋✅⭐]\s/, '').toLowerCase()}`,
-                message: currentShelf === 'favorites'
-                    ? 'Marca algunos libros como favoritos para verlos aquí'
-                    : `Agrega libros con estado "${currentShelf}" para verlos en este estante`,
-                showClearSearch: false,
-                showAddBook: true
-            };
-        };
-
-        const emptyInfo = getEmptyMessage();
-
-        return (
-            <div className="empty-state">
-                <div className="empty-icon">📚</div>
-                <h3>{emptyInfo.title}</h3>
-                <p>{emptyInfo.message}</p>
-
-                {emptyInfo.showClearSearch && (
-                    <button
-                        className="clear-search-btn"
-                        onClick={() => setSearchTerm('')}
-                    >
-                        Limpiar búsqueda
-                    </button>
-                )}
-
-                {emptyInfo.showAddBook && onAddBook && (
-                    <button
-                        className="add-book-btn"
-                        onClick={onAddBook}
-                    >
-                        Buscar libros
-                    </button>
-                )}
-            </div>
-        );
-    };
+    // ... resto del código se mantiene igual hasta el return
 
     return (
         <div className="library-container">
             {/* Hero Header */}
             <div className="library-hero">
                 <div className="hero-background"></div>
-                <h1 className="library-title">Mi Librería Personal</h1>
+                <div className="hero-header">
+                    <h1 className="library-title">Mi Librería Personal</h1>
+                    {onRefresh && (
+                        <button
+                            className="refresh-btn"
+                            onClick={onRefresh}
+                            title="Actualizar biblioteca"
+                        >
+                            🔄
+                        </button>
+                    )}
+                </div>
                 <p className="library-subtitle">
-                    ¡Hola {user?.name || 'Usuario'}! Bienvenido a tu espacio de lectura personal.
+                    ¡Hola {user?.username || user?.name || 'Usuario'}! Bienvenido a tu espacio de lectura personal.
                     Aquí puedes gestionar y disfrutar de tu colección de libros.
                 </p>
 
@@ -348,7 +156,7 @@ const LibraryContent = ({ onBookSelect, onAddBook, user }) => {
                 </div>
             </div>
 
-            {/* Main Layout */}
+            {/* Main Layout - resto del código igual... */}
             <div className="library-main">
                 {/* Library Content */}
                 <div className="library-content">
@@ -359,7 +167,7 @@ const LibraryContent = ({ onBookSelect, onAddBook, user }) => {
                                 <button
                                     key={key}
                                     className={`nav-tab ${currentShelf === key ? 'active' : ''}`}
-                                    onClick={() => switchShelf(key)}
+                                    onClick={() => setCurrentShelf(key)}
                                 >
                                     <span className="tab-icon">{data.icon}</span>
                                     <span className="tab-label">{data.title.replace(/[📚📖📋✅⭐]\s/, '')}</span>
@@ -400,24 +208,17 @@ const LibraryContent = ({ onBookSelect, onAddBook, user }) => {
                             <div className="view-controls">
                                 <button
                                     className={`view-btn ${currentView === 'grid' ? 'active' : ''}`}
-                                    onClick={() => switchView('grid')}
+                                    onClick={() => setCurrentView('grid')}
                                     title="Vista en cuadrícula"
                                 >
                                     ⊞
                                 </button>
                                 <button
                                     className={`view-btn ${currentView === 'list' ? 'active' : ''}`}
-                                    onClick={() => switchView('list')}
+                                    onClick={() => setCurrentView('list')}
                                     title="Vista en lista"
                                 >
                                     ☰
-                                </button>
-                                <button
-                                    className={`view-btn ${currentView === 'horizontal' ? 'active' : ''}`}
-                                    onClick={() => switchView('horizontal')}
-                                    title="Vista horizontal"
-                                >
-                                    ↔
                                 </button>
                             </div>
                         </div>
@@ -436,18 +237,104 @@ const LibraryContent = ({ onBookSelect, onAddBook, user }) => {
 
                         {/* Books Grid */}
                         <div className={`books-grid ${currentView}`}>
-                            {filteredBooks.length > 0
-                                ? filteredBooks.map(renderBookCard).filter(card => card !== null)
-                                : renderEmptyState()
-                            }
+                            {filteredBooks.length > 0 ? (
+                                filteredBooks.map((book) => {
+                                    // Safety check for book object
+                                    if (!book) return null;
+
+                                    return (
+                                        <div
+                                            key={book.id || book.bookId || Math.random()}
+                                            className="book-card"
+                                            onClick={() => onBookSelect && onBookSelect(book)}
+                                        >
+                                            <div className="book-content">
+                                                <div className="book-cover">
+                                                    {book.thumbnail ? (
+                                                        <img
+                                                            src={book.thumbnail}
+                                                            alt={book.title || 'Book cover'}
+                                                            onError={(e) => {
+                                                                e.target.style.display = 'none';
+                                                                e.target.nextSibling.style.display = 'flex';
+                                                            }}
+                                                        />
+                                                    ) : null}
+                                                    <div className="book-cover-fallback" style={{display: book.thumbnail ? 'none' : 'flex'}}>
+                                                        📖
+                                                    </div>
+                                                </div>
+                                                <h4 className="book-title">{book.title || 'Título no disponible'}</h4>
+                                                <p className="book-author">
+                                                    {book.authors && Array.isArray(book.authors) && book.authors.length > 0
+                                                        ? book.authors.join(', ')
+                                                        : 'Autor desconocido'
+                                                    }
+                                                </p>
+
+                                                {book.status === 'reading' && (
+                                                    <div className="book-progress-section">
+                                                        <div className="book-progress">
+                                                            <div
+                                                                className="progress-fill"
+                                                                style={{width: `${book.progress || 0}%`}}
+                                                            ></div>
+                                                        </div>
+                                                        <p className="progress-text">
+                                                            {book.progress || 0}% • Página {book.currentPage || 0} de {book.pageCount || 0}
+                                                        </p>
+                                                    </div>
+                                                )}
+
+                                                {book.status === 'read' && book.rating && (
+                                                    <div className="book-rating">
+                                                        {[1,2,3,4,5].map(star => (
+                                                            <span key={star} className={`star ${star <= (book.rating || 0) ? 'filled' : ''}`}>
+                                                                {star <= (book.rating || 0) ? '★' : '☆'}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                )}
+
+                                                {book.isFavorite && (
+                                                    <div className="favorite-indicator">⭐</div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    );
+                                }).filter(card => card !== null)
+                            ) : (
+                                // Estado vacío
+                                <div className="empty-state">
+                                    <div className="empty-icon">📚</div>
+                                    <h3>
+                                        {safeUserBooks.length === 0
+                                            ? 'Tu biblioteca está vacía'
+                                            : `No tienes libros en ${shelfData[currentShelf].title.replace(/[📚📖📋✅⭐]\s/, '').toLowerCase()}`
+                                        }
+                                    </h3>
+                                    <p>
+                                        {safeUserBooks.length === 0
+                                            ? 'Agrega algunos libros para empezar tu biblioteca personal'
+                                            : 'Agrega libros a este estante para verlos aquí'
+                                        }
+                                    </p>
+                                    {onAddBook && (
+                                        <button className="add-book-btn" onClick={onAddBook}>
+                                            🔍 Buscar libros
+                                        </button>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
 
-                {/* Statistics Sidebar */}
+                {/* Statistics Sidebar - resto igual */}
                 <div className="stats-sidebar">
                     <h3 className="stats-title">📊 Estadísticas de Lectura</h3>
 
+                    {/* Stats cards - código original... */}
                     <div className="stats-grid">
                         <div className="stat-card">
                             <div className="stat-content">
@@ -455,54 +342,7 @@ const LibraryContent = ({ onBookSelect, onAddBook, user }) => {
                                 <span className="stat-label">Páginas totales</span>
                             </div>
                         </div>
-
-                        <div className="stat-card">
-                            <div className="stat-content">
-                                <span className="stat-number">{Math.round(stats.totalPages / 60)}h</span>
-                                <span className="stat-label">Tiempo estimado</span>
-                            </div>
-                        </div>
-
-                        <div className="stat-card">
-                            <div className="stat-content">
-                                <span className="stat-number">{stats.avgRating}</span>
-                                <span className="stat-label">Rating promedio</span>
-                            </div>
-                        </div>
-
-                        <div className="stat-card">
-                            <div className="stat-content">
-                                <span className="stat-number">{stats.favorites}</span>
-                                <span className="stat-label">Favoritos</span>
-                            </div>
-                        </div>
-
-                        <div className="stat-card">
-                            <div className="stat-content">
-                                <span className="stat-number">7 días</span>
-                                <span className="stat-label">Racha actual</span>
-                            </div>
-                        </div>
-
-                        <div className="stat-card">
-                            <div className="stat-content">
-                                <span className="stat-number">{((stats.read / Math.max(stats.total, 1)) * 100).toFixed(0)}%</span>
-                                <span className="stat-label">Completado</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="reading-goal">
-                        <h4 className="goal-title">🎯 Meta Anual 2024</h4>
-                        <div className="goal-progress">
-                            <div className="goal-bar">
-                                <div
-                                    className="goal-fill"
-                                    style={{width: `${Math.min((stats.read / 15) * 100, 100)}%`}}
-                                ></div>
-                            </div>
-                            <p className="goal-text">{stats.read} de 15 libros completados</p>
-                        </div>
+                        {/* Resto de stat-cards... */}
                     </div>
                 </div>
             </div>

@@ -1,29 +1,41 @@
-// src/services/authService.js
+// frontend/src/services/authService.js
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
-// Claves para localStorage
+// Cambiar a sessionStorage para mayor seguridad
 const TOKEN_KEY = 'bookhub_access_token';
 const REFRESH_TOKEN_KEY = 'bookhub_refresh_token';
 const USER_KEY = 'bookhub_user';
 
-// Estado de autenticación
+// Estado de autenticación centralizado
 let authState = {
     user: null,
     isAuthenticated: false,
-    loading: false
+    loading: false,
+    initialized: false
 };
 
 // Listeners para cambios de estado
 const authListeners = [];
 
-// Función para notificar cambios de estado
+// Sistema de notificaciones de cambios
 const notifyAuthChange = () => {
-    authListeners.forEach(listener => listener(authState));
+    authListeners.forEach(listener => {
+        try {
+            listener({ ...authState });
+        } catch (error) {
+            console.error('Error en listener de auth:', error);
+        }
+    });
 };
 
-// Función para suscribirse a cambios de autenticación
+// Suscripción a cambios de autenticación
 export const subscribeToAuthChanges = (listener) => {
+    if (typeof listener !== 'function') {
+        throw new Error('El listener debe ser una función');
+    }
+
     authListeners.push(listener);
+
     return () => {
         const index = authListeners.indexOf(listener);
         if (index > -1) {
@@ -32,45 +44,106 @@ export const subscribeToAuthChanges = (listener) => {
     };
 };
 
-// Funciones de token management
+// === GESTIÓN DE TOKENS ===
+
 export const getAccessToken = () => {
-    return localStorage.getItem(TOKEN_KEY);
-};
-
-export const getRefreshToken = () => {
-    return localStorage.getItem(REFRESH_TOKEN_KEY);
-};
-
-export const setTokens = (accessToken, refreshToken) => {
-    localStorage.setItem(TOKEN_KEY, accessToken);
-    localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
-};
-
-export const clearTokens = () => {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
-};
-
-export const setUser = (user) => {
-    localStorage.setItem(USER_KEY, JSON.stringify(user));
-    authState.user = user;
-    authState.isAuthenticated = true;
-    notifyAuthChange();
-};
-
-export const getStoredUser = () => {
     try {
-        const userStr = localStorage.getItem(USER_KEY);
-        return userStr ? JSON.parse(userStr) : null;
-    } catch {
+        return sessionStorage.getItem(TOKEN_KEY);
+    } catch (error) {
+        console.error('Error accessing sessionStorage:', error);
         return null;
     }
 };
 
-// Función para hacer requests con auth
-const authRequest = async (endpoint, options = {}) => {
-    const token = getAccessToken();
+export const getRefreshToken = () => {
+    try {
+        return sessionStorage.getItem(REFRESH_TOKEN_KEY);
+    } catch (error) {
+        console.error('Error accessing sessionStorage:', error);
+        return null;
+    }
+};
+
+export const setTokens = (accessToken, refreshToken) => {
+    try {
+        if (!accessToken || !refreshToken) {
+            throw new Error('Tokens inválidos');
+        }
+
+        sessionStorage.setItem(TOKEN_KEY, accessToken);
+        sessionStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+    } catch (error) {
+        console.error('Error storing tokens:', error);
+        throw error;
+    }
+};
+
+export const clearTokens = () => {
+    try {
+        sessionStorage.removeItem(TOKEN_KEY);
+        sessionStorage.removeItem(REFRESH_TOKEN_KEY);
+        sessionStorage.removeItem(USER_KEY);
+    } catch (error) {
+        console.error('Error clearing tokens:', error);
+    }
+};
+
+// === GESTIÓN DE USUARIO ===
+
+export const setUser = (user) => {
+    try {
+        if (!user || !user.id) {
+            throw new Error('Datos de usuario inválidos');
+        }
+
+        sessionStorage.setItem(USER_KEY, JSON.stringify(user));
+        authState.user = user;
+        authState.isAuthenticated = true;
+        notifyAuthChange();
+    } catch (error) {
+        console.error('Error storing user:', error);
+        throw error;
+    }
+};
+
+export const getStoredUser = () => {
+    try {
+        const userStr = sessionStorage.getItem(USER_KEY);
+        return userStr ? JSON.parse(userStr) : null;
+    } catch (error) {
+        console.error('Error parsing stored user:', error);
+        return null;
+    }
+};
+
+// === UTILIDADES DE TOKEN ===
+
+const isTokenExpired = (token) => {
+    if (!token) return true;
+
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return Date.now() >= (payload.exp * 1000);
+    } catch (error) {
+        return true;
+    }
+};
+
+// === REQUESTS AUTENTICADOS ===
+
+const makeAuthenticatedRequest = async (endpoint, options = {}) => {
+    let token = getAccessToken();
+
+    // Verificar si el token está expirado
+    if (token && isTokenExpired(token)) {
+        console.log('Token expirado, intentando renovar...');
+        const refreshed = await refreshAccessToken();
+        if (!refreshed) {
+            await logout();
+            throw new Error('Sesión expirada. Por favor inicia sesión nuevamente.');
+        }
+        token = getAccessToken();
+    }
 
     const config = {
         headers: {
@@ -82,14 +155,15 @@ const authRequest = async (endpoint, options = {}) => {
     };
 
     try {
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+        let response = await fetch(`${API_BASE_URL}${endpoint}`, config);
 
-        // Si el token expiró, intentar refresh
-        if (response.status === 403 && token) {
+        // Si recibimos 401, intentar refresh una vez
+        if (response.status === 401 && token) {
+            console.log('Token inválido, intentando renovar...');
             const refreshed = await refreshAccessToken();
             if (refreshed) {
                 config.headers['Authorization'] = `Bearer ${getAccessToken()}`;
-                return await fetch(`${API_BASE_URL}${endpoint}`, config);
+                response = await fetch(`${API_BASE_URL}${endpoint}`, config);
             } else {
                 await logout();
                 throw new Error('Sesión expirada. Por favor inicia sesión nuevamente.');
@@ -99,21 +173,23 @@ const authRequest = async (endpoint, options = {}) => {
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.message || `HTTP error! status: ${response.status}`);
+            throw new Error(data.error || data.message || `Error HTTP: ${response.status}`);
         }
 
         return data;
     } catch (error) {
-        console.error('Auth request failed:', error);
+        console.error('Request failed:', error);
         throw error;
     }
 };
 
-// Refresh token automático
+// === REFRESH TOKEN ===
+
 export const refreshAccessToken = async () => {
     try {
         const refreshToken = getRefreshToken();
         if (!refreshToken) {
+            console.log('No refresh token available');
             return false;
         }
 
@@ -126,12 +202,15 @@ export const refreshAccessToken = async () => {
         });
 
         if (!response.ok) {
+            console.log('Refresh token failed:', response.status);
             return false;
         }
 
         const result = await response.json();
+
         if (result.status === 'success' && result.data) {
             setTokens(result.data.accessToken, result.data.refreshToken);
+            console.log('Tokens renovados exitosamente');
             return true;
         }
 
@@ -142,15 +221,29 @@ export const refreshAccessToken = async () => {
     }
 };
 
-// Funciones principales de autenticación
+// === FUNCIONES DE AUTENTICACIÓN ===
+
 export const register = async (userData) => {
     try {
         authState.loading = true;
         notifyAuthChange();
 
+        // Validaciones del lado cliente
+        if (!userData.name || userData.name.trim().length < 3) {
+            throw new Error('El nombre debe tener al menos 3 caracteres');
+        }
+
+        if (!userData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userData.email)) {
+            throw new Error('Email inválido');
+        }
+
+        if (!userData.password || userData.password.length < 6) {
+            throw new Error('La contraseña debe tener al menos 6 caracteres');
+        }
+
         const registrationData = {
-            username: userData.name,
-            email: userData.email,
+            username: userData.name.trim(),
+            email: userData.email.trim().toLowerCase(),
             password: userData.password
         };
 
@@ -164,12 +257,11 @@ export const register = async (userData) => {
 
         const result = await response.json();
 
-        if (response.status === 409) {
-            throw new Error('El correo electrónico ya existe');
-        }
-
         if (!response.ok) {
-            throw new Error(result.message || 'Error en el registro');
+            if (response.status === 409) {
+                throw new Error('El correo electrónico ya está registrado');
+            }
+            throw new Error(result.error || result.message || 'Error en el registro');
         }
 
         if (result.status === 'success' && result.data) {
@@ -177,26 +269,17 @@ export const register = async (userData) => {
             setTokens(result.data.accessToken, result.data.refreshToken);
             setUser(result.data.user);
 
-            const id = result.data.user.id;
-
-            const response2 = await fetch(`${API_BASE_URL}/library/${id}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ title: 'default' }),
-            });
-
-            const result2 = await response2.json();
-            if (!response2.ok) {
-                throw new Error(result2.error || 'Error creando biblioteca del usuario');
+            // Crear biblioteca por defecto
+            try {
+                await createDefaultLibrary(result.data.user.id);
+            } catch (libraryError) {
+                console.warn('Error creando biblioteca por defecto:', libraryError);
             }
-            console.log("Library created for user:", result2);
 
             return {
                 success: true,
                 user: result.data.user,
-                message: result.error
+                message: result.message
             };
         }
 
@@ -216,9 +299,13 @@ export const login = async (credentials) => {
         authState.loading = true;
         notifyAuthChange();
 
-        // Convertir email a username si se proporciona email
+        // Validaciones básicas
+        if (!credentials.email || !credentials.password) {
+            throw new Error('Email y contraseña son requeridos');
+        }
+
         const loginData = {
-            email: credentials.email,
+            email: credentials.email.trim().toLowerCase(),
             password: credentials.password
         };
 
@@ -233,7 +320,10 @@ export const login = async (credentials) => {
         const result = await response.json();
 
         if (!response.ok) {
-            throw new Error(result.error || 'Error en el login');
+            if (response.status === 401) {
+                throw new Error('Email o contraseña incorrectos');
+            }
+            throw new Error(result.error || result.message || 'Error en el login');
         }
 
         if (result.status === 'success' && result.data) {
@@ -262,11 +352,14 @@ export const login = async (credentials) => {
 export const logout = async () => {
     try {
         const token = getAccessToken();
+
+        // Intentar notificar al servidor (no crítico si falla)
         if (token) {
-            // Notificar al servidor (opcional)
-            await authRequest('/auth/logout', { method: 'POST' }).catch(() => {
-                // Ignorar errores de logout del servidor
-            });
+            try {
+                await makeAuthenticatedRequest('/auth/logout', { method: 'POST' });
+            } catch (error) {
+                console.warn('Error notificando logout al servidor:', error);
+            }
         }
     } catch (error) {
         console.error('Logout error:', error);
@@ -281,12 +374,11 @@ export const logout = async () => {
 
 export const getCurrentUser = async () => {
     try {
-        const token = getAccessToken();
-        if (!token) return null;
-
-        const result = await authRequest('/auth/me');
+        const result = await makeAuthenticatedRequest('/auth/me');
 
         if (result.status === 'success' && result.data) {
+            // Actualizar usuario en el estado
+            setUser(result.data.user);
             return result.data.user;
         }
 
@@ -297,28 +389,36 @@ export const getCurrentUser = async () => {
     }
 };
 
-// Inicializar estado de autenticación al cargar
+// === INICIALIZACIÓN ===
+
 export const initializeAuth = async () => {
     try {
-
         const storedUser = getStoredUser();
         const token = getAccessToken();
 
-        if (storedUser && token) {
-            // Primero establecer el usuario del localStorage
+        if (storedUser && token && !isTokenExpired(token)) {
+            // Token válido, establecer estado
             authState.user = storedUser;
             authState.isAuthenticated = true;
 
-            // Luego verificar si el token sigue siendo válido (opcional)
+            // Verificar con el servidor en background
             try {
                 const currentUser = await getCurrentUser();
                 if (currentUser) {
-                    // Token válido, actualizar con datos más recientes
                     authState.user = currentUser;
                     setUser(currentUser);
                 }
             } catch (error) {
-                console.log('⚠️ Error verifying token, keeping stored user');
+                console.warn('Error verificando usuario con servidor:', error);
+            }
+        } else if (token && isTokenExpired(token)) {
+            // Intentar renovar token
+            const refreshed = await refreshAccessToken();
+            if (refreshed && storedUser) {
+                authState.user = storedUser;
+                authState.isAuthenticated = true;
+            } else {
+                clearTokens();
             }
         } else {
             clearTokens();
@@ -327,24 +427,43 @@ export const initializeAuth = async () => {
         console.error('Error initializing auth:', error);
         clearTokens();
     } finally {
+        authState.initialized = true;
         notifyAuthChange();
     }
 };
 
-// Función para verificar si está autenticado
+// === UTILIDADES ===
+
 export const isAuthenticated = () => {
-    return authState.isAuthenticated && !!getAccessToken();
+    const token = getAccessToken();
+    return authState.isAuthenticated && !!token && !isTokenExpired(token);
 };
 
-// Función para obtener el estado actual
 export const getAuthState = () => {
-    // Inicializar con datos del localStorage si existen
-    const storedUser = getStoredUser();
-    const token = getAccessToken();
+    return { ...authState };
+};
 
-    return {
-        user: storedUser,
-        isAuthenticated: !!(storedUser && token),
-        loading: false
-    };
+// Función helper para crear biblioteca por defecto
+const createDefaultLibrary = async (userId) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/library/${userId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${getAccessToken()}`
+            },
+            body: JSON.stringify({ title: 'Mi Biblioteca' }),
+        });
+
+        if (!response.ok) {
+            throw new Error('Error creando biblioteca por defecto');
+        }
+
+        const result = await response.json();
+        console.log('Biblioteca por defecto creada:', result);
+        return result;
+    } catch (error) {
+        console.error('Error creando biblioteca por defecto:', error);
+        throw error;
+    }
 };

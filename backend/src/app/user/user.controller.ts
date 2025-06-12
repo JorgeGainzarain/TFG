@@ -1,3 +1,5 @@
+// REEMPLAZAR backend/src/app/user/user.controller.ts COMPLETO
+
 import { Service } from 'typedi';
 import { UserService } from './user.service';
 import { User } from "./user.model";
@@ -22,7 +24,8 @@ export class UserController extends BaseController<User> {
         this.getRouter().post('/logout', this.logout.bind(this));
         this.getRouter().post('/refresh', this.refresh.bind(this));
 
-        this.getRouter().get('/me', this.getCurrentUser.bind(this));
+        // ARREGLAR: Añadir authenticateJWT middleware a /me
+        this.getRouter().get('/me', authenticateJWT, this.getCurrentUser.bind(this));
     }
 
     async register(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -93,6 +96,7 @@ export class UserController extends BaseController<User> {
 
     async getCurrentUser(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
+            // MEJORAR: Usar el usuario del middleware JWT
             const userId = (req as any).user?.id;
             if (!userId) {
                 res.status(401).json(createResponse('error', 'User not authenticated'));
@@ -100,7 +104,13 @@ export class UserController extends BaseController<User> {
             }
 
             const user = await this.userService.getById(userId);
-            res.status(200).json(createResponse('success', 'User retrieved successfully', { user }));
+
+            // Remover password de la respuesta
+            const { password, ...userWithoutPassword } = user as any;
+
+            res.status(200).json(createResponse('success', 'User retrieved successfully', {
+                user: userWithoutPassword
+            }));
         } catch (error: any) {
             next(error);
         }

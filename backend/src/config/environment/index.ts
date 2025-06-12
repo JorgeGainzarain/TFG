@@ -1,4 +1,5 @@
 import { merge } from 'lodash';
+import { jwtConfig, validateJWTConfig } from './base';
 
 import { development } from './development';
 import { production } from './production';
@@ -18,7 +19,8 @@ const all = {
     max_active_sessions: 4,
     resave: false,
     saveUninitialized: false,
-  }
+  },
+  ...jwtConfig
 };
 
 export const config: any = merge(all, _getEnvironmentConfig());
@@ -31,3 +33,5 @@ function _getEnvironmentConfig() {
     return development;
   }
 }
+
+validateJWTConfig();

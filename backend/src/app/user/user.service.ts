@@ -1,3 +1,5 @@
+// REEMPLAZAR backend/src/app/user/user.service.ts
+
 import { Service } from 'typedi';
 import { AuditService } from '../audit/audit.service';
 import { User } from './user.model';
@@ -24,14 +26,14 @@ export class UserService extends BaseService<User> {
     }
 
     public async register(part_user: Partial<User>): Promise<{ user: Omit<User, 'password'>, token: string }> {
-
-        console .log('Registering user:', part_user);
+        console.log('Registering user:', part_user);
 
         // Validar que el username no exista
         const existingUser = await this.userRepository.findByFields({ email: part_user.email });
         if (existingUser) {
             throw new StatusError(409, 'A user with this username already exists');
         }
+
         // Añadir createdAt si no se proporciona
         if (!part_user.createdAt) {
             part_user.createdAt = new Date();
@@ -39,20 +41,34 @@ export class UserService extends BaseService<User> {
 
         // Validar los campos requeridos
         const user = validateObject(part_user, this.entityConfig.requiredFields);
-
         console.log('User to register:', user);
 
-        const saltRounds = 10;
+        const saltRounds = config.security?.bcryptRounds || 10;
         user.password = await bcrypt.hash(user.password, saltRounds);
         const createdUser = await this.userRepository.create(user);
         const { password, ...userWithoutPassword } = createdUser;
 
+        // ARREGLAR: Usar el secret correcto del config
+        const jwtSecret = config.jwt?.accessTokenSecret || process.env.JWT_SECRET || process.env.JWT_ACCESS_SECRET;
+
+        if (!jwtSecret) {
+            console.error('JWT Secret not found in:', {
+                configJwt: config.jwt,
+                envJWT_SECRET: process.env.JWT_SECRET,
+                envJWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET
+            });
+            throw new StatusError(500, 'JWT configuration error');
+        }
 
         // Generar token JWT
         const token = jwt.sign(
-            { id: createdUser.id, email: createdUser.email },
-            process.env.JWT_SECRET!,
-            { expiresIn: '24h' }
+            {
+                id: createdUser.id,
+                email: createdUser.email,
+                username: createdUser.username
+            },
+            jwtSecret,
+            { expiresIn: config.jwt?.accessTokenExpiry || '24h' }
         );
 
         await this.auditAction({ ...userWithoutPassword, password: '' } as User, 'registered');
@@ -70,16 +86,32 @@ export class UserService extends BaseService<User> {
             throw new StatusError(401, 'Invalid email or password');
         }
 
-        const isValidPassword = bcrypt.compare(user.password, foundUser.password);
+        const isValidPassword = await bcrypt.compare(user.password, foundUser.password);
         if (!isValidPassword) {
             throw new StatusError(401, 'Invalid email or password');
         }
 
+        // ARREGLAR: Usar el secret correcto del config
+        const jwtSecret = config.jwt?.accessTokenSecret || process.env.JWT_SECRET || process.env.JWT_ACCESS_SECRET;
+
+        if (!jwtSecret) {
+            console.error('JWT Secret not found in:', {
+                configJwt: config.jwt,
+                envJWT_SECRET: process.env.JWT_SECRET,
+                envJWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET
+            });
+            throw new StatusError(500, 'JWT configuration error');
+        }
+
         // Generar token JWT
         const token = jwt.sign(
-            { id: foundUser.id, email: foundUser.email },
-            process.env.JWT_SECRET!,
-            { expiresIn: '24h' }
+            {
+                id: foundUser.id,
+                email: foundUser.email,
+                username: foundUser.username
+            },
+            jwtSecret,
+            { expiresIn: config.jwt?.accessTokenExpiry || '24h' }
         );
 
         const { password, ...userWithoutPassword } = foundUser;
@@ -90,7 +122,12 @@ export class UserService extends BaseService<User> {
 
     public async verifyToken(token: string): Promise<{ id: number, email: string } | null> {
         try {
-            const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+            const jwtSecret = config.jwt?.accessTokenSecret || process.env.JWT_SECRET || process.env.JWT_ACCESS_SECRET;
+            if (!jwtSecret) {
+                throw new Error('JWT Secret not configured');
+            }
+
+            const decoded = jwt.verify(token, jwtSecret) as any;
             return { id: decoded.id, email: decoded.email };
         } catch (error) {
             return null;
