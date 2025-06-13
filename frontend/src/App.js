@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import {BrowserRouter as Router, Routes, Route, useLocation, useNavigate} from 'react-router-dom';
 import Navbar from './components/Navbar/Navbar';
 import MobileNavbar from './components/MobileNavbar/MobileNavbar';
 import AuthOverlay from './components/AuthOverlay/AuthOverlay';
@@ -26,6 +26,8 @@ const AppContent = () => {
 
     // Ref para la navbar
     const navbarRef = useRef();
+
+    const navigate = useNavigate();
 
     // Hook de autenticación
     const { user, isAuthenticated, initialized } = useAuth();
@@ -97,10 +99,7 @@ const AppContent = () => {
         setSearchError(null);
         setIsSearching(false);
 
-        // Limpiar input de navbar usando ref
-        if (navbarRef.current) {
-            navbarRef.current.clearInput();
-        }
+        navigate('/search?recommendations=true');
     };
 
     const handleAuthSuccess = (userData) => {
