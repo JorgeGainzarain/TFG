@@ -59,11 +59,11 @@ export enum Categories {
 export interface Book extends BaseModel {
     bookId: string;
     title: string;
-    authors: string[];
+    authors: string[] | string;
     publishedDate: Date;
     description: string;
     pageCount: number;
-    categories: Categories[];
+    categories: Categories[] | string;
     thumbnail: string;
     language: string;
     previewLink: string;
