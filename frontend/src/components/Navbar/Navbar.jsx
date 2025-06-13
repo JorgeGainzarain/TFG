@@ -1,6 +1,6 @@
 import React, {forwardRef, useImperativeHandle, useState} from 'react';
 import {Link, useNavigate} from 'react-router-dom';
-import {bookAPI, handleApiError} from '../../services/api';
+import {bookAPI, handleApiError, getRecommendations} from '../../services/api';
 import {logout} from '../../services/authService';
 import './Navbar.css';
 
@@ -15,169 +15,6 @@ const Navbar = forwardRef(({ onSearchResults, onSearchLoading, onSearchError, us
         clearInput: () => setSearchQuery('')
     }));
 
-    // Datos placeholder para búsquedas vacías (futuras recomendaciones de IA)
-    const getPlaceholderBooks = () => [
-        {
-            id: 'placeholder-1',
-            title: 'El Nombre del Viento',
-            authors: ['Patrick Rothfuss'], // ✅ Fixed: now array instead of string
-            genres: ['Fantasía', 'Aventura'],
-            categories: ['Fantasía', 'Aventura'],
-            rating: 5,
-            averageRating: 5,
-            reviewCount: 28470,
-            ratingsCount: 28470,
-            coverEmoji: '🌪️',
-            thumbnail: '',
-            isPlaceholder: true,
-            publishedDate: '2007',
-            description: 'Una historia épica sobre un joven héroe y su búsqueda de la verdad.',
-            pageCount: 662,
-            language: 'es',
-            previewLink: '',
-            infoLink: ''
-        },
-        {
-            id: 'placeholder-2',
-            title: 'Cien años de soledad',
-            authors: ['Gabriel García Márquez'], // ✅ Fixed: now array instead of string
-            genres: ['Realismo Mágico', 'Literatura'],
-            categories: ['Realismo Mágico', 'Literatura'],
-            rating: 5,
-            averageRating: 5,
-            reviewCount: 45230,
-            ratingsCount: 45230,
-            coverEmoji: '📖',
-            thumbnail: '',
-            isPlaceholder: true,
-            publishedDate: '1967',
-            description: 'Una obra maestra del realismo mágico latinoamericano.',
-            pageCount: 417,
-            language: 'es',
-            previewLink: '',
-            infoLink: ''
-        },
-        {
-            id: 'placeholder-3',
-            title: 'Sapiens',
-            authors: ['Yuval Noah Harari'], // ✅ Fixed: now array instead of string
-            genres: ['Historia', 'Antropología'],
-            categories: ['Historia', 'Antropología'],
-            rating: 5,
-            averageRating: 5,
-            reviewCount: 67890,
-            ratingsCount: 67890,
-            coverEmoji: '🧠',
-            thumbnail: '',
-            isPlaceholder: true,
-            publishedDate: '2014',
-            description: 'Una mirada fascinante a la historia de la humanidad.',
-            pageCount: 443,
-            language: 'es',
-            previewLink: '',
-            infoLink: ''
-        },
-        {
-            id: 'placeholder-4',
-            title: 'The Hobbit',
-            authors: ['J.R.R. Tolkien'], // ✅ Fixed: now array instead of string
-            genres: ['Fantasía', 'Aventura'],
-            categories: ['Fantasía', 'Aventura'],
-            rating: 5,
-            averageRating: 5,
-            reviewCount: 123450,
-            ratingsCount: 123450,
-            coverEmoji: '🏔️',
-            thumbnail: '',
-            isPlaceholder: true,
-            publishedDate: '1937',
-            description: 'La aventura que cambió la literatura fantástica para siempre.',
-            pageCount: 310,
-            language: 'en',
-            previewLink: '',
-            infoLink: ''
-        },
-        {
-            id: 'placeholder-5',
-            title: 'Atomic Habits',
-            authors: ['James Clear'], // ✅ Fixed: now array instead of string
-            genres: ['Autoayuda', 'Productividad'],
-            categories: ['Autoayuda', 'Productividad'],
-            rating: 4,
-            averageRating: 4,
-            reviewCount: 89340,
-            ratingsCount: 89340,
-            coverEmoji: '⚡',
-            thumbnail: '',
-            isPlaceholder: true,
-            publishedDate: '2018',
-            description: 'La guía definitiva para formar buenos hábitos y romper los malos.',
-            pageCount: 320,
-            language: 'en',
-            previewLink: '',
-            infoLink: ''
-        },
-        {
-            id: 'placeholder-6',
-            title: 'Dune',
-            authors: ['Frank Herbert'], // ✅ Fixed: now array instead of string
-            genres: ['Ciencia Ficción', 'Épico'],
-            categories: ['Ciencia Ficción', 'Épico'],
-            rating: 4,
-            averageRating: 4,
-            reviewCount: 98760,
-            ratingsCount: 98760,
-            coverEmoji: '🏜️',
-            thumbnail: '',
-            isPlaceholder: true,
-            publishedDate: '1965',
-            description: 'La obra maestra de la ciencia ficción que definió un género.',
-            pageCount: 688,
-            language: 'en',
-            previewLink: '',
-            infoLink: ''
-        },
-        {
-            id: 'placeholder-7',
-            title: 'The Midnight Library',
-            authors: ['Matt Haig'], // ✅ Fixed: now array instead of string
-            genres: ['Ficción', 'Filosofía'],
-            categories: ['Ficción', 'Filosofía'],
-            rating: 4,
-            averageRating: 4,
-            reviewCount: 54320,
-            ratingsCount: 54320,
-            coverEmoji: '🌙',
-            thumbnail: '',
-            isPlaceholder: true,
-            publishedDate: '2020',
-            description: 'Una reflexión profunda sobre las decisiones de la vida y las posibilidades infinitas.',
-            pageCount: 288,
-            language: 'en',
-            previewLink: '',
-            infoLink: ''
-        },
-        {
-            id: 'placeholder-8',
-            title: 'Educated',
-            authors: ['Tara Westover'], // ✅ Fixed: now array instead of string
-            genres: ['Biografía', 'Memoir'],
-            categories: ['Biografía', 'Memoir'],
-            rating: 4,
-            averageRating: 4,
-            reviewCount: 43210,
-            ratingsCount: 43210,
-            coverEmoji: '📚',
-            thumbnail: '',
-            isPlaceholder: true,
-            publishedDate: '2018',
-            description: 'Una poderosa historia sobre educación y superación personal.',
-            pageCount: 334,
-            language: 'en',
-            previewLink: '',
-            infoLink: ''
-        }
-    ];
 
     const handleSearch = async (e) => {
         e.preventDefault();
@@ -195,7 +32,7 @@ const Navbar = forwardRef(({ onSearchResults, onSearchLoading, onSearchError, us
             // Si la búsqueda está vacía, mostrar placeholders
             if (!query) {
                 console.log('Empty search - showing AI placeholder recommendations');
-                results = getPlaceholderBooks();
+                results = getRecommendations();
                 query = '';
                 // Simular delay para hacer más realista
                 await new Promise(resolve => setTimeout(resolve, 500));

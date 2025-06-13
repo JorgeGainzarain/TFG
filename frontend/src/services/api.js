@@ -103,6 +103,117 @@ export const addBookToLibrary = async (userId, book) => {
     }
 };
 
+// Función para obtener recomendaciones de libros (placeholders)
+export const getRecommendations = () => {
+    return [
+        {
+            id: 'placeholder-1',
+            title: 'El Nombre del Viento',
+            authors: ['Patrick Rothfuss'],
+            genres: ['Fantasía', 'Aventura'],
+            categories: ['Fantasía', 'Aventura'],
+            rating: 5,
+            averageRating: 5,
+            reviewCount: 28470,
+            ratingsCount: 28470,
+            coverEmoji: '🌪️',
+            thumbnail: '',
+            image: 'https://via.placeholder.com/150x200?text=El+Nombre+del+Viento',
+            isPlaceholder: true,
+            publishedDate: '2007',
+            description: 'Una historia épica sobre un joven héroe y su búsqueda de la verdad.',
+            pageCount: 662,
+            language: 'es',
+            previewLink: '',
+            infoLink: ''
+        },
+        {
+            id: 'placeholder-2',
+            title: 'Cien años de soledad',
+            authors: ['Gabriel García Márquez'],
+            genres: ['Realismo Mágico', 'Literatura'],
+            categories: ['Realismo Mágico', 'Literatura'],
+            rating: 5,
+            averageRating: 5,
+            reviewCount: 45230,
+            ratingsCount: 45230,
+            coverEmoji: '📖',
+            thumbnail: '',
+            image: 'https://via.placeholder.com/150x200?text=Cien+años+de+soledad',
+            isPlaceholder: true,
+            publishedDate: '1967',
+            description: 'Una obra maestra del realismo mágico latinoamericano.',
+            pageCount: 417,
+            language: 'es',
+            previewLink: '',
+            infoLink: ''
+        },
+        {
+            id: 'placeholder-3',
+            title: 'Sapiens',
+            authors: ['Yuval Noah Harari'],
+            genres: ['Historia', 'Antropología'],
+            categories: ['Historia', 'Antropología'],
+            rating: 5,
+            averageRating: 5,
+            reviewCount: 67890,
+            ratingsCount: 67890,
+            coverEmoji: '🧠',
+            thumbnail: '',
+            image: 'https://via.placeholder.com/150x200?text=Sapiens',
+            isPlaceholder: true,
+            publishedDate: '2014',
+            description: 'Una mirada fascinante a la historia de la humanidad.',
+            pageCount: 413,
+            language: 'es',
+            previewLink: '',
+            infoLink: ''
+        },
+        {
+            id: 'placeholder-4',
+            title: 'La Odisea',
+            authors: ['Homero'],
+            genres: ['Épica', 'Clásico'],
+            categories: ['Épica', 'Clásico'],
+            rating: 4.2,
+            averageRating: 4.2,
+            reviewCount: 15670,
+            ratingsCount: 15670,
+            coverEmoji: '⚓',
+            thumbnail: '',
+            image: 'https://via.placeholder.com/150x200?text=La+Odisea',
+            isPlaceholder: true,
+            publishedDate: '-800',
+            description: 'El viaje épico de Odiseo de regreso a casa.',
+            pageCount: 541,
+            language: 'es',
+            previewLink: '',
+            infoLink: ''
+        },
+        {
+            id: 'placeholder-5',
+            title: '1984',
+            authors: ['George Orwell'],
+            genres: ['Distopía', 'Ciencia Ficción'],
+            categories: ['Distopía', 'Ciencia Ficción'],
+            rating: 4.4,
+            averageRating: 4.4,
+            reviewCount: 28340,
+            ratingsCount: 28340,
+            coverEmoji: '👁️',
+            thumbnail: '',
+            image: 'https://via.placeholder.com/150x200?text=1984',
+            isPlaceholder: true,
+            publishedDate: '1949',
+            description: 'Una visión aterradora del futuro en una sociedad totalitaria.',
+            pageCount: 328,
+            language: 'es',
+            previewLink: '',
+            infoLink: ''
+        }
+    ];
+};
+
 // Validaciones del lado cliente
 export const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

@@ -9,7 +9,7 @@ import BookDetailsPage from './pages/BookDetailsPage';
 import LibraryPage from './pages/LibraryPage';
 import { AIRecommendationsPage, ProfilePage, NotFoundPage } from './pages/AdditionalPages';
 import { useAuth } from './hooks/useAuth';
-import { healthCheck, addBookToLibrary } from './services/api';
+import { healthCheck, addBookToLibrary, getRecommendations } from './services/api';
 import './App.css';
 import {initializeAuth} from "./services/authService";
 
@@ -94,7 +94,8 @@ const AppContent = () => {
     };
 
     const clearSearch = () => {
-        setSearchResults([]);
+        const recommendations = getRecommendations();
+        setSearchResults(recommendations);
         setSearchQuery('');
         setSearchError(null);
         setIsSearching(false);

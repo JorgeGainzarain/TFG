@@ -3,7 +3,7 @@
 .library-content {
     display: flex;
     height: 100%;
-    background: var(--primary-gradient);
+    background: var(--bg-gradient-1);
     position: relative;
 }
 
