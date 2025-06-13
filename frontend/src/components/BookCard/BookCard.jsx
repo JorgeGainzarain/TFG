@@ -37,7 +37,8 @@ const BookCard = ({
 
     const handleCardClick = () => {
         // Navegar a la página de detalles pasando el libro como state
-        navigate(`/book/${book.id}`, {
+        console.log("Book before navigation:", book);
+        navigate(`/book/${book.bookId}`, {
             state: { book }
         });
     };

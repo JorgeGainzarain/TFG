@@ -43,12 +43,23 @@ const AppContent = () => {
         return () => window.removeEventListener('resize', checkIfMobile);
     }, []);
 
-    // Check API health on mount
     useEffect(() => {
-        checkApiHealth().then(r => {
-            setApiStatus('connected');
-        });
-    }, []);
+        const performHealthCheck = async () => {
+            console.log('🔍 Performing initial health check...');
+            setApiStatus('checking');
+
+            try {
+                const response = await healthCheck();
+                console.log('✅ Health check successful:', response);
+                setApiStatus('connected');
+            } catch (error) {
+                console.error('❌ Health check failed:', error);
+                setApiStatus('error');
+            }
+        };
+
+        performHealthCheck();
+    }, []); // Solo ejecutar una vez al montar
 
     useEffect(() => {
         initializeAuth().then(() => {
