@@ -40,7 +40,7 @@ export class LibraryController extends BaseController<Library> {
         const userId = req.params.userId;
         const book = req.body; // Assuming book details are sent in the request body
         book.bookId = req.params.bookId;
-        const title = "default" // Temporal to test things
+        const title = "Mi Biblioteca" // Temporal to test things
         if (!title) {
             return res.status(400).json({ error: 'Title is required' });
         }

@@ -65,13 +65,7 @@ export class LibraryService extends BaseService<Library> {
         return libraries;
     }
 
-    async addBookToUserLibrary(userId: any, title: string, book: any): Promise<void> {
-
-        console.log("Adding book to user's library with data:", { userId, title, book });
-
-        //validatePartialObject(book, this.bookEntityConfig.requiredFields);
-
-        console.log("Control 0");
+    async addBookToUserLibrary(userId: any, title: string, book: any): Promise<Library> {
 
         // Check if the book exists
         const bookExists = await this.bookService.existsByFields(book);
@@ -79,14 +73,12 @@ export class LibraryService extends BaseService<Library> {
             await this.bookService.create(book);
         }
 
-        console.log("Control 1");
-
         // Add the book to the user's library
         const result = await this.libraryRepository.addBook(userId, title, book.bookId);
         if (!result) {
             throw new StatusError(500, `Failed to add book with id "${book.bookId}" to the user's library.`);
         }
 
-        console.log("Control 2");
+        return result;
     }
 }

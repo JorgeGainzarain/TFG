@@ -69,9 +69,6 @@ export class LibraryRepository extends BaseRepository<Library> {
             throw new StatusError(404, `Library for user with id "${userId}" not found.`);
         }
 
-        console.log("Library before update:", library);
-        console.log("BookIds", library.bookIds);
-        console.log("BookId", bookId);
 
         if (typeof library.bookIds === "string") {
             if (library.bookIds === '') {
@@ -81,14 +78,12 @@ export class LibraryRepository extends BaseRepository<Library> {
                 library.bookIds = library.bookIds.split(',')
             }
         }
-        console.log("BookIds after slice:", library.bookIds);
 
         library.bookIds.push(bookId);
         if (!library.id) {
             throw new StatusError(500, `Library for user with id "${userId}" does not have an ID.`);
         }
 
-        console.log("Library after update:", library);
 
         const result = await this.update(library.id, {
             bookIds: library.bookIds
