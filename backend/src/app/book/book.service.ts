@@ -64,6 +64,19 @@ export class BookService extends BaseService<Book> {
                 throw new StatusError(404, 'No books found matching the search criteria');
             }
 
+            // If there's only one author add it to the "authors" array
+            books.forEach((book: any) => {
+                if (!book.authors) {
+                    book.authors = [];
+                }
+                else if (book.authors.length > 1) {
+                    book.authors = book.authors.map((author: string) => author.trim());
+                }
+                if (book.author) {
+                    book.authors.push(book.author);
+                }
+            });
+
             return books;
         } catch (error: any) {
             throw new StatusError(503, error.message || 'Google Books API is currently unavailable');

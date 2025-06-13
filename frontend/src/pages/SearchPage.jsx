@@ -20,13 +20,14 @@ const SearchPage = ({
 
     const handleClearSearch = () => {
         onClearSearch();
-        navigate('/'); // Redirige a la página principal
+        navigate('/?recommendations=true'); // Redirige a la página de recomendaciones
     };
 
     const handleRetry = () => {
         if (query && !isRecommendations) {
             console.log('Retry search for:', query);
-            // Aquí podrías disparar la búsqueda nuevamente
+            // disparar la búsqueda nuevamente
+            navigate(`/search?q=${encodeURIComponent(query)}`);
             window.location.reload();
         }
     };

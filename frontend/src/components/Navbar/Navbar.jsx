@@ -20,7 +20,7 @@ const Navbar = forwardRef(({ onSearchResults, onSearchLoading, onSearchError, us
         {
             id: 'placeholder-1',
             title: 'El Nombre del Viento',
-            author: 'Patrick Rothfuss',
+            authors: ['Patrick Rothfuss'], // ✅ Fixed: now array instead of string
             genres: ['Fantasía', 'Aventura'],
             categories: ['Fantasía', 'Aventura'],
             rating: 5,
@@ -40,7 +40,7 @@ const Navbar = forwardRef(({ onSearchResults, onSearchLoading, onSearchError, us
         {
             id: 'placeholder-2',
             title: 'Cien años de soledad',
-            author: 'Gabriel García Márquez',
+            authors: ['Gabriel García Márquez'], // ✅ Fixed: now array instead of string
             genres: ['Realismo Mágico', 'Literatura'],
             categories: ['Realismo Mágico', 'Literatura'],
             rating: 5,
@@ -60,7 +60,7 @@ const Navbar = forwardRef(({ onSearchResults, onSearchLoading, onSearchError, us
         {
             id: 'placeholder-3',
             title: 'Sapiens',
-            author: 'Yuval Noah Harari',
+            authors: ['Yuval Noah Harari'], // ✅ Fixed: now array instead of string
             genres: ['Historia', 'Antropología'],
             categories: ['Historia', 'Antropología'],
             rating: 5,
@@ -80,7 +80,7 @@ const Navbar = forwardRef(({ onSearchResults, onSearchLoading, onSearchError, us
         {
             id: 'placeholder-4',
             title: 'The Hobbit',
-            author: 'J.R.R. Tolkien',
+            authors: ['J.R.R. Tolkien'], // ✅ Fixed: now array instead of string
             genres: ['Fantasía', 'Aventura'],
             categories: ['Fantasía', 'Aventura'],
             rating: 5,
@@ -100,7 +100,7 @@ const Navbar = forwardRef(({ onSearchResults, onSearchLoading, onSearchError, us
         {
             id: 'placeholder-5',
             title: 'Atomic Habits',
-            author: 'James Clear',
+            authors: ['James Clear'], // ✅ Fixed: now array instead of string
             genres: ['Autoayuda', 'Productividad'],
             categories: ['Autoayuda', 'Productividad'],
             rating: 4,
@@ -120,7 +120,7 @@ const Navbar = forwardRef(({ onSearchResults, onSearchLoading, onSearchError, us
         {
             id: 'placeholder-6',
             title: 'Dune',
-            author: 'Frank Herbert',
+            authors: ['Frank Herbert'], // ✅ Fixed: now array instead of string
             genres: ['Ciencia Ficción', 'Épico'],
             categories: ['Ciencia Ficción', 'Épico'],
             rating: 4,
@@ -140,7 +140,7 @@ const Navbar = forwardRef(({ onSearchResults, onSearchLoading, onSearchError, us
         {
             id: 'placeholder-7',
             title: 'The Midnight Library',
-            author: 'Matt Haig',
+            authors: ['Matt Haig'], // ✅ Fixed: now array instead of string
             genres: ['Ficción', 'Filosofía'],
             categories: ['Ficción', 'Filosofía'],
             rating: 4,
@@ -160,7 +160,7 @@ const Navbar = forwardRef(({ onSearchResults, onSearchLoading, onSearchError, us
         {
             id: 'placeholder-8',
             title: 'Educated',
-            author: 'Tara Westover',
+            authors: ['Tara Westover'], // ✅ Fixed: now array instead of string
             genres: ['Biografía', 'Memoir'],
             categories: ['Biografía', 'Memoir'],
             rating: 4,
