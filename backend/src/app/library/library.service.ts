@@ -67,11 +67,29 @@ export class LibraryService extends BaseService<Library> {
 
     async addBookToUserLibrary(userId: any, title: string, book: any): Promise<Library> {
 
+        console.log("Adding book to user:", userId);
+
         // Check if the book exists
         const bookExists = await this.bookService.existsByFields(book);
         if (!bookExists) {
             await this.bookService.create(book);
         }
+
+        const library = await this.libraryRepository.findByFields({ title: title , userId: userId });
+        console.log("Library retrieved:", library);
+        if (!library) {
+            throw new StatusError(404, `Library with title "${title}" not found for user with ID "${userId}".`);
+        }
+        if (!library.bookIds) {
+            library.bookIds = [];
+        }
+        console.log("BookId:", book.bookId);
+        console.log("Includes:", library.bookIds.includes(book.bookId));
+        // Check if the book is already in the user's library
+        if (library.bookIds.includes(book.bookId)) {
+            return library; // Book already exists in the library, no need to add it again
+        }
+        console.log("Control 2");
 
         // Add the book to the user's library
         const result = await this.libraryRepository.addBook(userId, title, book.bookId);

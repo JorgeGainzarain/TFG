@@ -26,17 +26,17 @@ export class LibraryController extends BaseController<Library> {
         return await super.create(req, res, next)
     }
 
-    private async getAllByUser(req: any, res: any) {
+    private async getAllByUser(req: any, res: any, next: any) {
         const userId = req.params.userId;
         try {
             const libraries = await this.libraryService.getAllByUser(userId);
             res.status(200).json(libraries);
         } catch (error) {
-            res.status(500).json({ error: 'Failed to retrieve books' });
+            next(error);
         }
     }
 
-    private async addBookToUserLibrary(req: any, res: any) {
+    private async addBookToUserLibrary(req: any, res: any, next: any) {
         const userId = req.params.userId;
         const book = req.body; // Assuming book details are sent in the request body
         book.bookId = req.params.bookId;
@@ -48,7 +48,7 @@ export class LibraryController extends BaseController<Library> {
             const updatedLibrary = await this.libraryService.addBookToUserLibrary(userId, title, book);
             res.status(200).json(updatedLibrary);
         } catch (error) {
-            res.status(500).json({ error: 'Failed to add book to library' });
+            next(error);
         }
     }
 }

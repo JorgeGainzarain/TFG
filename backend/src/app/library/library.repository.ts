@@ -95,4 +95,18 @@ export class LibraryRepository extends BaseRepository<Library> {
 
         return result;
     }
+
+    async findByFields(fields: Partial<Library>): Promise<Library> {
+        const library = await super.findByFields(fields);
+        if (!library) {
+            throw new StatusError(404, `Library not found with fields: ${JSON.stringify(fields)}`);
+        }
+        if (library.bookIds.length === 0) {
+            library.bookIds = [];
+        }
+        else if (typeof library.bookIds === 'string') {
+            library.bookIds = library.bookIds.split(',');
+        }
+        return library;
+    }
 }

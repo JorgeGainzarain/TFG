@@ -100,11 +100,7 @@ export const addBookToLibrary = async (userId, book) => {
         return response.data;
     } catch (error) {
         console.error('Error adding book to library:', error);
-        throw error;
     }
-};
-
-export const addBookToShelf = async (shelf, bookId, bookData) => {
 };
 
 // Validaciones del lado cliente
