@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { getUserLibraries, createLibrary, addBookToLibrary } from '../services/libraryService';
+import AuthOverlay from '../components/AuthOverlay/AuthOverlay';
 import LibraryContent from '../components/LibraryContent/LibraryContent';
 import './Pages.css';
 
@@ -10,6 +11,9 @@ const LibraryPage = () => {
     const [userBooks, setUserBooks] = useState([]);
     const [booksLoading, setBooksLoading] = useState(false);
     const [booksError, setBooksError] = useState(null);
+
+    // Estado para controlar la visibilidad del AuthOverlay
+    const [showAuthOverlay, setShowAuthOverlay] = useState(false);
 
     // Función para obtener libros del usuario
     const getUserBooks = async () => {
@@ -68,6 +72,13 @@ const LibraryPage = () => {
         window.location.href = '/search';
     };
 
+    // Manejar el éxito de autenticación
+    const handleAuthSuccess = (authenticatedUser) => {
+        console.log('Authentication successful:', authenticatedUser);
+        setShowAuthOverlay(false);
+        // Los libros se cargarán automáticamente cuando isAuthenticated cambie
+    };
+
     // Función para seleccionar libro (navegar a detalles)
     const handleBookSelect = (book) => {
         window.location.href = `/book/${book.bookId || book.id}`;
@@ -98,7 +109,7 @@ const LibraryPage = () => {
                     <div className="auth-required-icon">⚠️</div>
                     <h2>Error de autenticación</h2>
                     <p>{error}</p>
-                    <button className="btn btn-primary" onClick={() => window.location.href = '/'}>
+                    <button className="btn btn-primary" onClick={() => setShowAuthOverlay(true)}>
                         🔑 Ir al inicio
                     </button>
                 </div>
@@ -114,10 +125,16 @@ const LibraryPage = () => {
                     <div className="auth-required-icon">📚</div>
                     <h2>Inicia sesión para ver tu librería</h2>
                     <p>Guarda y organiza tus libros favoritos creando una cuenta.</p>
-                    <button className="btn btn-primary" onClick={() => window.location.href = '/'}>
+                    <button className="btn btn-primary" onClick={() => setShowAuthOverlay(true)}>
                         🔑 Iniciar Sesión
                     </button>
                 </div>
+
+                <AuthOverlay
+                    isVisible={showAuthOverlay}
+                    onClose={() => setShowAuthOverlay(false)}
+                    onAuthSuccess={handleAuthSuccess}
+                />
             </div>
         );
     }
