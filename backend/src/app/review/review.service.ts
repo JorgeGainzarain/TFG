@@ -16,4 +16,8 @@ export class ReviewService extends BaseService<Review> {
         super(auditService, reviewRepository);
     }
 
+    async getByBookId(bookId: string) {
+        const reviews = await this.reviewRepository.findByFields({bookId: bookId})
+        return reviews || [];
+    }
 }

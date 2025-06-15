@@ -12,7 +12,6 @@ import SearchResults from "../components/SearchResults/SearchResults";
 import HomePage from "../pages/HomePage";
 import ReviewsSection from "../components/ReviewsSection/ReviewsSection";
 import BookDetails from "../components/BookDetails/BookDetails";
-import AddReviewForm from "../components/AddReviewForm/AddReviewForm";
 
 const ComponentPreviews = () => {
     return (
@@ -52,9 +51,6 @@ const ComponentPreviews = () => {
             </ComponentPreview>
             <ComponentPreview path="/BookDetails">
                 <BookDetails/>
-            </ComponentPreview>
-            <ComponentPreview path="/AddReviewForm">
-                <AddReviewForm/>
             </ComponentPreview>
         </Previews>
     )

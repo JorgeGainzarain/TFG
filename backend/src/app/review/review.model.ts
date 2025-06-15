@@ -2,7 +2,7 @@ import {BaseModel} from "../base/base.model";
 
 export interface Review extends BaseModel {
     id?: number;
-    bookId: number;
+    bookId: string;
     userId: number;
     rating: number;
     comment: string;

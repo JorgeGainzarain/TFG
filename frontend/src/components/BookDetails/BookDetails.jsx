@@ -119,7 +119,7 @@ const BookDetails = ({ book, user, isAuthenticated, onShowAuth, onGoBack }) => {
                 {/* Sección 1: Título y Autor - Ancho completo */}
                 <div className="book-title-header">
                     <h1 className="book-title">{currentBook.title}</h1>
-                    <p className="book-author">por {currentBook.authors.join(',')}</p>
+                    <p className="book-author">por {currentBook.authors.join(',').toString()}</p>
                 </div>
 
                 {/* Sección 2: Portada + Información */}

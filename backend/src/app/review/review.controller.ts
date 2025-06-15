@@ -21,12 +21,22 @@ export class ReviewController extends BaseController<Review> {
         this.getRouter().use(authenticateToken)
 
         this.getRouter().post('/:bookId', this.create.bind(this));
-        this.getRouter().get('/:id', this.getById.bind(this));
+        this.getRouter().get('/:bookId', this.getByBookId.bind(this));
+    }
+
+    async getByBookId(req: any, res: any) {
+        try {
+            const bookId = req.params.bookId;
+            const reviews = await this.reviewService.getByBookId(bookId);
+            res.status(200).json(reviews);
+        } catch (error: any) {
+            res.status(500).json({ error: error.message });
+        }
     }
 
     async create(req: any, res: any) {
         try {
-            const bookId = parseInt(req.params.bookId, 10);
+            const bookId = req.params.bookId;
             const userId = req.user?.id;
             const { rating, comment } = req.body;
 

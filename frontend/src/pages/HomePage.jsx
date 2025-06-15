@@ -15,7 +15,6 @@ const HomePage = ({ user, isAuthenticated, onShowAuth }) => {
             />
             <div className="section-spacing"></div>
             <TrendingBooks />
-            <ReviewsSection />
         </>
     );
 };

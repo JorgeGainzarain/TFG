@@ -1,4 +1,5 @@
 // src/services/api.js
+import { makeAuthenticatedRequest } from './authService.js';
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 // Generic API request function
@@ -66,26 +67,13 @@ export const handleApiError = (error) => {
 
 // Library API functions
 
-export const getLibrariesFromUser = async (userId) => {
+export const getReviewsFromBook = async (bookId) => {
     try {
-        const response = await apiRequest(`/library/${userId}/`);
-        console.log("Response from getLibrariesFromUser:", response);
-        return response || [];
+        const response = await makeAuthenticatedRequest(`/review/${bookId}`);
+        console.log("Response from getReviewsFromBook:", response);
+        return response;
     } catch (error) {
-        console.error('Error fetching user libraries:', error);
-        throw error;
-    }
-}
-
-export  const createLibrary = async (userId, libraryTitle) => {
-    try {
-        const response = await apiRequest(`/library/${userId}/`, {
-            method: 'POST',
-            body: JSON.stringify({ title: libraryTitle }),
-        });
-        return response.data;
-    } catch (error) {
-        console.error('Error creating library:', error);
+        console.error('Error fetching reviews:', error);
         throw error;
     }
 }

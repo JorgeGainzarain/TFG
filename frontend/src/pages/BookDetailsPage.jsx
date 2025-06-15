@@ -3,6 +3,7 @@ import React from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import BookDetails from '../components/BookDetails/BookDetails';
 import './Pages.css';
+import ReviewsSection from "../components/ReviewsSection/ReviewsSection";
 
 const BookDetailsPage = ({ user, isAuthenticated, onShowAuth }) => {
     const { bookId } = useParams();
@@ -49,6 +50,12 @@ const BookDetailsPage = ({ user, isAuthenticated, onShowAuth }) => {
                 isAuthenticated={isAuthenticated}
                 onShowAuth={onShowAuth}
                 onGoBack={handleGoBack}
+            />
+            <ReviewsSection
+                bookId={bookId}
+                user={user}
+                isAuthenticated={isAuthenticated}
+                onShowAuth={onShowAuth}
             />
         </div>
     );
