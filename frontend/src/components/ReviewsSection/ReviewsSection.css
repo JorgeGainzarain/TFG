@@ -156,11 +156,6 @@
     transition: all 0.2s ease;
 }
 
-.review-card:hover {
-    transform: translateX(5px);
-    border-color: rgba(255, 255, 255, 0.15);
-}
-
 /* Review Header */
 .review-header {
     display: flex;

@@ -1,24 +1,46 @@
 // frontend/src/components/ReviewsSection/ReviewsSection.jsx
 import React, { useState, useEffect } from 'react';
-import { getReviewsFromBook } from "../../services/api";
+import {addReviewToBook, getReviewsFromBook} from "../../services/api";
 import './ReviewsSection.css';
 
-const ReviewsSection = ({ bookId, isAuthenticated, user, onShowAuth }) => {
+const ReviewsSection = ({ book, isAuthenticated, onShowAuth }) => {
     const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showAddReview, setShowAddReview] = useState(false);
     const [newReview, setNewReview] = useState({
         rating: 0,
-        reviewText: ''
+        comment: ''
     });
     const [submitting, setSubmitting] = useState(false);
     const [likedReviews, setLikedReviews] = useState(new Set());
 
+    const getReviews = async (book) => {
+        setLoading(true);
+        setError(null);
+        try {
+            const response = await getReviewsFromBook(book);
+            console.log("Response:", response);
+            if (response && Array.isArray(response)) {
+                setReviews(response);
+                // Inicializar likes de reseñas
+                const initialLikedReviews = new Set(response.filter(r => r.likes && r.likes > 0).map(r => r.id || r._id));
+                setLikedReviews(initialLikedReviews);
+            } else {
+                setError('No se encontraron reseñas para este libro');
+            }
+        } catch (err) {
+            console.error('Error al cargar reseñas:', err);
+            setError('Error al cargar reseñas');
+        } finally {
+            setLoading(false);
+        }
+    }
+
     // Cargar reviews del libro
     useEffect(() => {
-        getReviewsFromBook(bookId);
-    }, [bookId]);
+        getReviews(book);
+    }, [book]);
 
     // Manejar el envío de nueva reseña
     const handleSubmitReview = async (e) => {
@@ -34,24 +56,19 @@ const ReviewsSection = ({ bookId, isAuthenticated, user, onShowAuth }) => {
             return;
         }
 
-        if (newReview.reviewText.trim().length < 10) {
+        if (newReview.comment.trim().length < 5) {
             alert('Por favor, escribe una reseña de al menos 10 caracteres');
             return;
         }
 
         try {
             setSubmitting(true);
-            const response = await fetch(`/api/review/${bookId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
-                body: JSON.stringify({
-                    rating: newReview.rating,
-                    reviewText: newReview.reviewText
-                })
-            });
+            const response = await addReviewToBook(book, newReview);
+
+            if (response.status === 409) {
+                alert('Ya has escrito una reseña para este libro');
+                return;
+            }
 
             if (!response.ok) {
                 throw new Error('Error al enviar la reseña');
@@ -63,7 +80,7 @@ const ReviewsSection = ({ bookId, isAuthenticated, user, onShowAuth }) => {
             setReviews([newReviewData, ...reviews]);
 
             // Limpiar el formulario
-            setNewReview({ rating: 0, reviewText: '' });
+            setNewReview({ rating: 0, comment: '' });
             setShowAddReview(false);
         } catch (err) {
             alert('Error al enviar la reseña: ' + err.message);
@@ -132,9 +149,10 @@ const ReviewsSection = ({ bookId, isAuthenticated, user, onShowAuth }) => {
         const now = new Date();
         const diffTime = Math.abs(now - date);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        console.log("Date:", date, "Now:", now, "Diff Days:", diffDays);
 
-        if (diffDays === 0) return 'Hoy';
-        if (diffDays === 1) return 'Ayer';
+        if (diffDays <= 1 ) return 'Hoy';
+        if (diffDays > 1) return 'Ayer';
         if (diffDays < 7) return `Hace ${diffDays} días`;
         if (diffDays < 30) return `Hace ${Math.floor(diffDays / 7)} semanas`;
         if (diffDays < 365) return `Hace ${Math.floor(diffDays / 30)} meses`;
@@ -167,15 +185,15 @@ const ReviewsSection = ({ bookId, isAuthenticated, user, onShowAuth }) => {
                         {renderRatingStars()}
                     </div>
                     <div className="form-group">
-                        <label htmlFor="reviewText">Tu reseña:</label>
+                        <label htmlFor="comment">Tu reseña:</label>
                         <textarea
-                            id="reviewText"
+                            id="comment"
                             className="review-textarea"
-                            value={newReview.reviewText}
-                            onChange={(e) => setNewReview({ ...newReview, reviewText: e.target.value })}
+                            value={newReview.comment}
+                            onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
                             placeholder="Comparte tu opinión sobre este libro..."
                             rows="5"
-                            minLength="10"
+                            minLength="5"
                             required
                         />
                     </div>
@@ -228,7 +246,7 @@ const ReviewsSection = ({ bookId, isAuthenticated, user, onShowAuth }) => {
                             </div>
 
                             <div className="review-text">
-                                {review.reviewText}
+                                {review.comment}
                             </div>
 
                             <div className="review-actions">

@@ -67,13 +67,32 @@ export const handleApiError = (error) => {
 
 // Library API functions
 
-export const getReviewsFromBook = async (bookId) => {
+export const getReviewsFromBook = async (book) => {
     try {
-        const response = await makeAuthenticatedRequest(`/review/${bookId}`);
+        const response = await makeAuthenticatedRequest(`/review/${book.bookId}`);
         console.log("Response from getReviewsFromBook:", response);
-        return response;
+        return response.json();
     } catch (error) {
         console.error('Error fetching reviews:', error);
+        throw error;
+    }
+}
+
+export const addReviewToBook = async (book, review) => {
+    if (!review.createdAt) {
+        review.createdAt = new Date().toISOString();
+    }
+    review.book = book;
+    console.log("Adding review to book:", book.bookId, review);
+    try {
+        const response = await makeAuthenticatedRequest(`/review/${book.bookId}`, {
+            method: 'POST',
+            body: JSON.stringify(review),
+        });
+        console.log("Response from addReviewToBook:", response);
+        return response;
+    } catch (error) {
+        console.error('Error adding review:', error);
         throw error;
     }
 }

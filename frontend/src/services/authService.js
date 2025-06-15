@@ -170,11 +170,8 @@ export const makeAuthenticatedRequest = async (endpoint, options = {}) => {
             }
         }
 
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.error || data.message || `Error HTTP: ${response.status}`);
-        }
+        const data = await response;
+        console.log("Data received from:", `${API_BASE_URL}${endpoint}`, data);
 
         return data;
     } catch (error) {

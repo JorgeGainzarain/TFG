@@ -4,9 +4,7 @@ import { BaseService } from "../base/base.service";
 import { BookRepository } from "./book.repository";
 import { AuditService } from "../audit/audit.service";
 import { config } from "../../config/environment";
-import { validateObject } from "../../utils/validation";
 import { StatusError } from "../../utils/status_error";
-import { validatePartialObject } from "../../utils/validation";
 
 @Service()
 export class BookService extends BaseService<Book> {
@@ -32,6 +30,17 @@ export class BookService extends BaseService<Book> {
                 return book;
             }
         }
+    }
+
+    async create(part_entity: Partial<Book>): Promise<Book> {
+        if (!part_entity.description) {
+            part_entity.description = 'a';
+        }
+        const bookExists = await this.bookRepository.exists({ bookId: part_entity.bookId });
+        if (bookExists) {
+            throw new StatusError(409, `Book with ID "${part_entity.bookId}" already exists.`);
+        }
+        return await super.create(part_entity);
     }
 
     public async searchBooks(searchQuery: string): Promise<Book[]> {

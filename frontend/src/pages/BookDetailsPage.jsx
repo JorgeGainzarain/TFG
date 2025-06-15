@@ -6,7 +6,6 @@ import './Pages.css';
 import ReviewsSection from "../components/ReviewsSection/ReviewsSection";
 
 const BookDetailsPage = ({ user, isAuthenticated, onShowAuth }) => {
-    const { bookId } = useParams();
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -52,8 +51,7 @@ const BookDetailsPage = ({ user, isAuthenticated, onShowAuth }) => {
                 onGoBack={handleGoBack}
             />
             <ReviewsSection
-                bookId={bookId}
-                user={user}
+                book={book}
                 isAuthenticated={isAuthenticated}
                 onShowAuth={onShowAuth}
             />

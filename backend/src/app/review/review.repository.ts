@@ -14,4 +14,23 @@ export class ReviewRepository extends BaseRepository<Review> {
     ) {
         super(databaseService);
     }
+
+    async getByBookId(bookId: string): Promise<Review[]> {
+        const queryDoc = {
+            sql: `SELECT * FROM ${this.entityConfig.table_name} WHERE bookId = ?`,
+            params: [bookId]
+        };
+
+        console.log("Book ID in getByBookId:", bookId);
+
+        const result = await this.databaseService.execQuery(queryDoc);
+
+        console.log("Result from getByBookId:", result);
+
+        if (!result || !result.rows || result.rows.length === 0) {
+            return [];
+        }
+
+        return result.rows;
+    }
 }
