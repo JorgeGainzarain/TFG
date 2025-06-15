@@ -131,7 +131,7 @@ const isTokenExpired = (token) => {
 
 // === REQUESTS AUTENTICADOS ===
 
-const makeAuthenticatedRequest = async (endpoint, options = {}) => {
+export const makeAuthenticatedRequest = async (endpoint, options = {}) => {
     let token = getAccessToken();
 
     // Verificar si el token está expirado

@@ -3,6 +3,8 @@ import {Library} from "./library.model";
 import {BaseController} from "../base/base.controller";
 import {config} from '../../config/environment';
 import {LibraryService} from "./library.service";
+import { authenticateToken } from "../../middleware/auth.middleware";
+import {StatusError} from "../../utils/status_error";
 
 
 // noinspection DuplicatedCode
@@ -15,19 +17,22 @@ export class LibraryController extends BaseController<Library> {
         protected libraryService: LibraryService
     ) {
         super(libraryService);
-        this.getRouter().get('/:userId/', this.getAllByUser.bind(this));
-        this.getRouter().post('/:userId', this.create.bind(this));
-        this.getRouter().post('/:userId/:bookId', this.addBookToUserLibrary.bind(this));
+        this.getRouter().use(authenticateToken);
+
+        this.getRouter().get('/', this.getAllByUser.bind(this));
+        this.getRouter().post('/', this.create.bind(this));
+        this.getRouter().post('/:bookId', this.addBookToUserLibrary.bind(this));
     }
 
     async create(req: any, res: any, next: any) {
-        req.body.userId = req.params.userId;
-        console.log("User ID from request params:", req.body.userId);
+        // Get userId from authenticated token instead of URL params
+        req.body.userId = req.user?.id;
+        console.log("User ID from token:", req.body.userId);
         return await super.create(req, res, next)
     }
 
     private async getAllByUser(req: any, res: any, next: any) {
-        const userId = req.params.userId;
+        const userId = req.user?.id;
         try {
             const libraries = await this.libraryService.getAllByUser(userId);
             res.status(200).json(libraries);
@@ -37,13 +42,10 @@ export class LibraryController extends BaseController<Library> {
     }
 
     private async addBookToUserLibrary(req: any, res: any, next: any) {
-        const userId = req.params.userId;
+        const userId = req.user?.id;
         const book = req.body; // Assuming book details are sent in the request body
         book.bookId = req.params.bookId;
         const title = "Mi Biblioteca" // Temporal to test things
-        if (!title) {
-            return res.status(400).json({ error: 'Title is required' });
-        }
         try {
             const updatedLibrary = await this.libraryService.addBookToUserLibrary(userId, title, book);
             res.status(200).json(updatedLibrary);

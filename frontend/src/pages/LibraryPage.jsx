@@ -1,8 +1,7 @@
 // REEMPLAZAR frontend/src/pages/LibraryPage.jsx
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { getLibrariesFromUser } from '../services/api';
+import { getUserLibraries, createLibrary, addBookToLibrary } from '../services/libraryService';
 import LibraryContent from '../components/LibraryContent/LibraryContent';
 import './Pages.css';
 
@@ -24,7 +23,7 @@ const LibraryPage = () => {
             }
 
             console.log('Fetching libraries for user:', user.id);
-            const libraries = await getLibrariesFromUser(user.id);
+            const libraries = await getUserLibraries(user.id);
             console.log('Libraries received:', libraries);
 
             const userBooks = [];

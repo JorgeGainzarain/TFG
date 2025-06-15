@@ -26,6 +26,9 @@ export class LibraryService extends BaseService<Library> {
     }
 
     async create(part_entity: Partial<Library>): Promise<Library> {
+        if (!part_entity.userId) {
+            throw new StatusError(401, 'Authentication required to create a library');
+        }
         console.log("Creating library with data:", part_entity);
         // Set the BookIds to a empty array if not provided
         if (!part_entity.bookIds) {
@@ -36,6 +39,9 @@ export class LibraryService extends BaseService<Library> {
     }
 
     async getAllByUser(userId: number) {
+        if (!userId) {
+            throw new StatusError(401, 'Authentication required to access a library');
+        }
         console.log("Retrieving all libraries for user with ID:", userId);
         const libraries = await this.libraryRepository.getAllByUser(userId);
         console.log("Libraries retrieved:", libraries);
@@ -66,6 +72,10 @@ export class LibraryService extends BaseService<Library> {
     }
 
     async addBookToUserLibrary(userId: any, title: string, book: any): Promise<Library> {
+
+        if (!userId) {
+            throw new StatusError(401, 'Authentication required to add a book to a library');
+        }
 
         console.log("Adding book to user:", userId);
 
