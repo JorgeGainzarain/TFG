@@ -4,6 +4,7 @@ import { Review } from './review.model';
 import { BaseController } from "../base/base.controller";
 import { config } from '../../config/environment';
 import { authenticateJWT } from '../../middleware/authentificate_JWT';
+import {authenticateToken} from "../../middleware/auth.middleware";
 
 
 // noinspection DuplicatedCode
@@ -17,7 +18,7 @@ export class ReviewController extends BaseController<Review> {
     ) {
         super(reviewService);
 
-        this.getRouter().use(authenticateJWT)
+        this.getRouter().use(authenticateToken)
 
         this.getRouter().post('/:bookId', this.create.bind(this));
         this.getRouter().get('/:id', this.getById.bind(this));
@@ -26,7 +27,7 @@ export class ReviewController extends BaseController<Review> {
     async create(req: any, res: any) {
         try {
             const bookId = parseInt(req.params.bookId, 10);
-            const userId = req.user.id; // Assuming user ID is stored in req.user
+            const userId = req.user?.id;
             const { rating, comment } = req.body;
 
             const review: Review = {
