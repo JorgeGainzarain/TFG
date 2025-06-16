@@ -38,7 +38,9 @@ export class BookRepository extends BaseRepository<Book> {
     }
 
     async create(book: Book): Promise<any> {
+        console.log("Book before process: ", book);
         book = await this.process(book);
+        console.log("Book after process: ", book);
         return await super.create(book);
     }
 
@@ -53,15 +55,23 @@ export class BookRepository extends BaseRepository<Book> {
                 book.authors = book.authors.join(', ');
             } else if (typeof book.authors === 'string') {
                 book.authors = book.authors.split(',').map(author => author.trim());
+            } else if (typeof book.authors === 'object') {
+                // Handle object structure like { '0': 'Author Name', '1': 'Another Author' }
+                book.authors = Object.values(book.authors).join(', ');
             }
         }
+
         if (book.categories) {
             if (Array.isArray(book.categories)) {
                 book.categories = book.categories.join(', ');
             } else if (typeof book.categories === 'string') {
                 book.categories = book.categories.split(',').map(category => category.trim()) as Categories[];
+            } else if (typeof book.categories === 'object') {
+                // Handle object structure like { '0': 'ABUSO SEXUAL', '1': 'VIOLENCIA' }
+                book.categories = Object.values(book.categories).join(', ') as unknown as Categories[];
             }
         }
+
         return book;
     }
 }

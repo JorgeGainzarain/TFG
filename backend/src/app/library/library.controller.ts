@@ -5,6 +5,7 @@ import {config} from '../../config/environment';
 import {LibraryService} from "./library.service";
 import { authenticateToken } from "../../middleware/auth.middleware";
 import {StatusError} from "../../utils/status_error";
+import {createResponse} from "../../utils/response";
 
 
 // noinspection DuplicatedCode
@@ -25,9 +26,7 @@ export class LibraryController extends BaseController<Library> {
     }
 
     async create(req: any, res: any, next: any) {
-        // Get userId from authenticated token instead of URL params
         req.body.userId = req.user?.id;
-        console.log("User ID from token:", req.body.userId);
         return await super.create(req, res, next)
     }
 
@@ -35,7 +34,7 @@ export class LibraryController extends BaseController<Library> {
         const userId = req.user?.id;
         try {
             const libraries = await this.libraryService.getAllByUser(userId);
-            res.status(200).json(libraries);
+            res.status(200).json(createResponse('success', 'Libraries retrieved successfully', libraries));
         } catch (error) {
             next(error);
         }
@@ -48,7 +47,7 @@ export class LibraryController extends BaseController<Library> {
         const title = "Mi Biblioteca" // Temporal to test things
         try {
             const updatedLibrary = await this.libraryService.addBookToUserLibrary(userId, title, book);
-            res.status(200).json(updatedLibrary);
+            res.status(200).json(createResponse('success', 'Libraries added successfully', updatedLibrary));
         } catch (error) {
             next(error);
         }

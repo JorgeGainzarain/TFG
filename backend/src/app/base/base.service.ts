@@ -25,7 +25,11 @@ export abstract class BaseService<T extends { id?: number }> {
     }
 
     async create(part_entity: Partial<T>): Promise<T> {
+        console.log("Control before validation:", part_entity);
+
         const entity = validateObject(part_entity, this.entityConfig.requiredFields);
+
+        console.log("Control after validation:", entity);
 
         const createdEntity = await this.repository.create(entity);
         await this.auditAction(createdEntity, 'created');

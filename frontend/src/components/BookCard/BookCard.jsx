@@ -72,7 +72,7 @@ const BookCard = ({
     const displayGenres = (book.genres || book.categories || []).slice(0, 3);
     const displayRating = book.rating || book.averageRating || 0;
     const reviewCount = book.reviewCount || book.ratingsCount || 0;
-    const description = book.description || (showDescription ? getDefaultDescription() : '');
+    const description = book.description || '';
     const publishedYear = formatPublishedDate(book.publishedDate);
 
     if (variant === 'horizontal') {

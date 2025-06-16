@@ -6,7 +6,7 @@ import CategoryFilter from '../CategoryFilter/CategoryFilter';
 import SortDropdown from '../SortDropdown/SortDropdown';
 import './SearchPage.css';
 
-const SearchPage = ({ searchQuery = "" }) => {
+const SearchPage = ({ searchQuery = "", handleAddToLibrary }) => {
     const [filters, setFilters] = useState({
         genre: '',
         year: '',
@@ -251,11 +251,6 @@ const SearchPage = ({ searchQuery = "" }) => {
             ...prev,
             [filterType]: value
         }));
-    };
-
-    const handleAddToLibrary = (book) => {
-        console.log('Añadiendo a la librería:', book);
-        alert(`"${book.title}" será añadido a tu librería (funcionalidad pendiente)`);
     };
 
     return (

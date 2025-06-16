@@ -11,7 +11,9 @@ export const getUserLibraries = async () => {
         console.log("Fetching user libraries from:", `${API_BASE_URL}/library/`);
         console.log("Response: ", response);
 
-        return response;
+        const data = (await response.json()).data;
+        console.log("Data: ", data);
+        return data;
     } catch (error) {
         console.error('Error fetching user libraries:', error);
         throw error;

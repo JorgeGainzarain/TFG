@@ -2,7 +2,7 @@ import { StatusError } from './status_error';
 
 export function validateRequiredParams<T extends Object>(params: Partial<T>): void {
     const requiredFields = Object.keys(params) as (keyof T)[];
-    const missingParams = requiredFields.filter(field => params[field] === undefined || params[field] === null || params[field] === '');
+    const missingParams = requiredFields.filter(field => params[field] === undefined || params[field] === null);
     if (missingParams.length > 0) {
         throw new StatusError(400, `Missing required parameter(s): ${missingParams.join(', ')}`);
     }
@@ -11,7 +11,7 @@ export function validateRequiredParams<T extends Object>(params: Partial<T>): vo
 export function validateObject<T extends Object>(obj: Partial<T>, requiredFields: { name: keyof T; type: string }[]): T {
     const invalidFields = requiredFields.filter(field => {
         const value = obj[field.name];
-        return !(field.name in obj) || (field.type === 'TEXT' && value == '');
+        return !(field.name in obj);
     });
 
     if (invalidFields.length > 0) {
@@ -25,7 +25,7 @@ export function validateObject<T extends Object>(obj: Partial<T>, requiredFields
 export function validatePartialObject<T extends Object>(obj: Partial<T>, requiredFields: { name: keyof T; type: string }[]): Partial<T> {
     const invalidFields = (Object.keys(obj) as (keyof T)[]).map(key => {
         const field = requiredFields.find(f => f.name === key);
-        return !field || (field.type === 'TEXT' && obj[key] == '') ? { name: key } : null;
+        return !field ? { name: key } : null;
     }).filter(field => field !== null) as { name: keyof T }[];
 
     if (invalidFields.length > 0) {

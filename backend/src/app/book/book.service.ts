@@ -33,13 +33,12 @@ export class BookService extends BaseService<Book> {
     }
 
     async create(part_entity: Partial<Book>): Promise<Book> {
-        if (!part_entity.description) {
-            part_entity.description = 'a';
-        }
+        console.log("Book: ", part_entity);
         const bookExists = await this.bookRepository.exists({ bookId: part_entity.bookId });
         if (bookExists) {
             throw new StatusError(409, `Book with ID "${part_entity.bookId}" already exists.`);
         }
+        console.log("Book: ", part_entity.toString());
         return await super.create(part_entity);
     }
 

@@ -23,14 +23,16 @@ export class LibraryRepository extends BaseRepository<Library> {
             library.bookIds = library.bookIds.toString()
         }
         console.log("Library", library)
-        return super.create(library);
+        const response = await super.create(library);
+        console.log("Library response", response);
+        return response;
     }
 
     async update(id: number, library: Partial<Library>): Promise<Library> {
         if (library.bookIds && Array.isArray(library.bookIds)) {
             library.bookIds = library.bookIds.toString();
         }
-        return super.update(id, library);
+        return await super.update(id, library);
     }
 
     async getAllByUser(userId: number) {
@@ -96,10 +98,10 @@ export class LibraryRepository extends BaseRepository<Library> {
         return result;
     }
 
-    async findByFields(fields: Partial<Library>): Promise<Library> {
+    async findByFields(fields: Partial<Library>): Promise<Library | undefined> {
         const library = await super.findByFields(fields);
         if (!library) {
-            throw new StatusError(404, `Library not found with fields: ${JSON.stringify(fields)}`);
+            return undefined;
         }
         if (library.bookIds.length === 0) {
             library.bookIds = [];

@@ -38,7 +38,7 @@ export class LibraryService extends BaseService<Library> {
         return await super.create(part_entity);
     }
 
-    async getAllByUser(userId: number) {
+    async getAllByUser(userId: number): Promise<Library[]> {
         if (!userId) {
             throw new StatusError(401, 'Authentication required to access a library');
         }
@@ -78,9 +78,11 @@ export class LibraryService extends BaseService<Library> {
         }
 
         console.log("Adding book to user:", userId);
+        console.log("Book data:", book);
 
         // Check if the book exists
         const bookExists = await this.bookService.existsByFields(book);
+        console.log("Book exists:", bookExists);
         if (!bookExists) {
             await this.bookService.create(book);
         }

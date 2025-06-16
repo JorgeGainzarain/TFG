@@ -45,12 +45,10 @@ const AppContent = () => {
 
     useEffect(() => {
         const performHealthCheck = async () => {
-            console.log('🔍 Performing initial health check...');
             setApiStatus('checking');
 
             try {
                 const response = await healthCheck();
-                console.log('✅ Health check successful:', response);
                 setApiStatus('connected');
             } catch (error) {
                 console.error('❌ Health check failed:', error);

@@ -136,7 +136,6 @@ export const makeAuthenticatedRequest = async (endpoint, options = {}) => {
 
     // Verificar si el token está expirado
     if (token && isTokenExpired(token)) {
-        console.log('Token expirado, intentando renovar...');
         const refreshed = await refreshAccessToken();
         if (!refreshed) {
             await logout();
@@ -159,7 +158,6 @@ export const makeAuthenticatedRequest = async (endpoint, options = {}) => {
 
         // Si recibimos 401, intentar refresh una vez
         if (response.status === 401 && token) {
-            console.log('Token inválido, intentando renovar...');
             const refreshed = await refreshAccessToken();
             if (refreshed) {
                 config.headers['Authorization'] = `Bearer ${getAccessToken()}`;
@@ -171,7 +169,6 @@ export const makeAuthenticatedRequest = async (endpoint, options = {}) => {
         }
 
         const data = await response;
-        console.log("Data received from:", `${API_BASE_URL}${endpoint}`, data);
 
         return data;
     } catch (error) {
@@ -186,7 +183,6 @@ export const refreshAccessToken = async () => {
     try {
         const refreshToken = getRefreshToken();
         if (!refreshToken) {
-            console.log('No refresh token available');
             return false;
         }
 
@@ -199,7 +195,6 @@ export const refreshAccessToken = async () => {
         });
 
         if (!response.ok) {
-            console.log('Refresh token failed:', response.status);
             return false;
         }
 
@@ -207,7 +202,6 @@ export const refreshAccessToken = async () => {
 
         if (result.status === 'success' && result.data) {
             setTokens(result.data.accessToken, result.data.refreshToken);
-            console.log('Tokens renovados exitosamente');
             return true;
         }
 
@@ -266,9 +260,11 @@ export const register = async (userData) => {
             setTokens(result.data.accessToken, result.data.refreshToken);
             setUser(result.data.user);
 
+            console.log("User:", result.data.user);
+
             // Crear biblioteca por defecto
             try {
-                await createDefaultLibrary(result.data.user.id);
+                await createDefaultLibrary();
             } catch (libraryError) {
                 console.warn('Error creando biblioteca por defecto:', libraryError);
             }
@@ -441,9 +437,9 @@ export const getAuthState = () => {
 };
 
 // Función helper para crear biblioteca por defecto
-const createDefaultLibrary = async (userId) => {
+const createDefaultLibrary = async () => {
     try {
-        const response = await fetch(`${API_BASE_URL}/library/${userId}`, {
+        const response = await fetch(`${API_BASE_URL}/library/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -451,10 +447,6 @@ const createDefaultLibrary = async (userId) => {
             },
             body: JSON.stringify({ title: 'Mi Biblioteca' }),
         });
-
-        if (!response.ok) {
-            throw new Error('Error creando biblioteca por defecto');
-        }
 
         const result = await response.json();
         console.log('Biblioteca por defecto creada:', result);

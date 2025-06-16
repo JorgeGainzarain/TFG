@@ -1,5 +1,6 @@
 // src/services/api.js
-import { makeAuthenticatedRequest } from './authService.js';
+import {makeAuthenticatedRequest} from './authService.js';
+
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 // Generic API request function
@@ -99,12 +100,11 @@ export const addReviewToBook = async (book, review) => {
 
 export const addBookToLibrary = async (userId, book) => {
     try {
-        console.log("Book", book);
-        const response = await apiRequest(`/library/${userId}/${book.bookId}`, {
+        console.log("Book in frotnend addBookToLibrary", book);
+        return await makeAuthenticatedRequest(`/library/${book.bookId}`, {
             method: 'POST',
             body: JSON.stringify(book),
         });
-        return response.data;
     } catch (error) {
         console.error('Error adding book to library:', error);
     }

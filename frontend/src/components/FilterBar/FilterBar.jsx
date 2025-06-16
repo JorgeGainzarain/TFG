@@ -1,7 +1,14 @@
 import React from 'react';
 import './FilterBar.css';
 
-const FilterBar = ({ filters, onFilterChange }) => {
+const FilterBar = ({
+                       filters = {
+                           genre: '',
+                           year: '',
+                           sortBy: 'relevance',
+                       },
+                       onFilterChange
+                   }) => {
     const handleSelectChange = (filterType, value) => {
         onFilterChange(filterType, value);
     };
@@ -44,15 +51,6 @@ const FilterBar = ({ filters, onFilterChange }) => {
             </select>
         </div>
     );
-};
-
-// Set default props
-FilterBar.defaultProps = {
-    filters: {
-        genre: '',
-        year: '',
-        sortBy: 'relevance',
-    },
 };
 
 export default FilterBar;
