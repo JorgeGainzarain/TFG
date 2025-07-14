@@ -9,17 +9,21 @@ export function validateRequiredParams<T extends Object>(params: Partial<T>): vo
 }
 
 export function validateObject<T extends Object>(obj: Partial<T>, requiredFields: { name: keyof T; type: string }[]): T {
-    const invalidFields = requiredFields.filter(field => {
-        const value = obj[field.name];
-        return !(field.name in obj);
-    });
+    const invalidFields = requiredFields.filter(field => !(field.name in obj));
 
     if (invalidFields.length > 0) {
         throw new StatusError(400, `Invalid object. Missing fields: ${invalidFields.map(field => field.name).join(', ')}`);
     }
 
-    validateRequiredParams(obj);
-    return obj as T;
+    // Remove extra arguments not in requiredFields
+    const allowedKeys = requiredFields.map(field => field.name);
+    const cleanedObj: Partial<T> = {};
+    for (const key of allowedKeys) {
+        cleanedObj[key] = obj[key];
+    }
+
+    validateRequiredParams(cleanedObj);
+    return cleanedObj as T;
 }
 
 export function validatePartialObject<T extends Object>(obj: Partial<T>, requiredFields: { name: keyof T; type: string }[]): Partial<T> {

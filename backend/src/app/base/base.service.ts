@@ -37,6 +37,7 @@ export abstract class BaseService<T extends { id?: number }> {
     }
 
     async update(id: number, part_updates: Partial<T>): Promise<T> {
+        console.log("Body before validation:", part_updates);
         validateRequiredParams({ id });
         validatePartialObject(part_updates, this.entityConfig.requiredFields);
 

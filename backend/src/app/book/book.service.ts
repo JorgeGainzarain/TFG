@@ -5,6 +5,8 @@ import { BookRepository } from "./book.repository";
 import { AuditService } from "../audit/audit.service";
 import { config } from "../../config/environment";
 import { StatusError } from "../../utils/status_error";
+import {ReviewRepository} from "../review/review.repository";
+import {validateObject} from "../../utils/validation";
 
 @Service()
 export class BookService extends BaseService<Book> {
@@ -12,7 +14,8 @@ export class BookService extends BaseService<Book> {
 
     constructor(
         protected auditService: AuditService,
-        protected bookRepository: BookRepository
+        protected bookRepository: BookRepository,
+        protected reviewRepository: ReviewRepository
     ) {
         super(auditService, bookRepository);
     }
@@ -33,13 +36,14 @@ export class BookService extends BaseService<Book> {
     }
 
     async create(part_entity: Partial<Book>): Promise<Book> {
-        console.log("Book: ", part_entity);
-        const bookExists = await this.bookRepository.exists({ bookId: part_entity.bookId });
+        let book = validateObject(part_entity, this.entityConfig.requiredFields);
+        console.log("Book: ", book);
+        const bookExists = await this.bookRepository.exists({ bookId: book.bookId });
         if (bookExists) {
-            throw new StatusError(409, `Book with ID "${part_entity.bookId}" already exists.`);
+            throw new StatusError(409, `Book with ID "${book.bookId}" already exists.`);
         }
-        console.log("Book: ", part_entity.toString());
-        return await super.create(part_entity);
+        console.log("Book: ", book.toString());
+        return await super.create(book);
     }
 
     public async searchBooks(searchQuery: string): Promise<Book[]> {
@@ -72,8 +76,7 @@ export class BookService extends BaseService<Book> {
                 throw new StatusError(404, 'No books found matching the search criteria');
             }
 
-            // If there's only one author add it to the "authors" array
-            books.forEach((book: any) => {
+            for (let book of books) {
                 if (!book.authors) {
                     book.authors = [];
                 }
@@ -83,7 +86,12 @@ export class BookService extends BaseService<Book> {
                 if (book.author) {
                     book.authors.push(book.author);
                 }
-            });
+                // Retrieve the book from the database if it exists to see the rating and number of reviews, otherwise set it to 0
+                const reviews = await this.reviewRepository.getByBookId(book.bookId)
+                console.log(reviews);
+                book.reviewCount = reviews.length
+                book.rating = reviews.reduce((acc, review) => acc + (review.rating || 0), 0) / (reviews.length || 1);
+                console.log("Reviews for book: " +  book.bookId + " -> " + reviews)}
 
             return books;
         } catch (error: any) {

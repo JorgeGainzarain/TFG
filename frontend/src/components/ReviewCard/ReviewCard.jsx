@@ -1,8 +1,11 @@
 // frontend/src/components/ReviewCard/ReviewCard.jsx
 import React, { useState } from 'react';
 import './ReviewCard.css';
+import {updateBook} from "../../services/api";
+import {useAuth} from "../../hooks/useAuth";
 
 const ReviewCard = ({ review }) => {
+    const { user } = useAuth();
     const [isLiked, setIsLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(review.likes || 0);
 
@@ -18,13 +21,14 @@ const ReviewCard = ({ review }) => {
         return stars;
     };
 
-    const handleLike = () => {
+    const handleLike = async () => {
         if (isLiked) {
             setLikeCount(prev => prev - 1);
         } else {
             setLikeCount(prev => prev + 1);
         }
         setIsLiked(!isLiked);
+        await updateBook(user.id, review.book);
     };
 
     const getInitials = (name) => {
@@ -36,14 +40,14 @@ const ReviewCard = ({ review }) => {
             <div className="review-header">
                 <div className="user-avatar">
                     {review.userAvatar ? (
-                        <img src={review.userAvatar} alt={review.userName} />
+                        <img src={review.userAvatar} alt={review.user.username} />
                     ) : (
-                        getInitials(review.userName)
+                        getInitials(review.user.username)
                     )}
                 </div>
                 <div className="review-meta">
-                    <h4>{review.userName}</h4>
-                    <p className="review-date">{review.reviewDate}</p>
+                    <h4>{review.user.username}</h4>
+                    <p className="review-date">{review.createdAt}</p>
                 </div>
                 <div className="book-rating">
                     <div className="stars">
@@ -52,7 +56,7 @@ const ReviewCard = ({ review }) => {
                 </div>
             </div>
 
-            <p className="review-text">{review.reviewText}</p>
+            <p className="review-text">{review.comment}</p>
 
             <div className="review-actions">
                 <button
@@ -62,7 +66,7 @@ const ReviewCard = ({ review }) => {
                     <span>{isLiked ? '❤️' : '♡'}</span>
                     <span>{likeCount} me gusta</span>
                 </button>
-                <span className="book-title">{review.bookTitle}</span>
+                <span className="book-title">{review.book.title}</span>
             </div>
         </div>
     );

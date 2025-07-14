@@ -17,6 +17,7 @@ export class ReviewController extends BaseController<Review> {
     ) {
         super(reviewService);
 
+        this.getRouter().put('/:reviewId', authenticateToken, this.update.bind(this));
         this.getRouter().post('/:bookId', authenticateToken, this.create.bind(this));
         this.getRouter().get('/:bookId', this.getByBookId.bind(this));
     }

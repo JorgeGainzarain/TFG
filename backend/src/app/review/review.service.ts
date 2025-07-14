@@ -7,6 +7,7 @@ import {config} from "../../config/environment";
 import {BookService} from "../book/book.service";
 import {validateObject} from "../../utils/validation";
 import {StatusError} from "../../utils/status_error";
+import {UserService} from "../user/user.service";
 
 @Service()
 export class ReviewService extends BaseService<Review> {
@@ -16,6 +17,7 @@ export class ReviewService extends BaseService<Review> {
         protected auditService: AuditService,
         protected reviewRepository: ReviewRepository,
         protected  bookService: BookService,
+        protected userService: UserService
     ) {
         super(auditService, reviewRepository);
     }
@@ -42,6 +44,15 @@ export class ReviewService extends BaseService<Review> {
     }
 
     async getByBookId(bookId: string) {
-        return await this.reviewRepository.getByBookId(bookId);
+        let reviews = await this.reviewRepository.getByBookId(bookId);
+        for (const review of reviews) {
+            // Add the book and user as fields from their id's
+            const book = await this.bookService.getById(review.bookId);
+            const user = await this.userService.getById(review.userId);
+            review.book = book;
+            review.user = user;
+        }
+        console.log("Reviews for book with ID:", bookId, reviews);
+        return reviews
     }
 }

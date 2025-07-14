@@ -110,6 +110,29 @@ export const addBookToLibrary = async (userId, book) => {
     }
 };
 
+export const updateBook = async (book) => {
+    try {
+        return await makeAuthenticatedRequest(`/library/${book.bookId}`, {
+            method: 'PUT',
+            body: JSON.stringify(book),
+        });
+    } catch (error) {
+        console.error('Error updating book:', error);
+    }
+}
+
+export const updateReview = async (bookId, review) => {
+    console.log("Review in updateReview:", review);
+    try {
+        return await makeAuthenticatedRequest(`/review/${review.id}`, {
+            method: 'PUT',
+            body: JSON.stringify(review),
+        });
+    } catch (error) {
+        console.error('Error updating review:', error);
+    }
+}
+
 // Función para obtener recomendaciones de libros (placeholders)
 export const getRecommendations = () => {
     return [

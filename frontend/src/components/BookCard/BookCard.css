@@ -675,3 +675,32 @@
     outline: 2px solid var(--primary-gradient);
     outline-offset: 2px;
 }
+
+/* Keep button positioned at bottom right with consistent width */
+.book-card.horizontal .book-bottom-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-end;
+}
+
+.book-card.horizontal .add-btn {
+    min-width: 160px;
+    text-align: center;
+    align-self: flex-end;
+}
+
+/* Enhanced states for the add button */
+.add-btn.added {
+    background: #10b981;
+    color: white;
+}
+
+.add-btn.loading {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.add-btn:disabled {
+    pointer-events: none;
+}

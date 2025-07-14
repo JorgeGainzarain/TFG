@@ -131,6 +131,7 @@ const AppContent = () => {
 
     const handleAddToLibrary = async (book) => {
         await addBookToLibrary(user.id, book);
+        alert('Libro añadido a tu librería');
     }
 
     // Mostrar loading mientras se inicializa la auth

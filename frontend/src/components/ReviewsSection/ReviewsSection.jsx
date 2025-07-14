@@ -1,7 +1,8 @@
 // frontend/src/components/ReviewsSection/ReviewsSection.jsx
 import React, { useState, useEffect } from 'react';
-import {addReviewToBook, getReviewsFromBook} from "../../services/api";
+import {addReviewToBook, getReviewsFromBook, updateReview} from "../../services/api";
 import './ReviewsSection.css';
+import {useAuth} from "../../hooks/useAuth";
 
 const ReviewsSection = ({ book, isAuthenticated, onShowAuth }) => {
     const [reviews, setReviews] = useState([]);
@@ -12,6 +13,7 @@ const ReviewsSection = ({ book, isAuthenticated, onShowAuth }) => {
         rating: 0,
         comment: ''
     });
+    const { user } = useAuth();
     const [submitting, setSubmitting] = useState(false);
     const [likedReviews, setLikedReviews] = useState(new Set());
 
@@ -90,7 +92,8 @@ const ReviewsSection = ({ book, isAuthenticated, onShowAuth }) => {
     };
 
     // Manejar likes
-    const handleLikeReview = (reviewId) => {
+    const handleLikeReview = (review) => {
+        const reviewId = review.id;
         if (!isAuthenticated) {
             onShowAuth();
             return;
@@ -114,6 +117,8 @@ const ReviewsSection = ({ book, isAuthenticated, onShowAuth }) => {
             }
             return review;
         }));
+
+        updateReview(user.userId, review);
     };
 
     // Renderizar estrellas para selección
@@ -226,14 +231,14 @@ const ReviewsSection = ({ book, isAuthenticated, onShowAuth }) => {
                                 <div className="reviewer-info">
                                     <div className="reviewer-avatar">
                                         {review.userAvatar || review.user?.avatar ? (
-                                            <img src={review.userAvatar || review.user?.avatar} alt={review.userName} />
+                                            <img src={review.userAvatar || review.user?.avatar} alt={review.username} />
                                         ) : (
                                             <span>👤</span>
                                         )}
                                     </div>
                                     <div>
                                         <div className="reviewer-name">
-                                            {review.userName || review.user?.name || 'Usuario anónimo'}
+                                            {review.user.username || review.user?.name || 'Usuario anónimo'}
                                         </div>
                                         <div className="review-date">
                                             {formatDate(review.reviewDate || review.createdAt || new Date())}
@@ -252,7 +257,7 @@ const ReviewsSection = ({ book, isAuthenticated, onShowAuth }) => {
                             <div className="review-actions">
                                 <button
                                     className={`review-action like-action ${isLiked ? 'liked' : ''}`}
-                                    onClick={() => handleLikeReview(reviewId)}
+                                    onClick={() => handleLikeReview(review)}
                                 >
                                     <span className="heart-icon">{isLiked ? '❤️' : '🤍'}</span>
                                     <span className="like-count">{review.likes || 0}</span>
