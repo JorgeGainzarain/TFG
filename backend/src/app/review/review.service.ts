@@ -43,6 +43,23 @@ export class ReviewService extends BaseService<Review> {
         return await super.create(review);
     }
 
+    async update(id: number, review: Review) {
+        if (review.user && !review.userId) {
+            if (review.user.id != null) {
+                review.userId = review.user.id;
+            }
+        }
+        if (review.book && !review.bookId) {
+            if (review.book.bookId != null) {
+                review.bookId = review.book.bookId;
+            }
+        }
+
+        delete review.book;
+        delete review.user;
+        return super.update(id, review);
+    }
+
     async getByBookId(bookId: string) {
         let reviews = await this.reviewRepository.getByBookId(bookId);
         for (const review of reviews) {

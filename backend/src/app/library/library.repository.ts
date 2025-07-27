@@ -111,4 +111,27 @@ export class LibraryRepository extends BaseRepository<Library> {
         }
         return library;
     }
+
+    async removeBook(userId: any, title: any, bookId: string) {
+        const library = await this.findByFields({ userId: userId, title: title });
+        if (!library) {
+            throw new StatusError(404, `Library with title "${title}" not found for user with ID "${userId}".`);
+        }
+
+        if (!library.bookIds || !Array.isArray(library.bookIds)) {
+            throw new StatusError(400, `Library with title "${title}" does not have any books.`);
+        }
+
+        const bookIndex = library.bookIds.indexOf(bookId);
+        if (bookIndex === -1) {
+            throw new StatusError(404, `Book with ID "${bookId}" not found in library "${title}".`);
+        }
+
+        library.bookIds.splice(bookIndex, 1);
+
+        if (!library.id) {
+            throw new StatusError(500, `Library with title "${title}" does not have an ID.`);
+        }
+        return await this.update(library.id, { bookIds: library.bookIds });
+    }
 }

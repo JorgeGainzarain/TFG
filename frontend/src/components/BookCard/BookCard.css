@@ -87,6 +87,17 @@
     pointer-events: none; /* Pero no para sus hijos */
 }
 
+/* Contenedor del botón y dropdown */
+.add-button-container {
+    position: relative;
+    pointer-events: auto;
+    z-index: 50;
+}
+
+.add-button-container * {
+    pointer-events: auto;
+}
+
 /* Estilos para la portada del libro */
 .book-cover {
     border-radius: 8px;
@@ -226,7 +237,7 @@
     justify-content: center;
     gap: 0.5rem;
     position: relative;
-    z-index: 10; /* Asegurar que esté encima del click del card */
+    z-index: 10;
 }
 
 .add-btn:hover {
@@ -239,10 +250,98 @@
     transform: translateY(0);
 }
 
+.add-btn.active {
+    background: var(--primary-gradient);
+    box-shadow: var(--shadow-primary);
+    transform: translateY(-2px);
+}
+
 .add-icon {
     font-size: 1.1rem;
     font-weight: 600;
     line-height: 1;
+}
+
+/* Flecha del dropdown */
+.dropdown-arrow {
+    font-size: 0.7rem;
+    transition: transform 0.3s ease;
+    margin-left: auto;
+}
+
+.dropdown-arrow.rotated {
+    transform: rotate(180deg);
+}
+
+/* Estilos del dropdown */
+.library-dropdown {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 0;
+    right: 0;
+    background: rgba(30, 30, 30, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+    overflow: hidden;
+    animation: dropdownSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: top center;
+    min-width: max-content;
+}
+
+@keyframes dropdownSlideIn {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px) scaleY(0.8);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scaleY(1);
+    }
+}
+
+.dropdown-option {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.dropdown-option:last-child {
+    border-bottom: none;
+}
+
+.dropdown-option:hover {
+    background: rgba(102, 126, 234, 0.15);
+    color: white;
+    transform: translateX(4px);
+}
+
+.dropdown-option:active {
+    background: rgba(102, 126, 234, 0.25);
+    transform: translateX(2px);
+}
+
+.option-emoji {
+    font-size: 1rem;
+    min-width: 20px;
+    text-align: center;
+}
+
+.option-label {
+    flex: 1;
+    text-align: left;
 }
 
 /* VARIANTE VERTICAL (por defecto) */
@@ -252,6 +351,13 @@
     height: 100%; /* CRÍTICO: Toma toda la altura disponible */
     min-height: 420px;
     box-sizing: border-box; /* CRÍTICO: Incluir padding en cálculos */
+    overflow: visible; /* Permitir que el dropdown se vea */
+    z-index: 1; /* Base z-index */
+}
+
+/* Cuando una card vertical tiene dropdown activo, elevar su z-index */
+.book-card.vertical:has(.library-dropdown) {
+    z-index: 100;
 }
 
 .book-card.vertical .book-cover {
@@ -314,6 +420,13 @@
     min-height: 160px;
     width: 100%;
     height: auto; /* En horizontal no forzamos altura completa */
+    overflow: visible; /* Permitir que el dropdown se vea */
+    z-index: 1; /* Base z-index */
+}
+
+/* Cuando una card horizontal tiene dropdown activo, elevar su z-index */
+.book-card.horizontal:has(.library-dropdown) {
+    z-index: 100;
 }
 
 .book-card.horizontal .book-cover {
@@ -416,13 +529,19 @@
     font-size: 0.9rem;
 }
 
+.book-card.horizontal .library-dropdown {
+    min-width: 200px;
+    right: 0;
+    left: auto;
+}
+
 /* Asegurar que las cards en grids horizontales tengan altura uniforme */
 .cards-grid-horizontal {
     display: flex;
     gap: 1.5rem;
     overflow-x: auto;
-    overflow-y: hidden;
-    padding: 1rem 0;
+    overflow-y: visible; /* Cambiar para permitir que el dropdown se vea */
+    padding: 1rem 0 3rem 0; /* Añadir padding bottom para el dropdown */
     margin: 0;
     scroll-behavior: smooth;
     cursor: grab;
@@ -454,9 +573,15 @@
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
     cursor: pointer;
     position: relative;
-    overflow: hidden;
+    overflow: visible; /* Cambiado para permitir que el dropdown se vea */
     will-change: transform;
     box-sizing: border-box; /* CRÍTICO: Incluir padding en cálculos */
+    z-index: 1; /* Base z-index */
+}
+
+/* Cuando una card tiene dropdown activo, elevar su z-index */
+.cards-grid-horizontal .book-card:has(.library-dropdown) {
+    z-index: 100;
 }
 
 /* Efectos hover mejorados para las cards en grid horizontal */
@@ -597,6 +722,18 @@
         padding: 0.4rem 0.6rem;
         font-size: 0.75rem;
     }
+
+    /* Dropdown en mobile */
+    .library-dropdown {
+        left: 0;
+        right: 0;
+        min-width: auto;
+    }
+
+    .dropdown-option {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.8rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -652,6 +789,17 @@
         padding: 0.5rem 0.8rem;
         font-size: 0.8rem;
     }
+
+    /* Dropdown en pantallas muy pequeñas */
+    .dropdown-option {
+        padding: 0.5rem 0.7rem;
+        font-size: 0.75rem;
+    }
+
+    .option-emoji {
+        font-size: 0.9rem;
+        min-width: 18px;
+    }
 }
 
 /* Mejoras para accesibilidad */
@@ -668,12 +816,26 @@
     .book-card::after {
         transition: none;
     }
+
+    .library-dropdown {
+        animation: none;
+    }
+
+    .dropdown-arrow {
+        transition: none;
+    }
 }
 
 /* Focus states para navegación con teclado */
 .cards-grid-horizontal:focus {
     outline: 2px solid var(--primary-gradient);
     outline-offset: 2px;
+}
+
+.dropdown-option:focus {
+    outline: 2px solid var(--primary-gradient);
+    outline-offset: -2px;
+    background: rgba(102, 126, 234, 0.2);
 }
 
 /* Keep button positioned at bottom right with consistent width */
@@ -703,4 +865,52 @@
 
 .add-btn:disabled {
     pointer-events: none;
+}
+
+/* Estilos adicionales para mejor UX del dropdown */
+.library-dropdown::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 20px;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid rgba(30, 30, 30, 0.95);
+    filter: drop-shadow(0 -2px 4px rgba(0, 0, 0, 0.1));
+}
+
+/* Clase especial cuando el dropdown está activo */
+.book-card.dropdown-active {
+    z-index: 100 !important;
+    overflow: visible !important;
+}
+
+/* Para variante horizontal, ajustar la posición de la flecha */
+.book-card.horizontal .library-dropdown::before {
+    left: auto;
+    right: 30px;
+}
+
+/* Hover effect mejorado para el botón cuando está activo */
+.add-btn.active:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-primary);
+}
+
+/* Smooth transition cuando se cierra el dropdown */
+.library-dropdown.closing {
+    animation: dropdownSlideOut 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes dropdownSlideOut {
+    0% {
+        opacity: 1;
+        transform: translateY(0) scaleY(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-10px) scaleY(0.8);
+    }
 }

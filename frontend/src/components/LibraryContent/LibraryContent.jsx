@@ -2,120 +2,119 @@ import React, { useState, useEffect } from 'react';
 import BookCard from '../BookCard/BookCard';
 import './LibraryContent.css';
 
-const LibraryContent = ({ userBooks = [], onBookSelect, onAddBook, user, onRefresh }) => {
+const LibraryContent = ({ userBooks = [], handleAddToLibrary, libraryOptions, onBookSelect, onAddBook, user }) => {
     const [currentShelf, setCurrentShelf] = useState('all');
     const [currentView, setCurrentView] = useState('grid');
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState('recent');
     const [filteredBooks, setFilteredBooks] = useState([]);
+    const [flatBooks, setFlatBooks] = useState([]);
 
-    // Datos de estantes
-    const shelfData = {
-        all: { title: "📚 Todos los libros", icon: "📚" },
-        reading: { title: "📖 Leyendo", icon: "📖" },
-        read: { title: "✅ Completados", icon: "✅" },
-        toread: { title: "📋 Por leer", icon: "📋" },
-        favorites: { title: "⭐ Favoritos", icon: "⭐" }
+    const fullLibraryOptions = [{ id: 'all', title: 'Todos' }, ...libraryOptions];
+    const shelfMap = fullLibraryOptions.reduce((acc, shelf) => {
+        acc[shelf.id] = shelf;
+        acc[shelf.title] = shelf; // para buscar por nombre también
+        return acc;
+    }, {});
+
+    const flattenBooks = (userBooks) => {
+        return userBooks.flatMap(shelf =>
+            Array.isArray(shelf.books)
+                ? shelf.books.map(book => ({
+                    ...book,
+                    status: shelf.title,
+                }))
+                : []
+        );
     };
 
-    // Asegurar que userBooks es siempre un array
-    const safeUserBooks = Array.isArray(userBooks) ? userBooks : [];
-
-    // Calcular estadísticas con manejo de arrays vacíos
-    const stats = {
-        total: safeUserBooks.length,
-        reading: safeUserBooks.filter(book => book && book.status === 'reading').length,
-        read: safeUserBooks.filter(book => book && book.status === 'read').length,
-        toread: safeUserBooks.filter(book => book && book.status === 'toread').length,
-        favorites: safeUserBooks.filter(book => book && book.isFavorite === true).length,
-        totalPages: safeUserBooks.reduce((acc, book) => acc + (book && book.pageCount ? book.pageCount : 0), 0),
-        avgRating: safeUserBooks.length > 0 ?
-            (safeUserBooks.reduce((acc, book) => acc + (book && book.rating ? book.rating : 0), 0) / safeUserBooks.length).toFixed(1)
-            : 0
+    const getStats = (books) => {
+        return {
+            Todos: books.length,
+            Leyendo: books.filter(book => book.status === 'Leyendo').length,
+            Completados: books.filter(book => book.status === 'Completados').length,
+            "Por Leer": books.filter(book => book.status === 'Por Leer').length,
+            Favoritos: books.filter(book => book.status === "Favoritos").length,
+            totalPages: books.reduce((acc, book) => acc + (book.pageCount || 0), 0),
+            avgRating: books.length > 0
+                ? (books.reduce((acc, book) => acc + (book.rating || 0), 0) / books.length).toFixed(1)
+                : 0
+        };
     };
 
-    // Filtrar libros según estante seleccionado
+    const [stats, setStats] = useState(getStats([]));
+
     useEffect(() => {
-        let filtered = [...safeUserBooks];
+        const flattened = flattenBooks(userBooks);
 
-        // Filtrar por estante
+        // Eliminar duplicados por ID
+        const uniqueBooks = flattened.filter(
+            (book, index, self) =>
+                book && book.id &&
+                index === self.findIndex(b => b.id === book.id)
+        );
+
+        setFlatBooks(uniqueBooks);
+        setStats(getStats(uniqueBooks));
+    }, [userBooks]);
+
+    useEffect(() => {
+        let books = [...flatBooks];
+
         if (currentShelf !== 'all') {
-            if (currentShelf === 'favorites') {
-                filtered = filtered.filter(book => book && book.isFavorite === true);
-            } else {
-                filtered = filtered.filter(book => book && book.status === currentShelf);
-            }
+            books = books.filter(book => book.status === shelfMap[currentShelf]?.title);
         }
 
-        // Filtrar por término de búsqueda
         if (searchTerm.trim()) {
-            const searchLower = searchTerm.toLowerCase();
-            filtered = filtered.filter(book =>
-                    book && (
-                        (book.title && book.title.toLowerCase().includes(searchLower)) ||
-                        (book.authors && book.authors.some(author => author.toLowerCase().includes(searchLower))) ||
-                        (book.genre && book.genre.toLowerCase().includes(searchLower))
-                    )
+            const search = searchTerm.toLowerCase();
+            books = books.filter(book =>
+                (book.title && book.title.toLowerCase().includes(search)) ||
+                (book.authors && book.authors.some(author => author.toLowerCase().includes(search))) ||
+                (book.genre && book.genre.toLowerCase().includes(search))
             );
         }
 
-        // Ordenar libros
-        filtered.sort((a, b) => {
+        books.sort((a, b) => {
             if (!a || !b) return 0;
-
             switch (sortBy) {
                 case 'title':
                     return (a.title || '').localeCompare(b.title || '');
                 case 'author':
-                    const aAuthor = (a.authors && a.authors[0]) || '';
-                    const bAuthor = (b.authors && b.authors[0]) || '';
-                    return aAuthor.localeCompare(bAuthor);
+                    return (a.authors?.[0] || '').localeCompare(b.authors?.[0] || '');
                 case 'rating':
                     return (b.rating || 0) - (a.rating || 0);
                 case 'recent':
                 default:
-                    const aDate = a.addedAt ? new Date(a.addedAt) : new Date(0);
-                    const bDate = b.addedAt ? new Date(b.addedAt) : new Date(0);
-                    return bDate - aDate;
+                    return new Date(b.addedAt || 0) - new Date(a.addedAt || 0);
             }
         });
 
-        setFilteredBooks(filtered);
-    }, [safeUserBooks, currentShelf, searchTerm, sortBy]);
+        setFilteredBooks(books);
+    }, [flatBooks, currentShelf, searchTerm, sortBy]);
 
     const handleBookSelect = (book) => {
-        if (onBookSelect) {
-            onBookSelect(book);
-        }
-    };
-
-    const handleAddToLibrary = (book) => {
-        // Esta función se maneja en el BookCard
-        console.log('Agregar a biblioteca:', book);
+        if (onBookSelect) onBookSelect(book);
     };
 
     return (
         <div className="library-content">
             <div className="library-main">
                 <div className="library-controls">
-                    {/* Shelf Navigation */}
                     <div className="shelf-nav">
-                        {Object.entries(shelfData).map(([key, shelf]) => (
+                        {fullLibraryOptions.map(shelf => (
                             <button
-                                key={key}
-                                className={`shelf-btn ${currentShelf === key ? 'active' : ''}`}
-                                onClick={() => setCurrentShelf(key)}
+                                key={shelf.id}
+                                className={`shelf-btn ${currentShelf === shelf.title || currentShelf === shelf.id ? 'active' : ''}`}
+                                onClick={() => setCurrentShelf(shelf.id)}
                             >
-                                <span className="shelf-icon">{shelf.icon}</span>
-                                <span className="shelf-label">{shelf.title.replace(/[📚📖📋✅⭐]\s/, '')}</span>
+                                <span className="shelf-label">{shelf.title}</span>
                                 <span className="shelf-count">
-                                    {key === 'all' ? stats.total : stats[key] || 0}
+                                    {shelf.id === 'all' ? stats.Todos : stats[shelf.title] || 0}
                                 </span>
                             </button>
                         ))}
                     </div>
 
-                    {/* Search and Controls */}
                     <div className="controls-row">
                         <div className="search-container">
                             <input
@@ -154,102 +153,52 @@ const LibraryContent = ({ userBooks = [], onBookSelect, onAddBook, user, onRefre
                                 >
                                     ☰
                                 </button>
-                                <button
-                                    className={`view-btn ${currentView === 'horizontal' ? 'active' : ''}`}
-                                    onClick={() => setCurrentView('horizontal')}
-                                    title="Vista horizontal"
-                                >
-                                    ⚏
-                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Bookshelf */}
                 <div className="bookshelf">
                     <div className="shelf-header">
                         <h3 className="shelf-title">
-                            {shelfData[currentShelf].title}
+                            {currentShelf === 'all'
+                                ? 'Todos los libros'
+                                : shelfMap[currentShelf]?.title || ''}
                         </h3>
                         <span className="book-count">
                             {filteredBooks.length} libro{filteredBooks.length !== 1 ? 's' : ''}
                         </span>
                     </div>
 
-                    {/* Books Grid */}
                     <div className={`books-grid ${currentView}`}>
                         {filteredBooks.length > 0 ? (
-                            currentView === 'horizontal' ? (
-                                <div className="cards-grid-horizontal">
-                                    {filteredBooks.map((book) => {
-                                        if (!book) return null;
-                                        return (
-                                            <div key={book.id || book.bookId || Math.random()}>
-                                                <BookCard
-                                                    book={book}
-                                                    onBookSelect={handleBookSelect}
-                                                    onAddToLibrary={handleAddToLibrary}
-                                                    variant="horizontal"
-                                                    showDescription={true}
-                                                    showDate={true}
-                                                    maxGenres={2}
-                                                    isInLibrary={true}
-                                                />
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            ) : currentView === 'list' ? (
-                                filteredBooks.map((book) => {
-                                    if (!book) return null;
-                                    return (
-                                        <BookCard
-                                            key={book.id || book.bookId || Math.random()}
-                                            book={book}
-                                            onBookSelect={handleBookSelect}
-                                            onAddToLibrary={handleAddToLibrary}
-                                            variant="horizontal"
-                                            showDescription={true}
-                                            showDate={true}
-                                            maxGenres={3}
-                                            isInLibrary={true}
-                                        />
-                                    );
-                                })
-                            ) : (
-                                filteredBooks.map((book) => {
-                                    if (!book) return null;
-                                    return (
-                                        <BookCard
-                                            key={book.id || book.bookId || Math.random()}
-                                            book={book}
-                                            onBookSelect={handleBookSelect}
-                                            onAddToLibrary={handleAddToLibrary}
-                                            variant="vertical"
-                                            showDescription={false}
-                                            showDate={false}
-                                            maxGenres={2}
-                                            isInLibrary={true}
-                                        />
-                                    );
-                                })
-                            )
+                            filteredBooks.map((book) => (
+                                <BookCard
+                                    key={book.id || book.bookId}
+                                    book={book}
+                                    onBookSelect={handleBookSelect}
+                                    libraryOptions={libraryOptions}
+                                    handleAddToLibrary={handleAddToLibrary}
+                                    variant={currentView === 'list' ? 'horizontal' : 'vertical'}
+                                    showDescription={false}
+                                    showDate={currentView !== 'grid'}
+                                    maxGenres={2}
+                                    isInLibrary={true}
+                                />
+                            ))
                         ) : (
                             <div className="empty-state">
                                 <div className="empty-content">
                                     <div className="empty-icon">📚</div>
                                     <h3 className="empty-title">
-                                        {safeUserBooks.length === 0
+                                        {flatBooks.length === 0
                                             ? 'Tu biblioteca está vacía'
-                                            : `No tienes libros en ${shelfData[currentShelf].title.replace(/[📚📖📋✅⭐]\s/, '').toLowerCase()}`
-                                        }
+                                            : `No tienes libros en ${shelfMap[currentShelf]?.title || ''}`}
                                     </h3>
                                     <p>
-                                        {safeUserBooks.length === 0
+                                        {flatBooks.length === 0
                                             ? 'Agrega algunos libros para empezar tu biblioteca personal'
-                                            : 'Agrega libros a este estante para verlos aquí'
-                                        }
+                                            : 'Agrega libros a este estante para verlos aquí'}
                                     </p>
                                     {onAddBook && (
                                         <button className="add-book-btn" onClick={onAddBook}>
@@ -263,10 +212,8 @@ const LibraryContent = ({ userBooks = [], onBookSelect, onAddBook, user, onRefre
                 </div>
             </div>
 
-            {/* Statistics Sidebar */}
             <div className="stats-sidebar">
                 <h3 className="stats-title">📊 Estadísticas de Lectura</h3>
-
                 <div className="stats-grid">
                     <div className="stat-card">
                         <div className="stat-content">
@@ -274,38 +221,33 @@ const LibraryContent = ({ userBooks = [], onBookSelect, onAddBook, user, onRefre
                             <span className="stat-label">Páginas totales</span>
                         </div>
                     </div>
-
                     <div className="stat-card">
                         <div className="stat-content">
-                            <span className="stat-number">{stats.total}</span>
+                            <span className="stat-number">{stats.Todos}</span>
                             <span className="stat-label">Total libros</span>
                         </div>
                     </div>
-
                     <div className="stat-card">
                         <div className="stat-content">
-                            <span className="stat-number">{stats.read}</span>
+                            <span className="stat-number">{stats.Completados}</span>
                             <span className="stat-label">Completados</span>
                         </div>
                     </div>
-
                     <div className="stat-card">
                         <div className="stat-content">
-                            <span className="stat-number">{stats.reading}</span>
+                            <span className="stat-number">{stats.Leyendo}</span>
                             <span className="stat-label">Leyendo</span>
                         </div>
                     </div>
-
                     <div className="stat-card">
                         <div className="stat-content">
                             <span className="stat-number">{stats.avgRating}</span>
                             <span className="stat-label">Puntuación media</span>
                         </div>
                     </div>
-
                     <div className="stat-card">
                         <div className="stat-content">
-                            <span className="stat-number">{stats.favorites}</span>
+                            <span className="stat-number">{stats.Favoritos}</span>
                             <span className="stat-label">Favoritos</span>
                         </div>
                     </div>

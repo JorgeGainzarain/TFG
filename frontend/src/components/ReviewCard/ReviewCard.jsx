@@ -21,16 +21,6 @@ const ReviewCard = ({ review }) => {
         return stars;
     };
 
-    const handleLike = async () => {
-        if (isLiked) {
-            setLikeCount(prev => prev - 1);
-        } else {
-            setLikeCount(prev => prev + 1);
-        }
-        setIsLiked(!isLiked);
-        await updateBook(user.id, review.book);
-    };
-
     const getInitials = (name) => {
         return name.split(' ').map(n => n[0]).join('').toUpperCase();
     };
@@ -59,13 +49,6 @@ const ReviewCard = ({ review }) => {
             <p className="review-text">{review.comment}</p>
 
             <div className="review-actions">
-                <button
-                    className={`like-btn ${isLiked ? 'liked' : ''}`}
-                    onClick={handleLike}
-                >
-                    <span>{isLiked ? '❤️' : '♡'}</span>
-                    <span>{likeCount} me gusta</span>
-                </button>
                 <span className="book-title">{review.book.title}</span>
             </div>
         </div>

@@ -11,14 +11,14 @@ import {authenticateToken} from "../../middleware/auth.middleware";
 export class ReviewController extends BaseController<Review> {
     protected entityConfig = config.entityValues.review;
 
-
     constructor(
         protected reviewService: ReviewService
     ) {
         super(reviewService);
 
-        this.getRouter().put('/:reviewId', authenticateToken, this.update.bind(this));
+        this.getRouter().put('/:id', authenticateToken, this.update.bind(this));
         this.getRouter().post('/:bookId', authenticateToken, this.create.bind(this));
+        this.getRouter().delete('/:id', authenticateToken, this.delete.bind(this));
         this.getRouter().get('/:bookId', this.getByBookId.bind(this));
     }
 

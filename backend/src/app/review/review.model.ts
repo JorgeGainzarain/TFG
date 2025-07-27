@@ -12,5 +12,6 @@ export interface Review extends BaseModel {
     comment: string;
     createdAt?: Date;
     likes: number;
+    likedBy: string[];
 }
 

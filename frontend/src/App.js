@@ -11,7 +11,7 @@ import { AIRecommendationsPage, ProfilePage, NotFoundPage } from './pages/Additi
 import { useAuth } from './hooks/useAuth';
 import { healthCheck, addBookToLibrary, getRecommendations } from './services/api';
 import './App.css';
-import {initializeAuth} from "./services/authService";
+import {initializeAuth, getDefaultLibraries} from "./services/authService";
 
 // Componente interno que tiene acceso a useLocation
 const AppContent = () => {
@@ -23,6 +23,7 @@ const AppContent = () => {
     const [apiStatus, setApiStatus] = useState('checking');
     const [showAuthOverlay, setShowAuthOverlay] = useState(false);
     const [showAuthPrompt, setShowAuthPrompt] = useState(false);
+    const [libraryOptions, setLibraryOptions] = useState([]);
 
     // Ref para la navbar
     const navbarRef = useRef();
@@ -32,6 +33,26 @@ const AppContent = () => {
     // Hook de autenticación
     const { user, isAuthenticated, initialized } = useAuth();
     const location = useLocation();
+
+    useEffect(() => {
+        const fetchLibraryOptions = async () => {
+            try {
+                const response = await getDefaultLibraries();
+                console.log("Response from getDefaultLibraries:", response);
+                const mappedLibraries = response.data.map((title, index) => ({
+                    id: index.toString(),  // Or a better unique id if available
+                    title: title
+                }));
+                console.log('Default libraries fetched:', mappedLibraries);
+                setLibraryOptions(mappedLibraries);
+            } catch (error) {
+                console.error('Error fetching default libraries:', error);
+            }
+        };
+
+        fetchLibraryOptions();
+    }, []);
+
 
     useEffect(() => {
         const checkIfMobile = () => {
@@ -129,8 +150,9 @@ const AppContent = () => {
         setShowAuthPrompt(false);
     };
 
-    const handleAddToLibrary = async (book) => {
-        await addBookToLibrary(user.id, book);
+    const handleAddToLibrary = async (book, libraryId) => {
+        console.log("Adding book to library:", book, "in library:", libraryId);
+        await addBookToLibrary(user.id, book, libraryId);
         alert('Libro añadido a tu librería');
     }
 
@@ -195,7 +217,11 @@ const AppContent = () => {
                                 searchQuery={searchQuery}
                                 isSearching={isSearching}
                                 searchError={searchError}
+                                libraryOptions={libraryOptions}
                                 onClearSearch={clearSearch}
+                                onSearchResults={handleSearchResults}
+                                onSearchLoading={handleSearchLoading}
+                                onSearchError={handleSearchError}
                                 user={user}
                                 isAuthenticated={isAuthenticated}
                                 handleAddToLibrary={handleAddToLibrary}
@@ -215,7 +241,8 @@ const AppContent = () => {
                     <Route
                         path="/library"
                         element={<LibraryPage
-
+                            handleAddToLibrary={handleAddToLibrary}
+                            libraryOptions={libraryOptions}
                         />
                     }
                     />
@@ -241,7 +268,9 @@ const AppContent = () => {
                     />
                     <Route
                         path="/favorites"
-                        element={<LibraryPage />}
+                        element={<LibraryPage
+                            handleAddToLibrary={handleAddToLibrary}
+                        />}
                     />
                     <Route
                         path="/stats"

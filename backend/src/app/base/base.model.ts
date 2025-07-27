@@ -6,5 +6,6 @@ export interface EntityConfig<T extends object> {
     table_name: string;
     unit: string;
     requiredFields: { name: keyof T; type: string }[];
-    defaultEntity?: T
+    defaultEntity?: T;
+    defaultEntities?: T[] | String[];
 }

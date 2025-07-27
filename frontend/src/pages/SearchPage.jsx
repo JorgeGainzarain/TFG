@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import SearchResults from '../components/SearchResults/SearchResults';
-import {getRecommendations} from "../services/api";
+import { getRecommendations } from '../services/api';
 
 const SearchPage = ({
                         searchResults,
@@ -14,33 +14,26 @@ const SearchPage = ({
                         onSearchError,
                         user,
                         isAuthenticated,
-                        handleAddToLibrary
+                        handleAddToLibrary,
+                        libraryOptions
                     }) => {
     const [searchParams] = useSearchParams();
 
     const query = searchParams.get('q');
     const isRecommendations = searchParams.get('recommendations') === 'true';
 
-    // Auto-search when component mounts and there's a query in URL
     useEffect(() => {
         const performAutoSearch = async () => {
-            // Only perform search if:
-            // 1. There's a query in URL params
-            // 2. We don't already have results for this query
-            // 3. We're not currently searching
-            // 4. It's not recommendations mode
             if (query && query !== searchQuery && !isSearching && !isRecommendations) {
                 console.log('Auto-performing search on page load for:', query);
 
-                // Import the search functionality
                 const { bookAPI, handleApiError } = await import('../services/api');
-
                 onSearchLoading && onSearchLoading(true);
 
                 try {
                     const results = await bookAPI.searchBooks(query);
                     console.log('Auto-search results:', results);
-                    onSearchResults && onSearchResults(results, query);
+                    onSearchResults && onSearchResults(results, query); // Make sure this updates both results and query
                     onSearchError && onSearchError(null);
                 } catch (error) {
                     console.error('Auto-search error:', error);
@@ -51,10 +44,7 @@ const SearchPage = ({
                     onSearchLoading && onSearchLoading(false);
                 }
             } else if (isRecommendations && searchResults.length === 0 && !isSearching) {
-                // Handle recommendations case
-
                 onSearchLoading && onSearchLoading(true);
-
                 try {
                     const recommendations = getRecommendations();
                     onSearchResults && onSearchResults(recommendations, '');
@@ -69,7 +59,7 @@ const SearchPage = ({
         };
 
         performAutoSearch();
-    }, [query, isRecommendations]); // Dependencies: re-run when URL query changes
+    }, [query, isRecommendations]);
 
     const handleClearSearch = () => {
         onClearSearch();
@@ -78,7 +68,7 @@ const SearchPage = ({
     const handleRetry = () => {
         if (query && !isRecommendations) {
             console.log('Retry search for:', query);
-            // Force re-search by updating the effect dependencies
+            // Re-triggering component mount by reloading the current URL
             const currentUrl = window.location.href;
             window.location.href = currentUrl;
         }
@@ -90,6 +80,7 @@ const SearchPage = ({
             query={query || searchQuery}
             loading={isSearching}
             error={searchError}
+            libraryOptions={libraryOptions}
             onClearSearch={handleClearSearch}
             onRetry={handleRetry}
             user={user}

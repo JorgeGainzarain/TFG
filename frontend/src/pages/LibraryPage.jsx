@@ -6,7 +6,7 @@ import AuthOverlay from '../components/AuthOverlay/AuthOverlay';
 import LibraryContent from '../components/LibraryContent/LibraryContent';
 import './Pages.css';
 
-const LibraryPage = () => {
+const LibraryPage = ({handleAddToLibrary, libraryOptions}) => {
     const { user, isAuthenticated, loading, initialized, error } = useAuth();
     const [userBooks, setUserBooks] = useState([]);
     const [booksLoading, setBooksLoading] = useState(false);
@@ -36,13 +36,10 @@ const LibraryPage = () => {
             if (Array.isArray(libraries)) {
                 for (const library of libraries) {
                     // Manejar diferentes estructuras posibles para los libros
-                    if (library.books && Array.isArray(library.books)) {
-                        userBooks.push(...library.books);
-                    } else if (library.bookIds && Array.isArray(library.bookIds)) {
-                        // Si solo tienes IDs, aquí podrías hacer otra llamada para obtener los detalles
-                        // Por ahora asumimos que tienes los objetos completos
-                        console.warn('Library has bookIds but no book objects:', library);
-                    }
+                    userBooks.push({
+                        title: library.title,
+                        books: library.books || [],
+                    });
                 }
             }
 
@@ -173,7 +170,9 @@ const LibraryPage = () => {
             <LibraryContent
                 userBooks={userBooks}
                 onBookSelect={handleBookSelect}
+                libraryOptions={libraryOptions}
                 onAddBook={handleAddBook}
+                handleAddToLibrary={handleAddToLibrary}
                 user={user}
                 onRefresh={handleRefreshLibrary}
             />

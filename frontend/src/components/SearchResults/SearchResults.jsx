@@ -1,5 +1,5 @@
 // frontend/src/components/SearchResults/SearchResults.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import BookCard from '../BookCard/BookCard';
 import FilterBar from '../FilterBar/FilterBar';
 import './SearchResults.css';
@@ -12,6 +12,7 @@ const SearchResults = ({
                            onClearSearch,
                            onRetry,
                            handleAddToLibrary,
+                           libraryOptions,
                            isRecommendations = false
                        }) => {
     const [filteredResults, setFilteredResults] = useState(results);
@@ -21,24 +22,24 @@ const SearchResults = ({
         sortBy: 'relevance'
     });
 
-    // Detectar si son resultados placeholder (recomendaciones de IA)
-    const isPlaceholderResults = results.length > 0 && results[0]?.isPlaceholder;
+    // Extraer categorías únicas (géneros) de todos los libros actuales
+    const uniqueGenres = useMemo(() => {
+        const allCategories = results.flatMap(book => book.categories || []);
+        return Array.from(new Set(allCategories)).sort((a, b) => a.localeCompare(b));
+    }, [results]);
 
-    // Update filtered results when results or filters change
+    // Actualizar resultados filtrados cuando cambian resultados o filtros
     useEffect(() => {
         let filtered = [...results];
 
-        // Apply genre filter
+        // Filtrar por género (category)
         if (filters.genre) {
-            filtered = filtered.filter(book => {
-                const bookGenres = book.genres || book.categories || [];
-                return bookGenres.some(genre =>
-                    genre.toLowerCase().includes(filters.genre.toLowerCase())
-                );
-            });
+            filtered = filtered.filter(book =>
+                (book.categories || []).includes(filters.genre)
+            );
         }
 
-        // Apply year filter
+        // Filtrar por año
         if (filters.year) {
             if (filters.year === 'clasicos') {
                 filtered = filtered.filter(book => {
@@ -54,7 +55,7 @@ const SearchResults = ({
             }
         }
 
-        // Apply sorting
+        // Ordenar resultados según filtros.sortBy
         switch (filters.sortBy) {
             case 'rating':
                 filtered.sort((a, b) => (b.rating || b.averageRating || 0) - (a.rating || a.averageRating || 0));
@@ -98,169 +99,32 @@ const SearchResults = ({
         });
     };
 
-    if (loading) {
-        return (
-            <section className="search-results">
-                <div className="search-header">
-                    <div className="search-info">
-                        <h2>Buscando...</h2>
-                        {!isRecommendations && query && (
-                            <button className="clear-search-btn" onClick={onClearSearch}>
-                                ✕ Limpiar búsqueda
-                            </button>
-                        )}
-                    </div>
-                </div>
-
-                <FilterBar filters={filters} onFilterChange={handleFilterChange} />
-
-                <div className="loading-state">
-                    <div className="loading-spinner"></div>
-                    <p>
-                        {isRecommendations ?
-                            'Preparando recomendaciones...' :
-                            `Buscando "${query}"...`
-                        }
-                    </p>
-                </div>
-            </section>
-        );
-    }
-
-    if (error) {
-        return (
-            <section className="search-results">
-                <div className="search-header">
-                    <div className="search-info">
-                        <h2>Error en la búsqueda</h2>
-                        {!isRecommendations && query && (
-                            <button className="clear-search-btn" onClick={onClearSearch}>
-                                ✕ Limpiar búsqueda
-                            </button>
-                        )}
-                    </div>
-                </div>
-
-                <FilterBar filters={filters} onFilterChange={handleFilterChange} />
-
-                <div className="error-state">
-                    <p className="error-message">❌ {error}</p>
-                    <div className="error-actions">
-                        <button className="retry-btn" onClick={onRetry}>
-                            🔄 Intentar de nuevo
-                        </button>
-                        <button className="clear-btn" onClick={onClearSearch}>
-                            🏠 Volver al inicio
-                        </button>
-                    </div>
-                </div>
-            </section>
-        );
-    }
-
-    if (results.length === 0 && query && !isRecommendations) {
-        return (
-            <section className="search-results">
-                <div className="search-header">
-                    <div className="search-info">
-                        <h2>Sin resultados</h2>
-                        <button className="clear-search-btn" onClick={onClearSearch}>
-                            ✕ Limpiar búsqueda
-                        </button>
-                    </div>
-                </div>
-
-                <FilterBar filters={filters} onFilterChange={handleFilterChange} />
-
-                <div className="empty-state">
-                    <div className="empty-icon">📚</div>
-                    <p>No se encontraron libros para "{query}"</p>
-                    <div className="suggestions">
-                        <h4>Sugerencias:</h4>
-                        <ul>
-                            <li>Verifica la ortografía</li>
-                            <li>Intenta con términos más generales</li>
-                            <li>Busca por autor o género</li>
-                        </ul>
-                    </div>
-                    <button className="clear-btn" onClick={onClearSearch}>
-                        🏠 Explorar recomendaciones
-                    </button>
-                </div>
-            </section>
-        );
-    }
-
+    // Renderizado simplificado para foco en el filtro
     return (
         <section className="search-results">
-            <div className="search-header">
-                <div className="search-info">
-                    <h2>
-                        {isPlaceholderResults || isRecommendations ?
-                            '🤖 Recomendaciones IA' :
-                            'Resultados de búsqueda'
-                        }
-                    </h2>
-                    <div className="search-meta">
-                        <p className="search-query">
-                            {filteredResults.length} de {results.length} resultado{results.length !== 1 ? 's' : ''}
-                            {isPlaceholderResults || isRecommendations ?
-                                ' (recomendaciones personalizadas)' :
-                                ` para "${query}"`
-                            }
-                        </p>
-                        {!isPlaceholderResults && !isRecommendations && query && (
-                            <button className="clear-search-btn" onClick={onClearSearch}>
-                                ✕ Limpiar búsqueda
-                            </button>
-                        )}
-                    </div>
-                </div>
-
-                {(isPlaceholderResults || isRecommendations) && (
-                    <div className="ai-notice">
-                        <div className="ai-notice-content">
-                            <span className="ai-icon">🤖✨</span>
-                            <div className="ai-text">
-                                <h4>Recomendaciones impulsadas por IA</h4>
-                                <p>Estos libros han sido seleccionados especialmente para ti. ¡Pronto tendremos recomendaciones aún más personalizadas!</p>
-                            </div>
-                        </div>
-                    </div>
-                )}
-            </div>
-
-            <FilterBar filters={filters} onFilterChange={handleFilterChange} />
+            <FilterBar
+                filters={filters}
+                onFilterChange={handleFilterChange}
+                genreOptions={uniqueGenres}
+            />
 
             {filteredResults.length === 0 ? (
-                <div className="filtered-empty-state">
-                    <div className="empty-icon">🔍</div>
+                <div>
                     <p>No se encontraron libros con los filtros actuales</p>
-                    <button className="clear-filters-btn" onClick={clearFilters}>
-                        🗑️ Limpiar filtros
-                    </button>
+                    <button onClick={clearFilters}>Limpiar filtros</button>
                 </div>
             ) : (
-                <>
-                    <div className="results-grid">
-                        {filteredResults.map((book) => (
-                            <BookCard
-                                key={book.id}
-                                variant={'horizontal'}
-                                book={book}
-                                onAddToLibrary={handleAddToLibrary}
-                            />
-                        ))}
-                    </div>
-
-                    {results.length > 0 && (
-                        <div className="search-actions">
-                            <button className="load-more-btn disabled">
-                                📚 Cargar más resultados (próximamente)
-                            </button>
-                        </div>
-                    )}
-                </>
+                <div className="results-grid">
+                    {filteredResults.map(book => (
+                        <BookCard
+                            key={book.bookId || book.id}
+                            variant={'horizontal'}
+                            book={book}
+                            handleAddToLibrary={handleAddToLibrary}
+                            libraryOptions={libraryOptions}
+                        />
+                    ))}
+                </div>
             )}
         </section>
     );

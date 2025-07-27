@@ -7,7 +7,8 @@ const FilterBar = ({
                            year: '',
                            sortBy: 'relevance',
                        },
-                       onFilterChange
+                       onFilterChange,
+                       genreOptions = []
                    }) => {
     const handleSelectChange = (filterType, value) => {
         onFilterChange(filterType, value);
@@ -21,6 +22,11 @@ const FilterBar = ({
                 onChange={(e) => handleSelectChange('genre', e.target.value)}
             >
                 <option value="">Todos los géneros</option>
+                {genreOptions.map(genre => (
+                    <option key={genre} value={genre}>
+                        {genre}
+                    </option>
+                ))}
             </select>
 
             <select

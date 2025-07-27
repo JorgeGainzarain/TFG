@@ -7,6 +7,13 @@ import { DBOptions } from "../../database/models/db-options";
 import {Book} from "../../app/book/book.model";
 import {Library} from "../../app/library/library.model";
 
+const libraries =  [
+    "Leyendo",
+    "Completados",
+    "Por Leer",
+    "Favoritos"
+];
+
 export const baseConfig: {
     port: number;
     dbOptions: DBOptions;
@@ -45,7 +52,8 @@ export const baseConfig: {
                 { name: 'rating', type: 'INTEGER' },
                 { name: 'comment', type: 'TEXT' },
                 { name: 'createdAt', type: 'DATETIME' },
-                { name: 'likes', type: 'INTEGER' }
+                { name: 'likes', type: 'INTEGER' },
+                { name: 'likedBy', type: 'TEXT[]' }
             ]
         },
         book: {
@@ -77,6 +85,7 @@ export const baseConfig: {
         library: {
             table_name: 'libraries',
             unit: 'Library',
+            defaultEntities: libraries,
             requiredFields: [
                 { name: 'userId', type: 'INTEGER' },
                 { name: 'title', type: 'TEXT' },

@@ -32,8 +32,8 @@ export function validatePartialObject<T extends Object>(obj: Partial<T>, require
         return !field ? { name: key } : null;
     }).filter(field => field !== null) as { name: keyof T }[];
 
-    if (invalidFields.length > 0) {
-        throw new StatusError(400, `Invalid object. Missing fields: ${invalidFields.map(field => field.name).join(', ')}`);
+    if (invalidFields.length  >= requiredFields.length) {
+        throw new StatusError(400, `Invalid object. No valid fields`);
     }
 
     return obj;

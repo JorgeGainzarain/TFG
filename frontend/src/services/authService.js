@@ -264,7 +264,7 @@ export const register = async (userData) => {
 
             // Crear biblioteca por defecto
             try {
-                await createDefaultLibrary();
+                await createDefaultLibraries();
             } catch (libraryError) {
                 console.warn('Error creando biblioteca por defecto:', libraryError);
             }
@@ -437,15 +437,12 @@ export const getAuthState = () => {
 };
 
 // Función helper para crear biblioteca por defecto
-const createDefaultLibrary = async () => {
+const createDefaultLibraries = async () => {
     try {
-        const response = await fetch(`${API_BASE_URL}/library/`, {
+        console.log("Creando biblioteca por defecto...");
+
+        const response = await makeAuthenticatedRequest('/library/', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${getAccessToken()}`
-            },
-            body: JSON.stringify({ title: 'Mi Biblioteca' }),
         });
 
         const result = await response.json();
@@ -456,3 +453,17 @@ const createDefaultLibrary = async () => {
         throw error;
     }
 };
+
+export const getDefaultLibraries = async () => {
+    try {
+        const response = await makeAuthenticatedRequest('/library/default', {
+            method: 'GET',
+        });
+
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        console.error('Error obteniendo bibliotecas por defecto:', error);
+        throw error;
+    }
+}

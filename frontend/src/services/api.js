@@ -83,6 +83,9 @@ export const addReviewToBook = async (book, review) => {
     if (!review.createdAt) {
         review.createdAt = new Date().toISOString();
     }
+    if (!review.likedBy) {
+        review.likedBy = '';
+    }
     review.book = book;
     console.log("Adding review to book:", book.bookId, review);
     try {
@@ -98,10 +101,10 @@ export const addReviewToBook = async (book, review) => {
     }
 }
 
-export const addBookToLibrary = async (userId, book) => {
+export const addBookToLibrary = async (userId, book, libraryId) => {
     try {
-        console.log("Book in frotnend addBookToLibrary", book);
-        return await makeAuthenticatedRequest(`/library/${book.bookId}`, {
+        console.log('Adding book with ID:', book.bookId, 'to library with ID:', libraryId);
+        return await makeAuthenticatedRequest(`/library/${libraryId}`, {
             method: 'POST',
             body: JSON.stringify(book),
         });
@@ -121,7 +124,12 @@ export const updateBook = async (book) => {
     }
 }
 
-export const updateReview = async (bookId, review) => {
+export const updateReview = async (userId, review) => {
+    let likedBy = review.likedBy.split(',').map(id => id.trim());
+    if (!likedBy.includes(userId)) {
+        likedBy.push(userId);
+    }
+    review.likedBy = likedBy.join(',');
     console.log("Review in updateReview:", review);
     try {
         return await makeAuthenticatedRequest(`/review/${review.id}`, {
@@ -130,6 +138,16 @@ export const updateReview = async (bookId, review) => {
         });
     } catch (error) {
         console.error('Error updating review:', error);
+    }
+}
+
+export const deleteReview = async (reviewId) => {
+    try {
+        return await makeAuthenticatedRequest(`/review/${reviewId}`, {
+            method: 'DELETE',
+        });
+    } catch (error) {
+        console.error('Error deleting review:', error);
     }
 }
 

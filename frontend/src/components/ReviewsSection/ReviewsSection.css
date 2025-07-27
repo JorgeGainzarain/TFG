@@ -321,3 +321,32 @@
         height: 36px;
     }
 }
+
+/* Controles de edición */
+.review-controls {
+    display: flex;
+    gap: 0.5rem;
+    margin-left: 1rem;
+}
+
+.review-controls button {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+.review-controls button:hover {
+    color: var(--text-primary);
+    transform: scale(1.1);
+}
+
+.edit-btn::after {
+    content: "";
+}
+
+.delete-btn::after {
+    content: "";
+}

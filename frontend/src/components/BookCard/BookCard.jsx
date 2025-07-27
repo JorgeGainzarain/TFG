@@ -1,16 +1,21 @@
 // frontend/src/components/BookCard/BookCard.jsx
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './BookCard.css';
 
 const BookCard = ({
                       book,
-                      onAddToLibrary,
+                      handleAddToLibrary,
+                      libraryOptions,
                       variant = 'vertical', // 'vertical' | 'horizontal'
                       showDescription = false,
                       showDate = true
                   }) => {
     const navigate = useNavigate();
+    const [showDropdown, setShowDropdown] = useState(false);
+    const dropdownRef = useRef(null);
+    const buttonRef = useRef(null);
+
 
     const renderStars = (rating) => {
         const stars = [];
@@ -29,19 +34,45 @@ const BookCard = ({
     const handleAddClick = (e) => {
         // Prevenir que se propague el click al card
         e.stopPropagation();
+        setShowDropdown(!showDropdown);
+    };
 
-        if (onAddToLibrary) {
-            onAddToLibrary(book);
+    const handleOptionClick = (option) => {
+        // Aquí puedes manejar las diferentes opciones
+        console.log(`Opción seleccionada: ${option}`);
+
+        if (handleAddToLibrary) {
+            console.log('Adding Book to Library');
+            handleAddToLibrary(book, option);
         }
+
+        setShowDropdown(false);
     };
 
     const handleCardClick = () => {
-        // Navegar a la página de detalles pasando el libro como state
-        console.log("Book before navigation:", book);
-        navigate(`/book/${book.bookId}`, {
-            state: { book }
-        });
+        // Solo navegar si no hay dropdown abierto
+        if (!showDropdown) {
+            console.log("Book before navigation:", book);
+            navigate(`/book/${book.bookId}`, {
+                state: { book }
+            });
+        }
     };
+
+    // Cerrar dropdown al hacer click fuera
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target) &&
+                buttonRef.current && !buttonRef.current.contains(event.target)) {
+                setShowDropdown(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
 
     const formatReviewCount = (count) => {
         if (!count) return 'Sin reseñas';
@@ -58,17 +89,6 @@ const BookCard = ({
         return year;
     };
 
-    const getDefaultDescription = () => {
-        const descriptions = [
-            "Una obra cautivadora que te mantendrá enganchado desde la primera página hasta la última.",
-            "Un libro extraordinario que combina una narrativa inmersiva con personajes memorables.",
-            "Una lectura imprescindible que ofrece una perspectiva única y transformadora.",
-            "Una historia fascinante que explora temas profundos con maestría y sensibilidad.",
-            "Un relato poderoso que desafía las convenciones y ofrece nuevas perspectivas."
-        ];
-        return descriptions[Math.floor(Math.random() * descriptions.length)];
-    };
-
     const displayGenres = (book.genres || book.categories || []).slice(0, 3);
     const displayRating = book.rating || book.averageRating || 0;
     const reviewCount = book.reviewCount || book.ratingsCount || 0;
@@ -77,7 +97,11 @@ const BookCard = ({
 
     if (variant === 'horizontal') {
         return (
-            <div className="book-card horizontal glass" onClick={handleCardClick}>
+            <div
+                className={`book-card horizontal glass ${showDropdown ? 'dropdown-active' : ''}`}
+                onClick={handleCardClick}
+                style={{ zIndex: showDropdown ? 100 : 1 }}
+            >
                 <div className="book-cover">
                     {book.thumbnail ? (
                         <img
@@ -102,7 +126,9 @@ const BookCard = ({
                     <div className="book-main-info">
                         <div className="book-header">
                             <h3 className="book-title">{book.title}</h3>
-                            <p className="book-author">por {book?.authors.join(',')}</p>
+                            <p className="book-author">
+                                por {Array.isArray(book?.authors) ? book.authors.join(',') : book?.authors}
+                            </p>
                             {showDate && publishedYear && (
                                 <p className="book-date">📅 {publishedYear}</p>
                             )}
@@ -133,10 +159,34 @@ const BookCard = ({
                             </span>
                         </div>
 
-                        <button className="add-btn" onClick={handleAddClick}>
-                            <span className="add-icon">+</span>
-                            Añadir a mi librería
-                        </button>
+                        <div className="add-button-container">
+                            <button
+                                ref={buttonRef}
+                                className={`add-btn ${showDropdown ? 'active' : ''}`}
+                                onClick={handleAddClick}
+                            >
+                                <span className="add-icon">+</span>
+                                Añadir a mi librería
+                                <span className={`dropdown-arrow ${showDropdown ? 'rotated' : ''}`}>▼</span>
+                            </button>
+
+                            {showDropdown && (
+                                <div ref={dropdownRef} className="library-dropdown">
+                                    {libraryOptions.map((option) => (
+                                        <button
+                                            key={option.id}
+                                            className="dropdown-option"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleOptionClick(option.title);
+                                            }}
+                                        >
+                                            <span className="option-label">{option.title}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -145,7 +195,11 @@ const BookCard = ({
 
     // Variante vertical (por defecto)
     return (
-        <div className="book-card vertical glass" onClick={handleCardClick}>
+        <div
+            className={`book-card vertical glass ${showDropdown ? 'dropdown-active' : ''}`}
+            onClick={handleCardClick}
+            style={{ zIndex: showDropdown ? 100 : 1 }}
+        >
             <div className="book-cover">
                 {book.thumbnail ? (
                     <img
@@ -168,7 +222,10 @@ const BookCard = ({
             <div className="book-info">
                 <div className="book-main-content">
                     <h3 title={book.title}>{book.title}</h3>
-                    <p className="book-author" title={book.authors.join(', ')}>{book.authors.join(',')}</p>
+                    <p className="book-author"
+                       title={Array.isArray(book.authors) ? book.authors.join(', ') : book.authors}>
+                        {Array.isArray(book.authors) ? book.authors.join(',') : book.authors}
+                    </p>
                     {showDate && publishedYear && (
                         <p className="book-date">📅 {publishedYear}</p>
                     )}
@@ -194,9 +251,35 @@ const BookCard = ({
                         </span>
                     </div>
 
-                    <button className="add-btn" onClick={handleAddClick}>
-                        Añadir a mi librería
-                    </button>
+                    <div className="add-button-container">
+                        <button
+                            ref={buttonRef}
+                            className={`add-btn ${showDropdown ? 'active' : ''}`}
+                            onClick={handleAddClick}
+                        >
+                            <span className="add-icon">+</span>
+                            Añadir a mi librería
+                            <span className={`dropdown-arrow ${showDropdown ? 'rotated' : ''}`}>▼</span>
+                        </button>
+
+                        {showDropdown && (
+                            <div ref={dropdownRef} className="library-dropdown">
+                                {libraryOptions.map((option) => (
+                                    <button
+                                        key={option.id}
+                                        className="dropdown-option"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleOptionClick(option.id);
+                                        }}
+                                    >
+                                        <span className="option-emoji">{option.emoji}</span>
+                                        <span className="option-label">{option.label}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>
