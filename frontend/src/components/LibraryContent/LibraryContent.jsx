@@ -29,6 +29,8 @@ const LibraryContent = ({ userBooks = [], handleAddToLibrary, libraryOptions, on
     };
 
     const getStats = (books) => {
+        const ratedBooks = books.filter(book => typeof book.rating === 'number' && book.rating > 0);
+
         return {
             Todos: books.length,
             Leyendo: books.filter(book => book.status === 'Leyendo').length,
@@ -36,11 +38,12 @@ const LibraryContent = ({ userBooks = [], handleAddToLibrary, libraryOptions, on
             "Por Leer": books.filter(book => book.status === 'Por Leer').length,
             Favoritos: books.filter(book => book.status === "Favoritos").length,
             totalPages: books.reduce((acc, book) => acc + (book.pageCount || 0), 0),
-            avgRating: books.length > 0
-                ? (books.reduce((acc, book) => acc + (book.rating || 0), 0) / books.length).toFixed(1)
+            avgRating: ratedBooks.length > 0
+                ? (ratedBooks.reduce((acc, book) => acc + book.rating, 0) / ratedBooks.length).toFixed(1)
                 : 0
         };
     };
+
 
     const [stats, setStats] = useState(getStats([]));
 
@@ -55,8 +58,18 @@ const LibraryContent = ({ userBooks = [], handleAddToLibrary, libraryOptions, on
         );
 
         setFlatBooks(uniqueBooks);
-        setStats(getStats(uniqueBooks));
     }, [userBooks]);
+
+    useEffect(() => {
+        let books = [...flatBooks];
+
+        if (currentShelf !== 'all') {
+            books = books.filter(book => book.status === shelfMap[currentShelf]?.title);
+        }
+
+        setStats(getStats(books));
+    }, [flatBooks, currentShelf]);
+
 
     useEffect(() => {
         let books = [...flatBooks];
@@ -221,34 +234,48 @@ const LibraryContent = ({ userBooks = [], handleAddToLibrary, libraryOptions, on
                             <span className="stat-label">Páginas totales</span>
                         </div>
                     </div>
+
                     <div className="stat-card">
                         <div className="stat-content">
-                            <span className="stat-number">{stats.Todos}</span>
+                            <span
+                                className="stat-number">{currentShelf === 'all' ? stats.Todos : stats[shelfMap[currentShelf]?.title] || 0}</span>
                             <span className="stat-label">Total libros</span>
                         </div>
                     </div>
-                    <div className="stat-card">
-                        <div className="stat-content">
-                            <span className="stat-number">{stats.Completados}</span>
-                            <span className="stat-label">Completados</span>
-                        </div>
-                    </div>
-                    <div className="stat-card">
-                        <div className="stat-content">
-                            <span className="stat-number">{stats.Leyendo}</span>
-                            <span className="stat-label">Leyendo</span>
-                        </div>
-                    </div>
+
+                    {currentShelf === 'all' && (
+                        <>
+                            <div className="stat-card">
+                                <div className="stat-content">
+                                    <span className="stat-number">{stats.Completados}</span>
+                                    <span className="stat-label">Completados</span>
+                                </div>
+                            </div>
+                            <div className="stat-card">
+                                <div className="stat-content">
+                                    <span className="stat-number">{stats.Leyendo}</span>
+                                    <span className="stat-label">Leyendo</span>
+                                </div>
+                            </div>
+                            <div className="stat-card">
+                                <div className="stat-content">
+                                    <span className="stat-number">{stats["Por Leer"]}</span>
+                                    <span className="stat-label">Por Leer</span>
+                                </div>
+                            </div>
+                            <div className="stat-card">
+                                <div className="stat-content">
+                                    <span className="stat-number">{stats.Favoritos}</span>
+                                    <span className="stat-label">Favoritos</span>
+                                </div>
+                            </div>
+                        </>
+                    )}
+
                     <div className="stat-card">
                         <div className="stat-content">
                             <span className="stat-number">{stats.avgRating}</span>
                             <span className="stat-label">Puntuación media</span>
-                        </div>
-                    </div>
-                    <div className="stat-card">
-                        <div className="stat-content">
-                            <span className="stat-number">{stats.Favoritos}</span>
-                            <span className="stat-label">Favoritos</span>
                         </div>
                     </div>
                 </div>
@@ -258,7 +285,8 @@ const LibraryContent = ({ userBooks = [], handleAddToLibrary, libraryOptions, on
                         <h4>👤 Perfil</h4>
                         <div className="profile-info">
                             <p><strong>Nombre:</strong> {user.name || user.email}</p>
-                            <p><strong>Miembro desde:</strong> {new Date(user.createdAt || Date.now()).toLocaleDateString()}</p>
+                            <p><strong>Miembro
+                                desde:</strong> {new Date(user.createdAt || Date.now()).toLocaleDateString()}</p>
                         </div>
                     </div>
                 )}

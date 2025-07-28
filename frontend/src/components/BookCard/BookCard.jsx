@@ -270,11 +270,11 @@ const BookCard = ({
                                         className="dropdown-option"
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            handleOptionClick(option.id);
+                                            handleOptionClick(option.title);
                                         }}
                                     >
                                         <span className="option-emoji">{option.emoji}</span>
-                                        <span className="option-label">{option.label}</span>
+                                        <span className="option-label">{option.title}</span>
                                     </button>
                                 ))}
                             </div>

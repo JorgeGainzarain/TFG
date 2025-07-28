@@ -33,18 +33,18 @@ const SearchPage = ({
                 try {
                     const results = await bookAPI.searchBooks(query);
                     console.log('Auto-search results:', results);
-                    onSearchResults && onSearchResults(results, query); // Make sure this updates both results and query
-                    onSearchError && onSearchError(null);
+                    onSearchResults(results, query); // Make sure this updates both results and query
+                    onSearchError(null);
                 } catch (error) {
                     console.error('Auto-search error:', error);
                     const errorMessage = handleApiError(error);
-                    onSearchError && onSearchError(errorMessage);
-                    onSearchResults && onSearchResults([], query);
+                    onSearchError(errorMessage);
+                    onSearchResults([], query);
                 } finally {
-                    onSearchLoading && onSearchLoading(false);
+                    onSearchLoading(false);
                 }
             } else if (isRecommendations && searchResults.length === 0 && !isSearching) {
-                onSearchLoading && onSearchLoading(true);
+                onSearchLoading(true);
                 try {
                     const recommendations = getRecommendations();
                     onSearchResults && onSearchResults(recommendations, '');

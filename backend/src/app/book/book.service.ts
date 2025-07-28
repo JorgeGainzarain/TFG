@@ -25,11 +25,16 @@ export class BookService extends BaseService<Book> {
             return await super.getById(id);
         }
         else {
-            const book = await this.bookRepository.findByFields( { bookId: id })
+            let book = await this.bookRepository.findByFields( { bookId: id })
             if (!book) {
                 throw new StatusError(404, `Book with ID "${id}" not found.`);
             }
             else {
+                // Retrieve the book from the database if it exists to see the rating and number of reviews, otherwise set it to 0
+                const reviews = await this.reviewRepository.getByBookId(book.bookId)
+                console.log(reviews);
+                (book as any).reviewCount = reviews.length;
+                (book as any).rating = reviews.reduce((acc, review) => acc + (review.rating || 0), 0) / (reviews.length || 1);
                 return book;
             }
         }
