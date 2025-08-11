@@ -1,6 +1,6 @@
 // frontend/src/components/ReviewsSection/ReviewsSection.jsx
 import React, { useState, useEffect } from 'react';
-import { addReviewToBook, getReviewsFromBook, updateReview, deleteReview } from "../../services/api";
+import {addReviewToBook, getReviewsFromBook, updateReview, deleteReview, likeReview, isLiked} from "../../services/api";
 import './ReviewsSection.css';
 import { useAuth } from "../../hooks/useAuth";
 
@@ -18,6 +18,21 @@ const ReviewsSection = ({ book, isAuthenticated, onShowAuth }) => {
     useEffect(() => {
         getReviews(book);
     }, [book]);
+
+    useEffect(() => {
+        if (!user) return;
+        const checkLiked = async () => {
+            const likedSet = new Set();
+            for (const review of reviews) {
+                const liked = await isLiked(user.id, review.id);
+                console.log("Checking if review is liked:", review.id, "Result:", liked);
+                console.log(liked);
+                if (liked.liked) likedSet.add(review.id || review._id);
+            }
+            setLikedReviews(likedSet);
+        };
+        checkLiked();
+    }, [reviews, user]);
 
     const getReviews = async (book) => {
         setLoading(true);
@@ -80,23 +95,21 @@ const ReviewsSection = ({ book, isAuthenticated, onShowAuth }) => {
         }
     };
 
-    const handleLikeReview = (review) => {
+    const handleLikeReview = async (review) => {
         if (!isAuthenticated) return onShowAuth();
-        const id = review.id || review._id;
-        const isLiked = likedReviews.has(id);
-        const newSet = new Set(likedReviews);
-
-        isLiked ? newSet.delete(id) : newSet.add(id);
-        setLikedReviews(newSet);
-
-        setReviews(reviews.map(r =>
-            (r.id || r._id) === id ? { ...r, likes: (r.likes || 0) + (isLiked ? -1 : 1) } : r
-        ));
-
-        updateReview(user.userId, {
-            ...review,
-            likes: (review.likes || 0) + (isLiked ? -1 : 1)
-        });
+        const reviewId = review.id || review._id;
+        const userId = user.id;
+        try {
+            const likes = await likeReview(userId, reviewId);
+            setReviews(reviews =>
+                reviews.map(r =>
+                    (r.id || r._id) === reviewId ? { ...r, likes } : r
+                )
+            );
+            setLikedReviews(prev => new Set(prev).add(reviewId));
+        } catch (err) {
+            alert("Error al dar like a la reseña");
+        }
     };
 
     const handleDeleteReview = async (id) => {
@@ -184,8 +197,9 @@ const ReviewsSection = ({ book, isAuthenticated, onShowAuth }) => {
                 )}
                 {!loading && !error && reviews.map((review) => {
                     const id = review.id || review._id;
-                    const isLiked = likedReviews.has(id);
-                    const isOwner = user != null && (review.user?._id === user?.userId);
+                    const liked = likedReviews.has(review.id || review._id);
+                    console.log("Liked?:", liked);
+                    const isOwner = user && (review.userId === user?.id);
 
                     return (
                         <div key={id} className="review-card">
@@ -213,8 +227,8 @@ const ReviewsSection = ({ book, isAuthenticated, onShowAuth }) => {
                             </div>
                             <div className="review-text">{review.comment}</div>
                             <div className="review-actions">
-                                <button className={`review-action like-action ${isLiked ? 'liked' : ''}`} onClick={() => handleLikeReview(review)}>
-                                    <span className="heart-icon">{isLiked ? '❤️' : '🤍'}</span>
+                                <button className={`review-action like-action ${liked ? 'liked' : ''}`} onClick={() => handleLikeReview(review)}>
+                                    <span className="heart-icon">{liked ? '❤️' : '🤍'}</span>
                                     <span className="like-count">{review.likes || 0}</span>
                                 </button>
                             </div>

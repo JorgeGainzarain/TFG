@@ -43,6 +43,32 @@ export class ReviewService extends BaseService<Review> {
         return await super.create(review);
     }
 
+    async like(id: number) {
+        console.log("Liking review with ID:", id);
+        const review = await this.reviewRepository.findById(id);
+        if (!review) {
+            throw new StatusError(404, `Review with ID "${id}" not found.`);
+        }
+        review.likes = (review.likes || 0) + 1;
+        await this.update(id, review);
+        return review.likes;
+    }
+
+    async unlike(id: number) {
+        console.log("Unliking review with ID:", id);
+        const review = await this.reviewRepository.findById(id);
+        if (!review) {
+            throw new StatusError(404, `Review with ID "${id}" not found.`);
+        }
+        if (review.likes && review.likes > 0) {
+            review.likes -= 1;
+        } else {
+            throw new StatusError(400, `Cannot unlike review with ID "${id}" as it has no likes.`);
+        }
+        await this.update(id, review);
+        return review.likes;
+    }
+
     async update(id: number, review: Review) {
         if (review.user && !review.userId) {
             if (review.user.id != null) {

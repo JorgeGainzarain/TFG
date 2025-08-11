@@ -6,6 +6,7 @@ import { EntityConfig } from "../../app/base/base.model";
 import { DBOptions } from "../../database/models/db-options";
 import {Book} from "../../app/book/book.model";
 import {Library} from "../../app/library/library.model";
+import {Like} from "../../app/like/like.model"
 
 const libraries =  [
     "Leyendo",
@@ -20,6 +21,7 @@ export const baseConfig: {
     entityValues: {
         audit: EntityConfig<Audit>;
         review: EntityConfig<Review>;
+        like: EntityConfig<Like>
         book: EntityConfig<Book>;
         user: EntityConfig<User>;
         library: EntityConfig<Library>
@@ -52,8 +54,15 @@ export const baseConfig: {
                 { name: 'rating', type: 'INTEGER' },
                 { name: 'comment', type: 'TEXT' },
                 { name: 'createdAt', type: 'DATETIME' },
-                { name: 'likes', type: 'INTEGER' },
-                { name: 'likedBy', type: 'TEXT[]' }
+                {name: 'likes', type: 'INTEGER' },
+            ]
+        },
+        like: {
+            table_name: 'likes',
+            unit: 'Like',
+            requiredFields: [
+                { name: 'reviewId', type: 'INTEGER' },
+                { name: 'userId', type: 'INTEGER' },
             ]
         },
         book: {

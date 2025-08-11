@@ -124,12 +124,35 @@ export const updateBook = async (book) => {
     }
 }
 
-export const updateReview = async (userId, review) => {
-    let likedBy = review.likedBy.split(',').map(id => id.trim());
-    if (!likedBy.includes(userId)) {
-        likedBy.push(userId);
+export const likeReview = async (userId, reviewId) => {
+    console.log("Liking review:", reviewId);
+    try {
+        const response = await makeAuthenticatedRequest(`/like`, {
+            method: 'POST',
+            body: JSON.stringify({ reviewId: reviewId}),
+        });
+        return response.json();
+    } catch (error) {
+        console.error('Error liking review:', error);
     }
-    review.likedBy = likedBy.join(',');
+}
+
+export const isLiked = async (userId, reviewId) => {
+    console.log("Checking if review is liked:", reviewId);
+    try {
+        const response = await makeAuthenticatedRequest(`/like/${reviewId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        return response.json();
+    } catch (error) {
+        console.error('Error checking if review is liked:', error);
+    }
+}
+
+export const updateReview = async (userId, review) => {
     console.log("Review in updateReview:", review);
     try {
         return await makeAuthenticatedRequest(`/review/${review.id}`, {

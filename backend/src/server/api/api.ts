@@ -4,6 +4,7 @@ import {ReviewController} from "../../app/review/review.controller";
 import {UserController} from "../../app/user/user.controller";
 import {BookController} from "../../app/book/book.controller";
 import {LibraryController} from "../../app/library/library.controller";
+import {LikeController} from "../../app/like/like.controller";
 
 @Service()
 export class Api {
@@ -13,7 +14,8 @@ export class Api {
       protected reviewController: ReviewController,
       protected userController: UserController,
       protected bookController: BookController,
-      protected libraryController: LibraryController
+      protected libraryController: LibraryController,
+      protected likeController: LikeController
   ) {
     this.apiRouter = Router();
     this.apiRouter.use('/review', reviewController.getRouter());
@@ -21,6 +23,7 @@ export class Api {
     this.apiRouter.use('/health', this.healthCheck.bind(this));
     this.apiRouter.use('/book', bookController.getRouter());
     this.apiRouter.use('/library', libraryController.getRouter());
+    this.apiRouter.use('/like', likeController.getRouter());
   }
 
   async healthCheck(req: Request, res: Response, next: NextFunction): Promise<void> {

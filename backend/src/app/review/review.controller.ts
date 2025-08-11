@@ -22,6 +22,16 @@ export class ReviewController extends BaseController<Review> {
         this.getRouter().get('/:bookId', this.getByBookId.bind(this));
     }
 
+    async update(req: any, res: any, next: any): Promise<void> {
+        // Ensure the user who is updating the review is the same as the one who created it
+        const userId = req.user?.id;
+        const ownerId = req.body.userId;
+        if (userId !== ownerId) {
+            return res.status(403).json({ message: 'You are not allowed to update this review.' });
+        }
+        return super.update(req, res, next);
+    }
+
     async getByBookId(req: any, res: any, next: any): Promise<void> {
         try {
             const bookId = req.params.bookId;
