@@ -2,7 +2,15 @@ import React, { useState, useEffect } from 'react';
 import BookCard from '../BookCard/BookCard';
 import './LibraryContent.css';
 
-const LibraryContent = ({ userBooks = [], handleAddToLibrary, libraryOptions, onBookSelect, onAddBook, user }) => {
+const LibraryContent = ({
+                            userBooks = [],
+                            handleAddToLibrary,
+                            libraryOptions,
+                            onBookSelect,
+                            onAddBook,
+                            user,
+                            handleRemoveFromLibrary // <-- Add this prop if you want to pass from parent, or define below
+                        }) => {
     const [currentShelf, setCurrentShelf] = useState('all');
     const [currentView, setCurrentView] = useState('grid');
     const [searchTerm, setSearchTerm] = useState('');
@@ -13,7 +21,7 @@ const LibraryContent = ({ userBooks = [], handleAddToLibrary, libraryOptions, on
     const fullLibraryOptions = [{ id: 'all', title: 'Todos' }, ...libraryOptions];
     const shelfMap = fullLibraryOptions.reduce((acc, shelf) => {
         acc[shelf.id] = shelf;
-        acc[shelf.title] = shelf; // para buscar por nombre también
+        acc[shelf.title] = shelf;
         return acc;
     }, {});
 
@@ -44,40 +52,31 @@ const LibraryContent = ({ userBooks = [], handleAddToLibrary, libraryOptions, on
         };
     };
 
-
     const [stats, setStats] = useState(getStats([]));
 
     useEffect(() => {
         const flattened = flattenBooks(userBooks);
-
-        // Eliminar duplicados por ID
         const uniqueBooks = flattened.filter(
             (book, index, self) =>
                 book && book.id &&
                 index === self.findIndex(b => b.id === book.id)
         );
-
         setFlatBooks(uniqueBooks);
     }, [userBooks]);
 
     useEffect(() => {
         let books = [...flatBooks];
-
         if (currentShelf !== 'all') {
             books = books.filter(book => book.status === shelfMap[currentShelf]?.title);
         }
-
         setStats(getStats(books));
     }, [flatBooks, currentShelf]);
 
-
     useEffect(() => {
         let books = [...flatBooks];
-
         if (currentShelf !== 'all') {
             books = books.filter(book => book.status === shelfMap[currentShelf]?.title);
         }
-
         if (searchTerm.trim()) {
             const search = searchTerm.toLowerCase();
             books = books.filter(book =>
@@ -86,7 +85,6 @@ const LibraryContent = ({ userBooks = [], handleAddToLibrary, libraryOptions, on
                 (book.genre && book.genre.toLowerCase().includes(search))
             );
         }
-
         books.sort((a, b) => {
             if (!a || !b) return 0;
             switch (sortBy) {
@@ -101,12 +99,18 @@ const LibraryContent = ({ userBooks = [], handleAddToLibrary, libraryOptions, on
                     return new Date(b.addedAt || 0) - new Date(a.addedAt || 0);
             }
         });
-
         setFilteredBooks(books);
     }, [flatBooks, currentShelf, searchTerm, sortBy]);
 
     const handleBookSelect = (book) => {
         if (onBookSelect) onBookSelect(book);
+    };
+
+    // If not passed as prop, define here (remove book from library)
+    const handleRemove = (bookToRemove) => {
+        // Implement your remove logic here, e.g. call API or update state
+        // This is a placeholder, you should replace with your actual logic
+        alert(`Quitar libro: ${bookToRemove.title}`);
     };
 
     return (
@@ -122,7 +126,9 @@ const LibraryContent = ({ userBooks = [], handleAddToLibrary, libraryOptions, on
                             >
                                 <span className="shelf-label">{shelf.title}</span>
                                 <span className="shelf-count">
-                                    {shelf.id === 'all' ? stats.Todos : stats[shelf.title] || 0}
+                                    {shelf.id === 'all'
+                                        ? flatBooks.length
+                                        : flatBooks.filter(book => book.status === shelf.title).length}
                                 </span>
                             </button>
                         ))}
@@ -192,6 +198,7 @@ const LibraryContent = ({ userBooks = [], handleAddToLibrary, libraryOptions, on
                                     onBookSelect={handleBookSelect}
                                     libraryOptions={libraryOptions}
                                     handleAddToLibrary={handleAddToLibrary}
+                                    handleRemoveFromLibrary={handleRemoveFromLibrary || handleRemove}
                                     variant={currentView === 'list' ? 'horizontal' : 'vertical'}
                                     showDescription={false}
                                     showDate={currentView !== 'grid'}

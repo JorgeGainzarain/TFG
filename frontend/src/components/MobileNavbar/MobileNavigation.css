@@ -110,3 +110,17 @@
         font-size: 1rem;
     }
 }
+
+.mobile-login-btn {
+    color: var(--primary);
+    font-weight: 600;
+    background: rgba(102, 126, 234, 0.08);
+    border: 1px solid var(--primary-gradient);
+    box-shadow: 0 2px 8px var(--shadow-glass);
+    transition: background 0.2s, color 0.2s;
+}
+
+.mobile-login-btn:hover {
+    background: var(--primary-gradient);
+    color: #fff;
+}

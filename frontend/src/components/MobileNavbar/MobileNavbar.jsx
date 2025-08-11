@@ -2,11 +2,10 @@ import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './MobileNavigation.css';
 
-    const MobileNavbar = ({ onNavigate }) => {
+const MobileNavbar = ({ onNavigate, isAuthenticated, onShowAuth }) => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    // Determinar la página actual basada en la ruta
     const getCurrentView = () => {
         if (location.pathname === '/') return 'home';
         if (location.pathname.startsWith('/search')) return 'search';
@@ -19,12 +18,8 @@ import './MobileNavigation.css';
     const activeItem = getCurrentView();
 
     const handleItemClick = (item) => {
-        // Llamar callback si existe
-        if (onNavigate) {
-            onNavigate(item);
-        }
+        if (onNavigate) onNavigate(item);
 
-        // Navegar usando React Router
         switch (item) {
             case 'home':
                 navigate('/');
@@ -44,16 +39,17 @@ import './MobileNavigation.css';
             default:
                 navigate('/');
         }
+    };
 
-        console.log('Navegando a:', item);
+    const handleLoginClick = () => {
+        if (onShowAuth) onShowAuth();
     };
 
     const navigationItems = [
         { id: 'home', icon: '🏠', label: 'Inicio' },
         { id: 'search', icon: '🔍', label: 'Buscar' },
         { id: 'library', icon: '📚', label: 'Librería' },
-        { id: 'ai', icon: '🤖', label: 'IA' },
-        { id: 'profile', icon: '👤', label: 'Perfil' }
+        { id: 'ai', icon: '🤖', label: 'IA' }
     ];
 
     return (
@@ -69,6 +65,23 @@ import './MobileNavigation.css';
                         <span className="nav-label">{item.label}</span>
                     </button>
                 ))}
+                {isAuthenticated ? (
+                    <button
+                        className={`mobile-nav-item ${activeItem === 'profile' ? 'active' : ''}`}
+                        onClick={() => handleItemClick('profile')}
+                    >
+                        <span className="nav-icon">👤</span>
+                        <span className="nav-label">Perfil</span>
+                    </button>
+                ) : (
+                    <button
+                        className="mobile-nav-item mobile-login-btn"
+                        onClick={handleLoginClick}
+                    >
+                        <span className="nav-icon">🔑</span>
+                        <span className="nav-label">Login</span>
+                    </button>
+                )}
             </div>
         </nav>
     );

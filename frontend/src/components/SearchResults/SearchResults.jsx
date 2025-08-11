@@ -4,6 +4,7 @@ import BookCard from '../BookCard/BookCard';
 import FilterBar from '../FilterBar/FilterBar';
 import './SearchResults.css';
 
+
 const SearchResults = ({
                            results,
                            query,

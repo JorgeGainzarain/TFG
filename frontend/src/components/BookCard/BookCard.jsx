@@ -6,21 +6,21 @@ import './BookCard.css';
 const BookCard = ({
                       book,
                       handleAddToLibrary,
+                      handleRemoveFromLibrary,
                       libraryOptions,
-                      variant = 'vertical', // 'vertical' | 'horizontal'
+                      variant = 'vertical',
                       showDescription = false,
-                      showDate = true
+                      showDate = true,
+                      isInLibrary = false
                   }) => {
     const navigate = useNavigate();
     const [showDropdown, setShowDropdown] = useState(false);
     const dropdownRef = useRef(null);
     const buttonRef = useRef(null);
 
-
     const renderStars = (rating) => {
         const stars = [];
         const numericRating = Math.round(rating || 0);
-
         for (let i = 1; i <= 5; i++) {
             stars.push(
                 <span key={i} className="star">
@@ -32,42 +32,44 @@ const BookCard = ({
     };
 
     const handleAddClick = (e) => {
-        // Prevenir que se propague el click al card
         e.stopPropagation();
         setShowDropdown(!showDropdown);
     };
 
     const handleOptionClick = (option) => {
-        // Aquí puedes manejar las diferentes opciones
-        console.log(`Opción seleccionada: ${option}`);
-
         if (handleAddToLibrary) {
-            console.log('Adding Book to Library');
             handleAddToLibrary(book, option);
         }
+        setShowDropdown(false);
+    };
 
+    const handleRemoveClick = (e) => {
+        e.stopPropagation();
+        if (handleRemoveFromLibrary) {
+            handleRemoveFromLibrary(book);
+        }
         setShowDropdown(false);
     };
 
     const handleCardClick = () => {
-        // Solo navegar si no hay dropdown abierto
         if (!showDropdown) {
-            console.log("Book before navigation:", book);
             navigate(`/book/${book.bookId}`, {
                 state: { book }
             });
         }
     };
 
-    // Cerrar dropdown al hacer click fuera
     useEffect(() => {
         const handleClickOutside = (event) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target) &&
-                buttonRef.current && !buttonRef.current.contains(event.target)) {
+            if (
+                dropdownRef.current &&
+                !dropdownRef.current.contains(event.target) &&
+                buttonRef.current &&
+                !buttonRef.current.contains(event.target)
+            ) {
                 setShowDropdown(false);
             }
         };
-
         document.addEventListener('mousedown', handleClickOutside);
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
@@ -84,7 +86,6 @@ const BookCard = ({
 
     const formatPublishedDate = (dateString) => {
         if (!dateString) return '';
-        // Extraer solo el año si es una fecha completa
         const year = dateString.split('-')[0];
         return year;
     };
@@ -94,7 +95,9 @@ const BookCard = ({
     const reviewCount = book.reviewCount || book.ratingsCount || 0;
     const description = book.description || '';
     const publishedYear = formatPublishedDate(book.publishedDate);
+    const currentShelf = book.status;
 
+    // Horizontal variant
     if (variant === 'horizontal') {
         return (
             <div
@@ -165,8 +168,10 @@ const BookCard = ({
                                 className={`add-btn ${showDropdown ? 'active' : ''}`}
                                 onClick={handleAddClick}
                             >
-                                <span className="add-icon">+</span>
-                                Añadir a mi librería
+                                <span className="add-icon">{isInLibrary ? '✔' : '+'}</span>
+                                {isInLibrary && currentShelf
+                                    ? `En: ${currentShelf}`
+                                    : 'Añadir a mi librería'}
                                 <span className={`dropdown-arrow ${showDropdown ? 'rotated' : ''}`}>▼</span>
                             </button>
 
@@ -184,6 +189,16 @@ const BookCard = ({
                                             <span className="option-label">{option.title}</span>
                                         </button>
                                     ))}
+                                    {isInLibrary && (
+                                        <button
+                                            className="dropdown-option"
+                                            style={{ color: '#ef4444' }}
+                                            onClick={handleRemoveClick}
+                                        >
+                                            <span className="option-emoji">🗑️</span>
+                                            <span className="option-label">Quitar de mi librería</span>
+                                        </button>
+                                    )}
                                 </div>
                             )}
                         </div>
@@ -193,7 +208,7 @@ const BookCard = ({
         );
     }
 
-    // Variante vertical (por defecto)
+    // Vertical variant (default)
     return (
         <div
             className={`book-card vertical glass ${showDropdown ? 'dropdown-active' : ''}`}
@@ -257,8 +272,10 @@ const BookCard = ({
                             className={`add-btn ${showDropdown ? 'active' : ''}`}
                             onClick={handleAddClick}
                         >
-                            <span className="add-icon">+</span>
-                            Añadir a mi librería
+                            <span className="add-icon">{isInLibrary ? '✔' : '+'}</span>
+                            {isInLibrary && currentShelf
+                                ? `En: ${currentShelf}`
+                                : 'Añadir a mi librería'}
                             <span className={`dropdown-arrow ${showDropdown ? 'rotated' : ''}`}>▼</span>
                         </button>
 
@@ -277,6 +294,16 @@ const BookCard = ({
                                         <span className="option-label">{option.title}</span>
                                     </button>
                                 ))}
+                                {isInLibrary && (
+                                    <button
+                                        className="dropdown-option"
+                                        style={{ color: '#ef4444' }}
+                                        onClick={handleRemoveClick}
+                                    >
+                                        <span className="option-emoji">🗑️</span>
+                                        <span className="option-label">Quitar de mi librería</span>
+                                    </button>
+                                )}
                             </div>
                         )}
                     </div>

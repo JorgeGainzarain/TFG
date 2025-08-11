@@ -86,9 +86,9 @@ const AppContent = () => {
         });
     }, []);
 
-    // Limpiar estado cuando se va al home
+    // Limpiar estado
     useEffect(() => {
-        if (location.pathname === '/') {
+        if (location.pathname !== '/search') {
             setSearchResults([]);
             setSearchQuery('');
             setSearchError(null);
@@ -178,6 +178,8 @@ const AppContent = () => {
                 user={user}
                 isAuthenticated={isAuthenticated}
                 onShowAuth={handleShowAuth}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
             />
 
             <main className="main-content">
@@ -296,7 +298,10 @@ const AppContent = () => {
                 </Routes>
             </main>
 
-            {isMobile && <MobileNavbar />}
+            {isMobile && <MobileNavbar
+                isAuthenticated={isAuthenticated}
+                onShowAuth={handleShowAuth}
+            />}
 
             {/* Auth Modal */}
             <AuthOverlay

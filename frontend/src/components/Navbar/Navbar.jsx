@@ -4,17 +4,15 @@ import {bookAPI, handleApiError, getRecommendations} from '../../services/api';
 import {logout} from '../../services/authService';
 import './Navbar.css';
 
-const Navbar = forwardRef(({ onSearchResults, onSearchLoading, onSearchError, user, isAuthenticated, onShowAuth }, ref) => {
-    const [searchQuery, setSearchQuery] = useState('');
+const Navbar = forwardRef(({ onSearchResults, onSearchLoading, onSearchError, user, isAuthenticated, onShowAuth, searchQuery, setSearchQuery }, ref) => {
     const [isSearching, setIsSearching] = useState(false);
     const [showUserMenu, setShowUserMenu] = useState(false);
     const navigate = useNavigate();
 
-    // Exponer función para limpiar input
+    // Expose function to clear input
     useImperativeHandle(ref, () => ({
         clearInput: () => setSearchQuery('')
     }));
-
 
     const handleSearch = async (e) => {
         e.preventDefault();
@@ -29,22 +27,18 @@ const Navbar = forwardRef(({ onSearchResults, onSearchLoading, onSearchError, us
             let results;
             let query = searchQuery.trim();
 
-            // Si la búsqueda está vacía, mostrar placeholders
+            // If search is empty, show recommendations
             if (!query) {
-                console.log('Empty search - showing AI placeholder recommendations');
                 results = getRecommendations();
                 query = '';
-                // Simular delay para hacer más realista
                 await new Promise(resolve => setTimeout(resolve, 500));
             } else {
                 results = await bookAPI.searchBooks(query);
             }
 
-            console.log('Search results:', results);
             onSearchResults && onSearchResults(results, query);
             onSearchError && onSearchError(null);
 
-            // Navegar a la página de búsqueda
             if (query) {
                 navigate(`/search?q=${encodeURIComponent(query)}`);
             } else {
@@ -52,11 +46,9 @@ const Navbar = forwardRef(({ onSearchResults, onSearchLoading, onSearchError, us
             }
 
         } catch (error) {
-            console.error('Search error:', error);
             const errorMessage = handleApiError(error);
             onSearchError && onSearchError(errorMessage);
             onSearchResults && onSearchResults([], searchQuery || '');
-            // Aún así navegar a la página de búsqueda para mostrar el error
             if (searchQuery.trim()) {
                 navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
             } else {
@@ -84,7 +76,7 @@ const Navbar = forwardRef(({ onSearchResults, onSearchLoading, onSearchError, us
             await logout();
             setShowUserMenu(false);
             alert('¡Hasta luego! Has cerrado sesión exitosamente.');
-            navigate('/'); // Navegar al home después del logout
+            navigate('/');
         } catch (error) {
             console.error('Logout error:', error);
         }
@@ -105,13 +97,11 @@ const Navbar = forwardRef(({ onSearchResults, onSearchLoading, onSearchError, us
 
     const handleClearSearch = () => {
         setSearchQuery('');
-        // Limpiar resultados y ir a home
         onSearchResults && onSearchResults([], '');
         onSearchError && onSearchError(null);
         navigate('/');
     };
 
-    // Close user menu when clicking outside
     React.useEffect(() => {
         const handleClickOutside = (event) => {
             if (showUserMenu && !event.target.closest('.user-menu-container')) {
