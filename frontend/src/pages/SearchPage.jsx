@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import SearchResults from '../components/SearchResults/SearchResults';
-import { getRecommendations } from '../services/api';
+import { bookAPI, handleApiError, getRecommendations } from '../services/api';
 
 const SearchPage = ({
                         searchResults,
@@ -18,6 +18,34 @@ const SearchPage = ({
                         libraryOptions
                     }) => {
     const [searchParams] = useSearchParams();
+    const [filters, setFilters] = useState({
+        genre: '',
+        year: '',
+        sortBy: 'relevance',
+    });
+
+    const handleFilterChange = async (filterType, value) => {
+        const newFilters = { ...filters, [filterType]: value };
+        setFilters(newFilters);
+
+        onSearchLoading(true);
+        try {
+            const results = await bookAPI.searchBooks(query, {
+                orderBy: newFilters.sortBy,
+                genre: newFilters.genre,
+                year: newFilters.year,
+            });
+            onSearchResults(results, query);
+            onSearchError(null);
+        } catch (error) {
+            const errorMessage = handleApiError(error);
+            onSearchError(errorMessage);
+            onSearchResults([], query);
+        } finally {
+            onSearchLoading(false);
+        }
+    };
+
 
     const query = searchParams.get('q');
     const isRecommendations = searchParams.get('recommendations') === 'true';
@@ -58,8 +86,8 @@ const SearchPage = ({
             }
         };
 
-        performAutoSearch();
-    }, [query, isRecommendations]);
+        //performAutoSearch();
+    }, [query, isRecommendations, isSearching, onSearchError, onSearchLoading, onSearchResults, searchQuery, searchResults]);
 
     const handleClearSearch = () => {
         onClearSearch();
@@ -74,6 +102,34 @@ const SearchPage = ({
         }
     };
 
+
+    /*
+    const handleFilterChange = async (filterType, value) => {
+        const newFilters = { ...filters, [filterType]: value };
+
+        setFilters(newFilters);
+
+        onSearchLoading(true);
+        try {
+            const results = await bookAPI.searchBooks(query, {
+                orderBy: newFilters.sortBy,
+                genre: newFilters.genre,
+                year: newFilters.year,
+            });
+            console.log("Results after filter change:", results);
+            onSearchResults(results, query);
+            onSearchError(null);
+        } catch (error) {
+            const errorMessage = handleApiError(error);
+            onSearchError(errorMessage);
+            onSearchResults([], query);
+        } finally {
+            onSearchLoading(false);
+        }
+    };
+
+     */
+
     return (
         <SearchResults
             results={searchResults}
@@ -83,6 +139,8 @@ const SearchPage = ({
             libraryOptions={libraryOptions}
             onClearSearch={handleClearSearch}
             onRetry={handleRetry}
+            filters={filters}
+            handleFilterChange={handleFilterChange}
             user={user}
             isAuthenticated={isAuthenticated}
             isRecommendations={isRecommendations}

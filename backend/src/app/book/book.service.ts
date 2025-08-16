@@ -51,18 +51,21 @@ export class BookService extends BaseService<Book> {
         return await super.create(book);
     }
 
-    public async searchBooks(searchQuery: string): Promise<Book[]> {
+    public async searchBooks(searchQuery: string, orderBy: string = 'relevance', maxResults: number = 12): Promise<Book[]> {
         if (!searchQuery || searchQuery.trim() === '') {
             throw new StatusError(400, 'Search query cannot be empty');
         }
 
-        const maxResults = 12;
+        if (maxResults > 40 || maxResults < 1 || isNaN(maxResults)) {
+            maxResults  = 40; // Google Books API allows a maximum of 40 results per request
+        }
         const startIndex = 0;
-        const orderBy = 'relevance';
         const GOOGLE_BOOKS_API_URL = 'https://www.googleapis.com/books/v1/volumes';
         const API_KEY = config.googleBooksApiKey;
 
         let apiUrl = `${GOOGLE_BOOKS_API_URL}?q=${encodeURIComponent(searchQuery)}&maxResults=${maxResults}&startIndex=${startIndex}&orderBy=${orderBy}`;
+
+        console.log("API URL: " + apiUrl);
 
         if (API_KEY) {
             apiUrl += `&key=${API_KEY}`;
@@ -93,10 +96,9 @@ export class BookService extends BaseService<Book> {
                 }
                 // Retrieve the book from the database if it exists to see the rating and number of reviews, otherwise set it to 0
                 const reviews = await this.reviewRepository.getByBookId(book.bookId)
-                console.log(reviews);
                 book.reviewCount = reviews.length
                 book.rating = reviews.reduce((acc, review) => acc + (review.rating || 0), 0) / (reviews.length || 1);
-                console.log("Reviews for book: " +  book.bookId + " -> " + reviews)}
+            }
 
             return books;
         } catch (error: any) {

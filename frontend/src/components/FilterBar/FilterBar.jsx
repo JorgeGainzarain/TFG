@@ -50,7 +50,7 @@ const FilterBar = ({
             >
                 <option value="relevance">Ordenar por relevancia</option>
                 <option value="rating">Mejor puntuados</option>
-                <option value="recent">Más recientes</option>
+                <option value="newest">Más recientes</option>
                 <option value="popular">Más populares</option>
                 <option value="title">Por título</option>
                 <option value="author">Por autor</option>

@@ -170,7 +170,7 @@ const BookCard = ({
                             >
                                 <span className="add-icon">{isInLibrary ? '✔' : '+'}</span>
                                 {isInLibrary && currentShelf
-                                    ? `En: ${currentShelf}`
+                                    ? `${currentShelf}`
                                     : 'Añadir a mi librería'}
                                 <span className={`dropdown-arrow ${showDropdown ? 'rotated' : ''}`}>▼</span>
                             </button>
@@ -274,7 +274,7 @@ const BookCard = ({
                         >
                             <span className="add-icon">{isInLibrary ? '✔' : '+'}</span>
                             {isInLibrary && currentShelf
-                                ? `En: ${currentShelf}`
+                                ? ` ${currentShelf}`
                                 : 'Añadir a mi librería'}
                             <span className={`dropdown-arrow ${showDropdown ? 'rotated' : ''}`}>▼</span>
                         </button>

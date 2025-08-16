@@ -30,7 +30,11 @@ export class BookController extends BaseController<Book> {
                 return;
             }
 
-            const books = await this.bookService.searchBooks(searchQuery);
+            // Extract optional prameters from body, like orderBy and maxResults
+            const orderBy = req.query.orderBy;
+            const maxResults = parseInt(req.query.maxResults);
+
+            const books = await this.bookService.searchBooks(searchQuery, orderBy, maxResults);
             res.status(200).json({
                 status: 'success',
                 message: 'Books retrieved successfully',

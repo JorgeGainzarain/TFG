@@ -63,3 +63,24 @@ export const addBookToLibrary = async (bookId, bookData) => {
         throw error;
     }
 };
+
+export const removeBookFromLibrary = async (book) => {
+    console.log("Removing book with ID:", book);
+    try {
+        const response = await makeAuthenticatedRequest(`/library/${book.bookId}`, {
+            method: 'DELETE'
+        });
+
+        if (!response.ok) {
+            if (response.status === 401) {
+                throw new Error('Authentication required. Please log in again.');
+            }
+            throw new Error(`Failed to remove book from library: ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error removing book from library:', error);
+        throw error;
+    }
+}

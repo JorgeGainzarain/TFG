@@ -150,4 +150,26 @@ export class LibraryService extends BaseService<Library> {
         }
         return books;
     }
+
+    async removeBookFromUserLibrary(userId: any, bookId: any) {
+        if (!userId) {
+            throw new StatusError(401, 'Authentication required to remove a book from a library');
+        }
+
+        // Check if the book exists in any library of the user
+        const userLibraries = await this.libraryRepository.getAllByUser(userId);
+        let foundLibrary = false;
+        for (const lib of userLibraries) {
+            if (lib.bookIds && lib.bookIds.includes(bookId)) {
+                foundLibrary = true;
+                await this.libraryRepository.removeBook(userId, lib.title, bookId);
+            }
+        }
+
+        if (!foundLibrary) {
+            throw new StatusError(404, `Book with ID "${bookId}" not found in any library for user with ID "${userId}".`);
+        }
+
+        return await this.getAllByUser(userId);
+    }
 }

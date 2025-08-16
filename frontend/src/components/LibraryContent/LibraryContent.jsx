@@ -9,7 +9,7 @@ const LibraryContent = ({
                             onBookSelect,
                             onAddBook,
                             user,
-                            handleRemoveFromLibrary // <-- Add this prop if you want to pass from parent, or define below
+                            handleRemoveFromLibrary
                         }) => {
     const [currentShelf, setCurrentShelf] = useState('all');
     const [currentView, setCurrentView] = useState('grid');
@@ -106,13 +106,6 @@ const LibraryContent = ({
         if (onBookSelect) onBookSelect(book);
     };
 
-    // If not passed as prop, define here (remove book from library)
-    const handleRemove = (bookToRemove) => {
-        // Implement your remove logic here, e.g. call API or update state
-        // This is a placeholder, you should replace with your actual logic
-        alert(`Quitar libro: ${bookToRemove.title}`);
-    };
-
     return (
         <div className="library-content">
             <div className="library-main">
@@ -198,7 +191,7 @@ const LibraryContent = ({
                                     onBookSelect={handleBookSelect}
                                     libraryOptions={libraryOptions}
                                     handleAddToLibrary={handleAddToLibrary}
-                                    handleRemoveFromLibrary={handleRemoveFromLibrary || handleRemove}
+                                    handleRemoveFromLibrary={handleRemoveFromLibrary }
                                     variant={currentView === 'list' ? 'horizontal' : 'vertical'}
                                     showDescription={false}
                                     showDate={currentView !== 'grid'}

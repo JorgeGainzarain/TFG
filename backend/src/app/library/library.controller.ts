@@ -23,6 +23,23 @@ export class LibraryController extends BaseController<Library> {
         this.getRouter().post('/:libraryId/', authenticateToken, this.addBookToUserLibrary.bind(this));
         this.getRouter().post("/", authenticateToken, this.createDefaultLibraries.bind(this));
         this.getRouter().get("/default", this.getDefaultLibraries.bind(this));
+        this.getRouter().delete('/:bookId', authenticateToken, this.removeBook.bind(this));
+    }
+
+    private async removeBook(req: any, res: any, next: any) {
+        const userId = req.user?.id;
+        const bookId = req.params.bookId;
+
+        if (!userId || !bookId) {
+            return next(new StatusError(400, 'User ID and Book ID are required'));
+        }
+
+        try {
+            const updatedLibrary = await this.libraryService.removeBookFromUserLibrary(userId, bookId);
+            res.status(200).json(createResponse('success', 'Book removed successfully', updatedLibrary));
+        } catch (error) {
+            next(error);
+        }
     }
 
     private async getAllByUser(req: any, res: any, next: any) {

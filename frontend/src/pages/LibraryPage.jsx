@@ -1,7 +1,7 @@
 // REEMPLAZAR frontend/src/pages/LibraryPage.jsx
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { getUserLibraries, createLibrary, addBookToLibrary } from '../services/libraryService';
+import { getUserLibraries, createLibrary, addBookToLibrary, removeBookFromLibrary } from '../services/libraryService';
 import AuthOverlay from '../components/AuthOverlay/AuthOverlay';
 import LibraryContent from '../components/LibraryContent/LibraryContent';
 import './Pages.css';
@@ -85,6 +85,17 @@ const LibraryPage = ({handleAddToLibrary, libraryOptions}) => {
     const handleRefreshLibrary = () => {
         getUserBooks();
     };
+
+    const handleRemoveFromLibrary = async (bookId) => {
+        try {
+            await removeBookFromLibrary(bookId);
+            // Refrescar la biblioteca después de eliminar el libro
+            getUserBooks();
+        } catch (error) {
+            console.error('Error removing book from library:', error);
+            setBooksError('Error al eliminar el libro de la biblioteca');
+        }
+    }
 
     // Mostrar loading durante inicialización
     if (!initialized || loading) {
@@ -175,6 +186,7 @@ const LibraryPage = ({handleAddToLibrary, libraryOptions}) => {
                 handleAddToLibrary={handleAddToLibrary}
                 user={user}
                 onRefresh={handleRefreshLibrary}
+                handleRemoveFromLibrary={handleRemoveFromLibrary}
             />
         </div>
     );

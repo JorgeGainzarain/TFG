@@ -13,15 +13,12 @@ const SearchResults = ({
                            onClearSearch,
                            onRetry,
                            handleAddToLibrary,
+                           filters,
+                           handleFilterChange,
                            libraryOptions,
                            isRecommendations = false
                        }) => {
     const [filteredResults, setFilteredResults] = useState(results);
-    const [filters, setFilters] = useState({
-        genre: '',
-        year: '',
-        sortBy: 'relevance'
-    });
 
     // Extraer categorías únicas (géneros) de todos los libros actuales
     const uniqueGenres = useMemo(() => {
@@ -85,19 +82,11 @@ const SearchResults = ({
         setFilteredResults(filtered);
     }, [results, filters]);
 
-    const handleFilterChange = (filterType, value) => {
-        setFilters(prev => ({
-            ...prev,
-            [filterType]: value
-        }));
-    };
-
+    // Para limpiar filtros:
     const clearFilters = () => {
-        setFilters({
-            genre: '',
-            year: '',
-            sortBy: 'relevance'
-        });
+        handleFilterChange('genre', '');
+        handleFilterChange('year', '');
+        handleFilterChange('sortBy', 'relevance');
     };
 
     // Renderizado simplificado para foco en el filtro

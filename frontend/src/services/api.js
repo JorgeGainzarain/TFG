@@ -32,9 +32,17 @@ const apiRequest = async (endpoint, options = {}) => {
 // Book API functions - estos endpoints necesitarán ser implementados en tu backend
 export const bookAPI = {
     // Search books - este endpoint necesita ser implementado
-    searchBooks: async (query, options = {}) => {
+// Accepts query, orderBy, maxResults, genre, year, etc.
+    searchBooks: async (query, { orderBy, maxResults, genre, year } = {}) => {
+        const params = new URLSearchParams();
+        if (query) params.append('q', query);
+        if (orderBy) params.append('orderBy', orderBy);
+        if (maxResults) params.append('maxResults', maxResults);
+        if (genre) params.append('genre', genre);
+        if (year) params.append('year', year);
+
         try {
-            const response = await apiRequest(`/book/?q=${encodeURIComponent(query)}`, options);
+            const response = await apiRequest(`/book/?${params.toString()}`);
             return response.data || [];
         } catch (error) {
             console.error('Error searching books:', error);

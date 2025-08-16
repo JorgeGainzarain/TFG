@@ -67,10 +67,6 @@ const Navbar = forwardRef(({ onSearchResults, onSearchLoading, onSearchError, us
         }
     };
 
-    const handleSearchButtonClick = () => {
-        performSearch();
-    };
-
     const handleLogout = async () => {
         try {
             await logout();

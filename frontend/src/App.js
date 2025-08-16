@@ -69,7 +69,7 @@ const AppContent = () => {
             setApiStatus('checking');
 
             try {
-                const response = await healthCheck();
+                await healthCheck();
                 setApiStatus('connected');
             } catch (error) {
                 console.error('❌ Health check failed:', error);
