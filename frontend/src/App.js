@@ -38,12 +38,10 @@ const AppContent = () => {
         const fetchLibraryOptions = async () => {
             try {
                 const response = await getDefaultLibraries();
-                console.log("Response from getDefaultLibraries:", response);
                 const mappedLibraries = response.data.map((title, index) => ({
-                    id: index.toString(),  // Or a better unique id if available
+                    id: index.toString(),
                     title: title
                 }));
-                console.log('Default libraries fetched:', mappedLibraries);
                 setLibraryOptions(mappedLibraries);
             } catch (error) {
                 console.error('Error fetching default libraries:', error);
@@ -107,6 +105,7 @@ const AppContent = () => {
     };
 
     const handleSearchResults = (books, query) => {
+        console.log("Search results received:", books, "for query:", query);
         setSearchResults(books);
         setSearchQuery(query);
         setSearchError(null);

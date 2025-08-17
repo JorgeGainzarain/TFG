@@ -21,10 +21,61 @@ const SearchResults = ({
     const [filteredResults, setFilteredResults] = useState(results);
 
     // Extraer categorías únicas (géneros) de todos los libros actuales
-    const uniqueGenres = useMemo(() => {
-        const allCategories = results.flatMap(book => book.categories || []);
-        return Array.from(new Set(allCategories)).sort((a, b) => a.localeCompare(b));
-    }, [results]);
+const uniqueGenres = useMemo(() => [
+    'ANTIQUES & COLLECTIBLES',
+    'LITERARY COLLECTIONS',
+    'ARCHITECTURE',
+    'LITERARY CRITICISM',
+    'ART',
+    'MATHEMATICS',
+    'BIBLES',
+    'MEDICAL',
+    'BIOGRAPHY & AUTOBIOGRAPHY',
+    'MUSIC',
+    'BODY, MIND & SPIRIT',
+    'NATURE',
+    'BUSINESS & ECONOMICS',
+    'PERFORMING ARTS',
+    'COMICS & GRAPHIC NOVELS',
+    'PETS',
+    'COMPUTERS',
+    'PHILOSOPHY',
+    'COOKING',
+    'PHOTOGRAPHY',
+    'CRAFTS & HOBBIES',
+    'POETRY',
+    'DESIGN',
+    'POLITICAL SCIENCE',
+    'DRAMA',
+    'PSYCHOLOGY',
+    'EDUCATION',
+    'REFERENCE',
+    'FAMILY & RELATIONSHIPS',
+    'RELIGION',
+    'FICTION',
+    'SCIENCE',
+    'GAMES & ACTIVITIES',
+    'SELF-HELP',
+    'GARDENING',
+    'SOCIAL SCIENCE',
+    'HEALTH & FITNESS',
+    'SPORTS & RECREATION',
+    'HISTORY',
+    'STUDY AIDS',
+    'HOUSE & HOME',
+    'TECHNOLOGY & ENGINEERING',
+    'HUMOR',
+    'TRANSPORTATION',
+    'JUVENILE FICTION',
+    'TRAVEL',
+    'JUVENILE NONFICTION',
+    'TRUE CRIME',
+    'LANGUAGE ARTS & DISCIPLINES',
+    'YOUNG ADULT FICTION',
+    'LANGUAGE STUDY',
+    'YOUNG ADULT NONFICTION',
+    'LAW'
+], []);
 
     // Actualizar resultados filtrados cuando cambian resultados o filtros
     useEffect(() => {
@@ -88,6 +139,16 @@ const SearchResults = ({
         handleFilterChange('year', '');
         handleFilterChange('sortBy', 'relevance');
     };
+
+    // Add this before rendering results
+    if (loading) {
+        return (
+            <section className="search-results">
+                <div className="loading-spinner"></div>
+                <p>Cargando Resultados...</p>
+            </section>
+        );
+    }
 
     // Renderizado simplificado para foco en el filtro
     return (

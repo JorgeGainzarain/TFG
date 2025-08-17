@@ -53,18 +53,12 @@ const SearchPage = ({
     useEffect(() => {
         const performAutoSearch = async () => {
             if (query && query !== searchQuery && !isSearching && !isRecommendations) {
-                console.log('Auto-performing search on page load for:', query);
-
-                const { bookAPI, handleApiError } = await import('../services/api');
-                onSearchLoading && onSearchLoading(true);
-
+                onSearchLoading(true);
                 try {
                     const results = await bookAPI.searchBooks(query);
-                    console.log('Auto-search results:', results);
-                    onSearchResults(results, query); // Make sure this updates both results and query
+                    onSearchResults(results, query);
                     onSearchError(null);
                 } catch (error) {
-                    console.error('Auto-search error:', error);
                     const errorMessage = handleApiError(error);
                     onSearchError(errorMessage);
                     onSearchResults([], query);
@@ -75,18 +69,17 @@ const SearchPage = ({
                 onSearchLoading(true);
                 try {
                     const recommendations = getRecommendations();
-                    onSearchResults && onSearchResults(recommendations, '');
-                    onSearchError && onSearchError(null);
+                    onSearchResults(recommendations, '');
+                    onSearchError(null);
                 } catch (error) {
-                    console.error('Error loading recommendations:', error);
-                    onSearchError && onSearchError('Error cargando recomendaciones');
+                    onSearchError('Error loading recommendations');
                 } finally {
-                    onSearchLoading && onSearchLoading(false);
+                    onSearchLoading(false);
                 }
             }
         };
 
-        //performAutoSearch();
+        performAutoSearch();
     }, [query, isRecommendations, isSearching, onSearchError, onSearchLoading, onSearchResults, searchQuery, searchResults]);
 
     const handleClearSearch = () => {

@@ -8,6 +8,62 @@ import { StatusError } from "../../utils/status_error";
 import {ReviewRepository} from "../review/review.repository";
 import {validateObject} from "../../utils/validation";
 
+enum categories {
+    'ANTIQUES & COLLECTIBLES',
+    'LITERARY COLLECTIONS',
+    'ARCHITECTURE',
+    'LITERARY CRITICISM',
+    'ART',
+    'MATHEMATICS',
+    'BIBLES',
+    'MEDICAL',
+    'BIOGRAPHY & AUTOBIOGRAPHY',
+    'MUSIC',
+    'BODY, MIND & SPIRIT',
+    'NATURE',
+    'BUSINESS & ECONOMICS',
+    'PERFORMING ARTS',
+    'COMICS & GRAPHIC NOVELS',
+    'PETS',
+    'COMPUTERS',
+    'PHILOSOPHY',
+    'COOKING',
+    'PHOTOGRAPHY',
+    'CRAFTS & HOBBIES',
+    'POETRY',
+    'DESIGN',
+    'POLITICAL SCIENCE',
+    'DRAMA',
+    'PSYCHOLOGY',
+    'EDUCATION',
+    'REFERENCE',
+    'FAMILY & RELATIONSHIPS',
+    'RELIGION',
+    'FICTION',
+    'SCIENCE',
+    'GAMES & ACTIVITIES',
+    'SELF-HELP',
+    'GARDENING',
+    'SOCIAL SCIENCE',
+    'HEALTH & FITNESS',
+    'SPORTS & RECREATION',
+    'HISTORY',
+    'STUDY AIDS',
+    'HOUSE & HOME',
+    'TECHNOLOGY & ENGINEERING',
+    'HUMOR',
+    'TRANSPORTATION',
+    'JUVENILE FICTION',
+    'TRAVEL',
+    'JUVENILE NONFICTION',
+    'TRUE CRIME',
+    'LANGUAGE ARTS & DISCIPLINES',
+    'YOUNG ADULT FICTION',
+    'LANGUAGE STUDY',
+    'YOUNG ADULT NONFICTION',
+    'LAW'
+}
+
 @Service()
 export class BookService extends BaseService<Book> {
     protected entityConfig = config.entityValues.book;
@@ -51,7 +107,7 @@ export class BookService extends BaseService<Book> {
         return await super.create(book);
     }
 
-    public async searchBooks(searchQuery: string, orderBy: string = 'relevance', maxResults: number = 12): Promise<Book[]> {
+    public async searchBooks(searchQuery: string, orderBy: string = 'relevance', maxResults: number = 12, category = ''): Promise<Book[]> {
         if (!searchQuery || searchQuery.trim() === '') {
             throw new StatusError(400, 'Search query cannot be empty');
         }
@@ -59,11 +115,19 @@ export class BookService extends BaseService<Book> {
         if (maxResults > 40 || maxResults < 1 || isNaN(maxResults)) {
             maxResults  = 40; // Google Books API allows a maximum of 40 results per request
         }
+
+        // If category is more than 1 word, replace spaces with +
+        if (category && category.trim().length > 0) {
+            category = category.trim().replace(/\s+/g, '+');
+        } else {
+            category = '';
+        }
+
         const startIndex = 0;
         const GOOGLE_BOOKS_API_URL = 'https://www.googleapis.com/books/v1/volumes';
         const API_KEY = config.googleBooksApiKey;
 
-        let apiUrl = `${GOOGLE_BOOKS_API_URL}?q=${encodeURIComponent(searchQuery)}&maxResults=${maxResults}&startIndex=${startIndex}&orderBy=${orderBy}`;
+        let apiUrl = `${GOOGLE_BOOKS_API_URL}?q=${encodeURIComponent(searchQuery)}+subject:${category}&maxResults=${maxResults}&startIndex=${startIndex}&orderBy=${orderBy}`;
 
         console.log("API URL: " + apiUrl);
 
@@ -99,6 +163,31 @@ export class BookService extends BaseService<Book> {
                 book.reviewCount = reviews.length
                 book.rating = reviews.reduce((acc, review) => acc + (review.rating || 0), 0) / (reviews.length || 1);
             }
+            // process genres
+            // Match categories to the Categories enum
+            // If it contains a word that is not in the enum, it will be ignored
+            // If it contains a word that is in the enum, it will be assigned to that category
+            for (let book of books) {
+                if (book.categories && book.categories.length > 0) {
+                    book.categories = book.categories
+                        .map((category: string) => {
+                            const words = category.toUpperCase().split(/[\s&]+/);
+                            for (const enumKey in categories) {
+                                for (const word of words) {
+                                    if (enumKey.includes(word)) {
+                                        return enumKey;
+                                    }
+                                }
+                            }
+                            return null;
+                        })
+                        .filter((cat: string | null) => cat !== null);
+                } else {
+                    book.categories = [] as Categories[];
+                }
+            }
+
+            console.log("Number of books found: ", books.length);
 
             return books;
         } catch (error: any) {

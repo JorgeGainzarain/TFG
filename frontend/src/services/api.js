@@ -38,7 +38,7 @@ export const bookAPI = {
         if (query) params.append('q', query);
         if (orderBy) params.append('orderBy', orderBy);
         if (maxResults) params.append('maxResults', maxResults);
-        if (genre) params.append('genre', genre);
+        if (genre) params.append('category', genre);
         if (year) params.append('year', year);
 
         try {
