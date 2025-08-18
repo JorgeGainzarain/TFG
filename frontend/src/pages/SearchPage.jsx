@@ -24,9 +24,13 @@ const SearchPage = ({
         sortBy: 'relevance',
     });
 
+    const [page, setPage] = useState(0);
+
+
     const handleFilterChange = async (filterType, value) => {
         const newFilters = { ...filters, [filterType]: value };
         setFilters(newFilters);
+        setPage(0);
 
         onSearchLoading(true);
         try {
@@ -34,6 +38,7 @@ const SearchPage = ({
                 orderBy: newFilters.sortBy,
                 genre: newFilters.genre,
                 year: newFilters.year,
+                page: 0,
             });
             onSearchResults(results, query);
             onSearchError(null);
@@ -46,13 +51,34 @@ const SearchPage = ({
         }
     };
 
+    const handleLoadMore = async () => {
+        const nextPage = page + 1;
+        setPage(nextPage);
+        onSearchLoading(true);
+        try {
+            const moreResults = await bookAPI.searchBooks(query, {
+                orderBy: filters.sortBy,
+                genre: filters.genre,
+                year: filters.year,
+                page: nextPage,
+            });
+            onSearchResults([...searchResults, ...moreResults], query);
+            onSearchError(null);
+        } catch (error) {
+            const errorMessage = handleApiError(error);
+            onSearchError(errorMessage);
+        } finally {
+            onSearchLoading(false);
+        }
+    };
+
 
     const query = searchParams.get('q');
     const isRecommendations = searchParams.get('recommendations') === 'true';
 
     useEffect(() => {
         const performAutoSearch = async () => {
-            if (query && query !== searchQuery && !isSearching && !isRecommendations) {
+            if (query && query !== searchQuery && !isSearching && !isRecommendations && searchResults.length === 0) {
                 onSearchLoading(true);
                 try {
                     const results = await bookAPI.searchBooks(query);
@@ -138,6 +164,7 @@ const SearchPage = ({
             isAuthenticated={isAuthenticated}
             isRecommendations={isRecommendations}
             handleAddToLibrary={handleAddToLibrary}
+            onLoadMore={handleLoadMore}
         />
     );
 };

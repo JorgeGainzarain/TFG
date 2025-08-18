@@ -27,12 +27,20 @@ const Navbar = forwardRef((
     const location = useLocation();
 
     useEffect(() => {
-        if (location.pathname === '/search' && !searchQuery) {
+        if (location.pathname === '/search') {
             const params = new URLSearchParams(location.search);
             const urlQuery = params.get('q') || '';
-            setLocalQuery(urlQuery);
+
+            // Only update local input, don’t re-trigger search
+            if (urlQuery !== localQuery) {
+                setLocalQuery(urlQuery);
+            }
+        } else {
+            setLocalQuery('');
         }
-    });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [location.pathname, location.search]);
+
 
 
     useImperativeHandle(ref, () => ({

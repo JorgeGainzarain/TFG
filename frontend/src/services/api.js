@@ -33,13 +33,13 @@ const apiRequest = async (endpoint, options = {}) => {
 export const bookAPI = {
     // Search books - este endpoint necesita ser implementado
 // Accepts query, orderBy, maxResults, genre, year, etc.
-    searchBooks: async (query, { orderBy, maxResults, genre, year } = {}) => {
+    searchBooks: async (query, { orderBy, genre, year, page } = {}) => {
         const params = new URLSearchParams();
         if (query) params.append('q', query);
         if (orderBy) params.append('orderBy', orderBy);
-        if (maxResults) params.append('maxResults', maxResults);
         if (genre) params.append('category', genre);
         if (year) params.append('year', year);
+        if (page) params.append('page', page);
 
         try {
             const response = await apiRequest(`/book/?${params.toString()}`);

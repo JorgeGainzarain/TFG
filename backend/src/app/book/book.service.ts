@@ -107,14 +107,12 @@ export class BookService extends BaseService<Book> {
         return await super.create(book);
     }
 
-    public async searchBooks(searchQuery: string, orderBy: string = 'relevance', maxResults: number = 12, category = ''): Promise<Book[]> {
+    public async searchBooks(searchQuery: string, orderBy: string = 'relevance', page = 0, category = ''): Promise<Book[]> {
         if (!searchQuery || searchQuery.trim() === '') {
             throw new StatusError(400, 'Search query cannot be empty');
         }
 
-        if (maxResults > 40 || maxResults < 1 || isNaN(maxResults)) {
-            maxResults  = 40; // Google Books API allows a maximum of 40 results per request
-        }
+        const maxResults  = 40;
 
         // If category is more than 1 word, replace spaces with +
         if (category && category.trim().length > 0) {
@@ -123,7 +121,7 @@ export class BookService extends BaseService<Book> {
             category = '';
         }
 
-        const startIndex = 0;
+        const startIndex = page * (maxResults + 1); // +1 to account for the first page starting at index 0
         const GOOGLE_BOOKS_API_URL = 'https://www.googleapis.com/books/v1/volumes';
         const API_KEY = config.googleBooksApiKey;
 
@@ -142,7 +140,7 @@ export class BookService extends BaseService<Book> {
             }
 
             const data = await response.json();
-            const books = data.items ? data.items.map(this.formatBookData) : [];
+            let books = data.items ? data.items.map(this.formatBookData) : [];
 
             if (books.length === 0) {
                 throw new StatusError(404, 'No books found matching the search criteria');
@@ -186,6 +184,9 @@ export class BookService extends BaseService<Book> {
                     book.categories = [] as Categories[];
                 }
             }
+
+            // Filter out books that do not have a title or authors
+            books = books.filter((book: { title: any; authors: string | any[]; }) => book.title && book.authors && book.authors.length > 0);
 
             console.log("Number of books found: ", books.length);
 
