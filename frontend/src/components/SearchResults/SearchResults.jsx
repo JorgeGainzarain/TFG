@@ -135,7 +135,7 @@ const uniqueGenres = useMemo(() => [
 
     // Para limpiar filtros:
     const clearFilters = () => {
-        handleFilterChange('genre', '');
+        handleFilterChange('genre', 'Todos Los Géneros');
         handleFilterChange('year', '');
         handleFilterChange('sortBy', 'relevance');
     };
@@ -162,7 +162,6 @@ const uniqueGenres = useMemo(() => [
             {filteredResults.length === 0 ? (
                 <div>
                     <p>No se encontraron libros con los filtros actuales</p>
-                    <button onClick={clearFilters}>Limpiar filtros</button>
                 </div>
             ) : (
                 <div className="results-grid">

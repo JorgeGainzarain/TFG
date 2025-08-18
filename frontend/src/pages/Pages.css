@@ -280,4 +280,18 @@
     .book-details-reviews-wrapper .reviews-section.reviews-book-detail {
         margin-top: 1rem;
     }
+
+    .user-card:hover {
+        box-shadow: none !important;
+        cursor: default !important;
+        transform: none !important;
+        transition: none !important;
+    }
+}
+
+.user-card:hover {
+    box-shadow: none !important;
+    cursor: default !important;
+    transform: none !important;
+    transition: none !important;
 }

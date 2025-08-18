@@ -1,80 +1,91 @@
-import React, {forwardRef, useImperativeHandle, useState} from 'react';
-import {Link, useNavigate} from 'react-router-dom';
-import {bookAPI, handleApiError, getRecommendations} from '../../services/api';
-import {logout} from '../../services/authService';
+import React, { forwardRef, useImperativeHandle, useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { bookAPI, handleApiError, getRecommendations } from '../../services/api';
+import { useLocation } from 'react-router-dom';
 import './Navbar.css';
 
-const Navbar = forwardRef(({ onSearchResults, onSearchLoading, onSearchError, user, isAuthenticated, onShowAuth, searchQuery, setSearchQuery }, ref) => {
+const Navbar = forwardRef((
+    {
+        showUserMenu,
+        setShowUserMenu,
+        handleLogout,
+        onSearchResults,
+        onSearchLoading,
+        onSearchError,
+        user,
+        isAuthenticated,
+        onShowAuth,
+        searchQuery,
+        setSearchQuery
+    },
+    ref
+) => {
     const [isSearching, setIsSearching] = useState(false);
-    const [showUserMenu, setShowUserMenu] = useState(false);
+    const [localQuery, setLocalQuery] = useState(searchQuery || '');
     const navigate = useNavigate();
 
-    // Expose function to clear input
+    const location = useLocation();
+
+    useEffect(() => {
+        if (location.pathname === '/search' && !searchQuery) {
+            const params = new URLSearchParams(location.search);
+            const urlQuery = params.get('q') || '';
+            setLocalQuery(urlQuery);
+        }
+    });
+
+
     useImperativeHandle(ref, () => ({
-        clearInput: () => setSearchQuery('')
+        clearInput: () => setLocalQuery('')
     }));
+
+    const handleInputChange = (e) => {
+        setLocalQuery(e.target.value);
+    };
 
     const handleSearch = async (e) => {
         e.preventDefault();
-        performSearch();
+        console.log("Handling search with query:", localQuery);
+        setSearchQuery(localQuery);
+        await performSearch(localQuery);
     };
 
-    const performSearch = async () => {
+    const performSearch = async (query) => {
         setIsSearching(true);
         onSearchLoading && onSearchLoading(true);
 
         try {
             let results;
-            let query = searchQuery.trim();
+            let trimmedQuery = query.trim();
 
-            // If search is empty, show recommendations
-            if (!query) {
+            if (!trimmedQuery) {
                 results = getRecommendations();
-                query = '';
+                trimmedQuery = '';
                 await new Promise(resolve => setTimeout(resolve, 500));
             } else {
-                results = await bookAPI.searchBooks(query);
+                results = await bookAPI.searchBooks(trimmedQuery);
             }
 
-            onSearchResults && onSearchResults(results, query);
+            onSearchResults && onSearchResults(results, trimmedQuery);
             onSearchError && onSearchError(null);
 
-            if (query) {
-                navigate(`/search?q=${encodeURIComponent(query)}`);
+            if (trimmedQuery) {
+                navigate(`/search?q=${encodeURIComponent(trimmedQuery)}`);
             } else {
                 navigate('/search?recommendations=true');
             }
-
         } catch (error) {
             const errorMessage = handleApiError(error);
             onSearchError && onSearchError(errorMessage);
-            onSearchResults && onSearchResults([], searchQuery || '');
-            if (searchQuery.trim()) {
-                navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+            onSearchResults && onSearchResults([], query || '');
+            if (query.trim()) {
+                navigate(`/search?q=${encodeURIComponent(query)}`);
             } else {
                 navigate('/search?recommendations=true');
             }
         } finally {
             setIsSearching(false);
             onSearchLoading && onSearchLoading(false);
-        }
-    };
-
-    const handleInputKeyPress = (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            performSearch();
-        }
-    };
-
-    const handleLogout = async () => {
-        try {
-            await logout();
-            setShowUserMenu(false);
-            alert('¡Hasta luego! Has cerrado sesión exitosamente.');
-            navigate('/');
-        } catch (error) {
-            console.error('Logout error:', error);
         }
     };
 
@@ -92,13 +103,14 @@ const Navbar = forwardRef(({ onSearchResults, onSearchLoading, onSearchError, us
     };
 
     const handleClearSearch = () => {
+        setLocalQuery('');
         setSearchQuery('');
         onSearchResults && onSearchResults([], '');
         onSearchError && onSearchError(null);
         navigate('/');
     };
 
-    React.useEffect(() => {
+    useEffect(() => {
         const handleClickOutside = (event) => {
             if (showUserMenu && !event.target.closest('.user-menu-container')) {
                 setShowUserMenu(false);
@@ -121,12 +133,11 @@ const Navbar = forwardRef(({ onSearchResults, onSearchLoading, onSearchError, us
                         type="text"
                         className="search-input"
                         placeholder={isSearching ? "Buscando..." : "Busca libros o deja vacío para recomendaciones..."}
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        onKeyPress={handleInputKeyPress}
+                        value={localQuery}
+                        onChange={handleInputChange}
                         disabled={isSearching}
                     />
-                    {searchQuery && (
+                    {localQuery && (
                         <button
                             type="button"
                             className="clear-search"
@@ -140,7 +151,7 @@ const Navbar = forwardRef(({ onSearchResults, onSearchLoading, onSearchError, us
                         type="submit"
                         className="search-button"
                         disabled={isSearching}
-                        title={searchQuery.trim() ? "Buscar libros" : "Ver recomendaciones"}
+                        title={localQuery.trim() ? "Buscar libros" : "Ver recomendaciones"}
                     >
                         {isSearching ? (
                             <span className="search-loading">
@@ -152,7 +163,7 @@ const Navbar = forwardRef(({ onSearchResults, onSearchLoading, onSearchError, us
                             </span>
                         ) : (
                             <span className="search-btn-text">
-                                {searchQuery.trim() ?
+                                {localQuery.trim() ?
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                          className="bi bi-search" viewBox="0 0 16 16">
                                         <path
@@ -209,10 +220,6 @@ const Navbar = forwardRef(({ onSearchResults, onSearchLoading, onSearchError, us
                                         <Link to="/favorites" className="menu-item">
                                             <span className="menu-icon">⭐</span>
                                             Favoritos
-                                        </Link>
-                                        <Link to="/stats" className="menu-item">
-                                            <span className="menu-icon">📊</span>
-                                            Estadísticas
                                         </Link>
                                         <Link to="/settings" className="menu-item">
                                             <span className="menu-icon">⚙️</span>

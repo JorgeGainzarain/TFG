@@ -19,7 +19,7 @@ export const AIRecommendationsPage = ({ user, isAuthenticated, onShowAuth }) => 
 };
 
 // Página de Perfil
-export const ProfilePage = ({ user, isAuthenticated, onShowAuth }) => {
+export const ProfilePage = ({ user, isAuthenticated, onShowAuth, handleLogout }) => {
     if (!isAuthenticated) {
         return (
             <div className="page-container">
@@ -49,6 +49,9 @@ export const ProfilePage = ({ user, isAuthenticated, onShowAuth }) => {
                     <div className="user-details">
                         <h3>{user.username}</h3>
                         <p>{user.email}</p>
+                        <button className="btn btn-secondary" onClick={handleLogout}>
+                            🚪 Cerrar Sesión
+                        </button>
                     </div>
                 </div>
             </div>

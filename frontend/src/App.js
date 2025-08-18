@@ -11,7 +11,7 @@ import { AIRecommendationsPage, ProfilePage, NotFoundPage } from './pages/Additi
 import { useAuth } from './hooks/useAuth';
 import { healthCheck, addBookToLibrary, getRecommendations } from './services/api';
 import './App.css';
-import {initializeAuth, getDefaultLibraries} from "./services/authService";
+import {initializeAuth, getDefaultLibraries, logout} from "./services/authService";
 
 // Componente interno que tiene acceso a useLocation
 const AppContent = () => {
@@ -24,6 +24,7 @@ const AppContent = () => {
     const [showAuthOverlay, setShowAuthOverlay] = useState(false);
     const [showAuthPrompt, setShowAuthPrompt] = useState(false);
     const [libraryOptions, setLibraryOptions] = useState([]);
+    const [showUserMenu, setShowUserMenu] = useState(false);
 
     // Ref para la navbar
     const navbarRef = useRef();
@@ -104,6 +105,18 @@ const AppContent = () => {
         }
     };
 
+    const handleLogout = async () => {
+        try {
+            console.log("Logging out user:", user);
+            await logout();
+            setShowUserMenu(false);
+            alert('¡Hasta luego! Has cerrado sesión exitosamente.');
+            navigate('/');
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
+    };
+
     const handleSearchResults = (books, query) => {
         console.log("Search results received:", books, "for query:", query);
         setSearchResults(books);
@@ -171,6 +184,9 @@ const AppContent = () => {
         <div className="app">
             <Navbar
                 ref={navbarRef}
+                setShowUserMenu={setShowUserMenu}
+                showUserMenu={showUserMenu}
+                handleLogout={handleLogout}
                 onSearchResults={handleSearchResults}
                 onSearchLoading={handleSearchLoading}
                 onSearchError={handleSearchError}
@@ -264,6 +280,7 @@ const AppContent = () => {
                                 user={user}
                                 isAuthenticated={isAuthenticated}
                                 onShowAuth={handleShowAuth}
+                                handleLogout={handleLogout}
                             />
                         }
                     />
@@ -274,22 +291,13 @@ const AppContent = () => {
                         />}
                     />
                     <Route
-                        path="/stats"
-                        element={
-                            <ProfilePage
-                                user={user}
-                                isAuthenticated={isAuthenticated}
-                                onShowAuth={handleShowAuth}
-                            />
-                        }
-                    />
-                    <Route
                         path="/settings"
                         element={
                             <ProfilePage
                                 user={user}
                                 isAuthenticated={isAuthenticated}
                                 onShowAuth={handleShowAuth}
+                                handleLogout={handleLogout}
                             />
                         }
                     />
