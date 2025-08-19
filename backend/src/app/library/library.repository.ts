@@ -22,9 +22,7 @@ export class LibraryRepository extends BaseRepository<Library> {
         else {
             library.bookIds = library.bookIds.toString()
         }
-        console.log("Library", library)
         const response = await super.create(library);
-        console.log("Library response", response);
         return response;
     }
 
@@ -64,7 +62,6 @@ export class LibraryRepository extends BaseRepository<Library> {
 
     async addBook(userId: any, title: string, bookId: any) {
 
-        console.log("Control Repo 1")
 
         const library = await this.findByFields({userId: userId, title: title});
         if (!library) {

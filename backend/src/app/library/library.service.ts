@@ -27,7 +27,6 @@ export class LibraryService extends BaseService<Library> {
         if (!part_entity.userId) {
             throw new StatusError(401, 'Authentication required to create a library');
         }
-        console.log("Creating library with data:", part_entity);
         // Set the BookIds to a empty array if not provided
         if (!part_entity.bookIds) {
             part_entity.bookIds = [];
@@ -57,7 +56,7 @@ export class LibraryService extends BaseService<Library> {
 
         const books = [];
 
-        console.log("Libraries: ", libraries)
+        console.log("Libraries found: ", libraries.length)
 
         for (const library of libraries) {
             let libraryBooks = [];

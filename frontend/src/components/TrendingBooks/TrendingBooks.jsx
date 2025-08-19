@@ -1,21 +1,35 @@
 // frontend/src/components/TrendingBooks/TrendingBooks.jsx
 import React, { useRef, useState, useEffect } from 'react';
+import { getTrendingBooks } from "../../services/api";
 import BookCard from '../BookCard/BookCard';
 import './TrendingBooks.css';
 
-const TrendingBooks = () => {
+const TrendingBooks = ({
+                           handleAddToLibrary,
+                           libraryOptions = []
+                       }) => {
     const scrollContainerRef = useRef(null);
-    const [isDragging, setIsDragging] = useState(false);
-    const [startX, setStartX] = useState(0);
-    const [scrollLeft, setScrollLeft] = useState(0);
     const [showLeftButton, setShowLeftButton] = useState(false);
     const [showRightButton, setShowRightButton] = useState(true);
+    const [trendingBooks, setTrendingBooks] = useState([]);
 
-    // Datos placeholder para libros en tendencia - ahora como objetos completos
-    const placeholderBooks = [
-    ];
+    useEffect(() => {
+        const fetchTrendingBooks = async () => {
+            try {
+                const response = await getTrendingBooks();
+                if (response && response.data) {
+                    setTrendingBooks(response.data);
+                } else {
+                    console.error('Error al obtener los libros de tendencias:', response);
+                }
+            } catch (error) {
+                console.error('Error al llamar a la API de tendencias:', error);
+            }
+        };
 
-    // Función para actualizar la visibilidad de los botones
+        fetchTrendingBooks();
+    }, []);
+
     const updateButtonVisibility = () => {
         if (scrollContainerRef.current) {
             const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
@@ -24,7 +38,6 @@ const TrendingBooks = () => {
         }
     };
 
-    // Effect para monitorear el scroll y actualizar botones
     useEffect(() => {
         const container = scrollContainerRef.current;
         if (container) {
@@ -39,12 +52,6 @@ const TrendingBooks = () => {
         }
     }, []);
 
-    const handleAddToLibrary = (book) => {
-        console.log('Añadiendo a la librería:', book);
-        alert(`"${book.title}" será añadido a tu librería (funcionalidad pendiente)`);
-    };
-
-    // DRAG SCROLL FUNCTIONALITY
     const scrollLeftBtn = () => {
         if (scrollContainerRef.current) {
             scrollContainerRef.current.scrollBy({
@@ -63,67 +70,13 @@ const TrendingBooks = () => {
         }
     };
 
-    // Mouse events
-    const handleMouseDown = (e) => {
-        setIsDragging(true);
-        setStartX(e.pageX - scrollContainerRef.current.offsetLeft);
-        setScrollLeft(scrollContainerRef.current.scrollLeft);
-        scrollContainerRef.current.style.cursor = 'grabbing';
-        scrollContainerRef.current.style.userSelect = 'none';
-    };
-
-    const handleMouseUp = () => {
-        setIsDragging(false);
-        scrollContainerRef.current.style.cursor = 'grab';
-        scrollContainerRef.current.style.userSelect = 'auto';
-    };
-
-    const handleMouseMove = (e) => {
-        if (!isDragging) return;
-        e.preventDefault();
-        const x = e.pageX - scrollContainerRef.current.offsetLeft;
-        const walk = (x - startX) * 2;
-        scrollContainerRef.current.scrollLeft = scrollLeft - walk;
-    };
-
-    const handleMouseLeave = () => {
-        setIsDragging(false);
-        scrollContainerRef.current.style.cursor = 'grab';
-        scrollContainerRef.current.style.userSelect = 'auto';
-    };
-
-    // Touch events para móvil
-    const handleTouchStart = (e) => {
-        setIsDragging(true);
-        setStartX(e.touches[0].pageX - scrollContainerRef.current.offsetLeft);
-        setScrollLeft(scrollContainerRef.current.scrollLeft);
-    };
-
-    const handleTouchMove = (e) => {
-        if (!isDragging) return;
-        const x = e.touches[0].pageX - scrollContainerRef.current.offsetLeft;
-        const walk = (x - startX) * 1.5;
-        scrollContainerRef.current.scrollLeft = scrollLeft - walk;
-    };
-
-    const handleTouchEnd = () => {
-        setIsDragging(false);
-    };
-
-    const handleCardClick = (e) => {
-        if (isDragging) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-    };
-
     return (
         <section className="section trending-section">
             <div className="section-header">
                 <h2 className="section-title">📈 Tendencias</h2>
                 <div className="trending-indicators">
                     <span className="trending-badge">
-                        🔥 {placeholderBooks.length} libros populares
+                        🔥Top {trendingBooks.length} libros más populares
                     </span>
                 </div>
             </div>
@@ -140,24 +93,18 @@ const TrendingBooks = () => {
                 )}
 
                 <div
-                    className={`cards-grid-horizontal ${isDragging ? 'dragging' : ''}`}
+                    className="cards-grid-horizontal"
                     ref={scrollContainerRef}
-                    onMouseDown={handleMouseDown}
-                    onMouseUp={handleMouseUp}
-                    onMouseMove={handleMouseMove}
-                    onMouseLeave={handleMouseLeave}
-                    onTouchStart={handleTouchStart}
-                    onTouchMove={handleTouchMove}
-                    onTouchEnd={handleTouchEnd}
-                    style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
                 >
-                    {placeholderBooks.map((book) => (
-                        <div key={book.id} onClick={handleCardClick} style={{ height: '100%' }}>
+                    {trendingBooks.map((book) => (
+                        <div key={book.id}>
                             <BookCard
                                 book={book}
                                 variant="vertical"
                                 showDate={true}
-                                onAddToLibrary={handleAddToLibrary}
+                                handleAddToLibrary={handleAddToLibrary}
+                                libraryOptions={libraryOptions}
+                                hideAddButton={true}
                             />
                         </div>
                     ))}

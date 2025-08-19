@@ -4,7 +4,7 @@ import AIRecommendations from '../components/AIRecommnedations/AIRecommendations
 import TrendingBooks from '../components/TrendingBooks/TrendingBooks';
 import ReviewsSection from '../components/ReviewsSection/ReviewsSection';
 
-const HomePage = ({ user, isAuthenticated, onShowAuth }) => {
+const HomePage = ({ user, isAuthenticated, onShowAuth, handleAddToLibrary, libraryOptions }) => {
     return (
         <>
             <Hero />
@@ -14,7 +14,10 @@ const HomePage = ({ user, isAuthenticated, onShowAuth }) => {
                 onShowAuth={onShowAuth}
             />
             <div className="section-spacing"></div>
-            <TrendingBooks />
+            <TrendingBooks
+                handleAddToLibrary={handleAddToLibrary}
+                libraryOptions={libraryOptions}
+            />
         </>
     );
 };

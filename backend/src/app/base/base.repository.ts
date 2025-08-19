@@ -55,6 +55,17 @@ export abstract class BaseRepository<T extends Object> {
         return result.rows[0];
     }
 
+    async deleteByFields(fields: Partial<T>): Promise<T> {
+        const columns = Object.keys(fields).map(key => `${key} = ?`).join(' AND ');
+        const queryDoc = {
+            sql: `DELETE FROM ${this.entityConfig.table_name} WHERE ${columns}`,
+            params: Object.values(fields)
+        };
+        const result = await this.databaseService.execQuery(queryDoc);
+
+        return result.rows[0];
+    }
+
 
     async findAll(): Promise<T[]> {
         const queryDoc = {

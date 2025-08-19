@@ -44,7 +44,6 @@ export class LibraryController extends BaseController<Library> {
 
     private async getAllByUser(req: any, res: any, next: any) {
         const userId = req.user?.id;
-        console.log("User ID from request:", userId);
         try {
             const libraries = await this.libraryService.getAllByUser(userId);
             res.status(200).json(createResponse('success', 'Libraries retrieved successfully', libraries));
@@ -57,7 +56,6 @@ export class LibraryController extends BaseController<Library> {
         const title = req.params.libraryId;
 
         if(title == "default") {
-            console.log("Default library requested, creating default libraries");
             return await this.createDefaultLibraries(req, res, next);
         }
 

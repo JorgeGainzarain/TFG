@@ -11,7 +11,8 @@ const BookCard = ({
                       variant = 'vertical',
                       showDescription = false,
                       showDate = true,
-                      isInLibrary = false
+                      isInLibrary = false,
+                      hideAddButton = false
                   }) => {
     const navigate = useNavigate();
     const [showDropdown, setShowDropdown] = useState(false);
@@ -162,46 +163,48 @@ const BookCard = ({
                             </span>
                         </div>
 
-                        <div className="add-button-container">
-                            <button
-                                ref={buttonRef}
-                                className={`add-btn ${showDropdown ? 'active' : ''}`}
-                                onClick={handleAddClick}
-                            >
-                                <span className="add-icon">{isInLibrary ? '✔' : '+'}</span>
-                                {isInLibrary && currentShelf
-                                    ? `${currentShelf}`
-                                    : 'Añadir a mi librería'}
-                                <span className={`dropdown-arrow ${showDropdown ? 'rotated' : ''}`}>▼</span>
-                            </button>
+                        {!hideAddButton && (
+                            <div className="add-button-container">
+                                <button
+                                    ref={buttonRef}
+                                    className={`add-btn ${showDropdown ? 'active' : ''}`}
+                                    onClick={handleAddClick}
+                                >
+                                    <span className="add-icon">{isInLibrary ? '✔' : '+'}</span>
+                                    {isInLibrary && currentShelf
+                                        ? `${currentShelf}`
+                                        : 'Añadir a mi librería'}
+                                    <span className={`dropdown-arrow ${showDropdown ? 'rotated' : ''}`}>▼</span>
+                                </button>
 
-                            {showDropdown && (
-                                <div ref={dropdownRef} className="library-dropdown">
-                                    {libraryOptions.map((option) => (
-                                        <button
-                                            key={option.id}
-                                            className="dropdown-option"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleOptionClick(option.title);
-                                            }}
-                                        >
-                                            <span className="option-label">{option.title}</span>
-                                        </button>
-                                    ))}
-                                    {isInLibrary && (
-                                        <button
-                                            className="dropdown-option"
-                                            style={{ color: '#ef4444' }}
-                                            onClick={handleRemoveClick}
-                                        >
-                                            <span className="option-emoji">🗑️</span>
-                                            <span className="option-label">Quitar de mi librería</span>
-                                        </button>
-                                    )}
-                                </div>
-                            )}
-                        </div>
+                                {showDropdown && (
+                                    <div ref={dropdownRef} className="library-dropdown">
+                                        {libraryOptions.map((option) => (
+                                            <button
+                                                key={option.id}
+                                                className="dropdown-option"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleOptionClick(option.title);
+                                                }}
+                                            >
+                                                <span className="option-label">{option.title}</span>
+                                            </button>
+                                        ))}
+                                        {isInLibrary && (
+                                            <button
+                                                className="dropdown-option"
+                                                style={{ color: '#ef4444' }}
+                                                onClick={handleRemoveClick}
+                                            >
+                                                <span className="option-emoji">🗑️</span>
+                                                <span className="option-label">Quitar de mi librería</span>
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
@@ -266,47 +269,49 @@ const BookCard = ({
                         </span>
                     </div>
 
-                    <div className="add-button-container">
-                        <button
-                            ref={buttonRef}
-                            className={`add-btn ${showDropdown ? 'active' : ''}`}
-                            onClick={handleAddClick}
-                        >
-                            <span className="add-icon">{isInLibrary ? '✔' : '+'}</span>
-                            {isInLibrary && currentShelf
-                                ? ` ${currentShelf}`
-                                : 'Añadir a mi librería'}
-                            <span className={`dropdown-arrow ${showDropdown ? 'rotated' : ''}`}>▼</span>
-                        </button>
+                    {!hideAddButton && (
+                        <div className="add-button-container">
+                            <button
+                                ref={buttonRef}
+                                className={`add-btn ${showDropdown ? 'active' : ''}`}
+                                onClick={handleAddClick}
+                            >
+                                <span className="add-icon">{isInLibrary ? '✔' : '+'}</span>
+                                {isInLibrary && currentShelf
+                                    ? ` ${currentShelf}`
+                                    : 'Añadir a mi librería'}
+                                <span className={`dropdown-arrow ${showDropdown ? 'rotated' : ''}`}>▼</span>
+                            </button>
 
-                        {showDropdown && (
-                            <div ref={dropdownRef} className="library-dropdown">
-                                {libraryOptions.map((option) => (
-                                    <button
-                                        key={option.id}
-                                        className="dropdown-option"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleOptionClick(option.title);
-                                        }}
-                                    >
-                                        <span className="option-emoji">{option.emoji}</span>
-                                        <span className="option-label">{option.title}</span>
-                                    </button>
-                                ))}
-                                {isInLibrary && (
-                                    <button
-                                        className="dropdown-option"
-                                        style={{ color: '#ef4444' }}
-                                        onClick={handleRemoveClick}
-                                    >
-                                        <span className="option-emoji">🗑️</span>
-                                        <span className="option-label">Quitar de mi librería</span>
-                                    </button>
-                                )}
-                            </div>
-                        )}
-                    </div>
+                            {showDropdown && (
+                                <div ref={dropdownRef} className="library-dropdown">
+                                    {libraryOptions.map((option) => (
+                                        <button
+                                            key={option.id}
+                                            className="dropdown-option"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleOptionClick(option.title);
+                                            }}
+                                        >
+                                            <span className="option-emoji">{option.emoji}</span>
+                                            <span className="option-label">{option.title}</span>
+                                        </button>
+                                    ))}
+                                    {isInLibrary && (
+                                        <button
+                                            className="dropdown-option"
+                                            style={{ color: '#ef4444' }}
+                                            onClick={handleRemoveClick}
+                                        >
+                                            <span className="option-emoji">🗑️</span>
+                                            <span className="option-label">Quitar de mi librería</span>
+                                        </button>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

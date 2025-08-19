@@ -22,7 +22,7 @@ export const development = {
     },
 
     security: {
-      bcryptRounds: 10, // Menos rounds en desarrollo para velocidad
+      bcryptRounds: 12, // Menos rounds en desarrollo para velocidad
       cookieMaxAge: 86400000
     },
 

@@ -43,7 +43,7 @@ export class UserService extends BaseService<User> {
         const user = validateObject(part_user, this.entityConfig.requiredFields);
         console.log('User to register:', user);
 
-        const saltRounds = config.security?.bcryptRounds || 10;
+        const saltRounds = config.security?.bcryptRounds;
         user.password = await bcrypt.hash(user.password, saltRounds);
         const createdUser = await this.userRepository.create(user);
         const { password, ...userWithoutPassword } = createdUser;
@@ -81,12 +81,18 @@ export class UserService extends BaseService<User> {
             throw new StatusError(400, 'Email and password are required');
         }
 
+        console.log('Logging in user:', user);
+
         const foundUser = await this.userRepository.findByFields({ email: user.email });
         if (!foundUser) {
             throw new StatusError(401, 'Invalid email or password');
         }
 
+        console.log("Found user for login:", foundUser);
+        console.log("User password for login:", user.password);
+        console.log("Found user password for login:", foundUser.password);
         const isValidPassword = await bcrypt.compare(user.password, foundUser.password);
+
         if (!isValidPassword) {
             throw new StatusError(401, 'Invalid email or password');
         }

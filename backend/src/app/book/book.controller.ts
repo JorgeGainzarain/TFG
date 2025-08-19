@@ -18,8 +18,23 @@ export class BookController extends BaseController<Book> {
     ) {
         super(bookService);
 
+        this.getRouter().get('/trending', this.getTrending.bind(this));
         this.getRouter().get('/:id', this.getById.bind(this));
         this.getRouter().get('/', this.search.bind(this));
+    }
+
+    async getTrending(req: any, res: any, next: any): Promise<void> {
+        console.log("Fetching trending book...");
+        try {
+            const books = await this.bookService.getTrendingBooks();
+            res.status(200).json({
+                status: 'success',
+                message: 'Trending books retrieved successfully',
+                data: books
+            });
+        } catch (error: any) {
+            next(error);
+        }
     }
 
     async search(req: any, res: any, next: any): Promise<void> {

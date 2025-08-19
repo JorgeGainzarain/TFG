@@ -211,4 +211,35 @@ export class BookService extends BaseService<Book> {
         } as Book;
     }
 
+    async getTrendingBooks() {
+        // Search among all the books in the database and return the top 10 books doing a average between the rating and the number of reviews
+        const maxResults = 10;
+
+        console.log("Fetching trending books from the database...");
+
+        const books = await this.bookRepository.findAll();
+        if (!books || books.length === 0) {
+            return [];
+        }
+        console.log(`Found ${books.length} books in the database.`);
+        // Calculate the average rating and number of reviews for each book
+        const booksWithRatings = await Promise.all(books.map(async (book) => {
+            const reviews = await this.reviewRepository.getByBookId(book.bookId);
+            const rating = reviews.reduce((acc, review) => acc + (review.rating || 0), 0) / (reviews.length || 1);
+            return {
+                ...book,
+                rating: rating,
+                reviewCount: reviews.length
+            };
+        }));
+        // Sort the books by rating and number of reviews
+        const sortedBooks = booksWithRatings.sort((a, b) => {
+            const aScore = (a.rating || 0) * 100 + (a.reviewCount || 0);
+            const bScore = (b.rating || 0) * 100 + (b.reviewCount || 0);
+            return bScore - aScore; // Sort in descending order, rating prioritized
+        });
+
+        // Return the top 10 books
+        return sortedBooks.slice(0, maxResults);
+    }
 }

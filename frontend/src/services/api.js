@@ -160,6 +160,18 @@ export const isLiked = async (userId, reviewId) => {
     }
 }
 
+export const getTrendingBooks = async () => {
+    try {
+        const response = await apiRequest('/book/trending', {
+            method: 'GET',
+        });
+
+        return response;
+    } catch (error) {
+        console.error('Error fetching trending books:', error);
+    }
+}
+
 export const updateReview = async (userId, review) => {
     console.log("Review in updateReview:", review);
     try {

@@ -298,7 +298,7 @@ export const login = async (credentials) => {
         }
 
         const loginData = {
-            email: credentials.email.trim().toLowerCase(),
+            email: credentials.email.trim(),
             password: credentials.password
         };
 
