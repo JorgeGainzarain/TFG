@@ -87,8 +87,7 @@ export class BookService extends BaseService<Book> {
             }
             else {
                 // Retrieve the book from the database if it exists to see the rating and number of reviews, otherwise set it to 0
-                const reviews = await this.reviewRepository.getByBookId(book.bookId)
-                console.log(reviews);
+                const reviews = await this.reviewRepository.getByBookId(book.bookId);
                 (book as any).reviewCount = reviews.length;
                 (book as any).rating = reviews.reduce((acc, review) => acc + (review.rating || 0), 0) / (reviews.length || 1);
                 return book;
@@ -98,12 +97,10 @@ export class BookService extends BaseService<Book> {
 
     async create(part_entity: Partial<Book>): Promise<Book> {
         let book = validateObject(part_entity, this.entityConfig.requiredFields);
-        console.log("Book: ", book);
         const bookExists = await this.bookRepository.exists({ bookId: book.bookId });
         if (bookExists) {
             throw new StatusError(409, `Book with ID "${book.bookId}" already exists.`);
         }
-        console.log("Book: ", book.toString());
         return await super.create(book);
     }
 
@@ -188,7 +185,6 @@ export class BookService extends BaseService<Book> {
             // Filter out books that do not have a title or authors
             books = books.filter((book: { title: any; authors: string | any[]; }) => book.title && book.authors && book.authors.length > 0);
 
-            console.log("Number of books found: ", books.length);
 
             return books;
         } catch (error: any) {
@@ -215,13 +211,10 @@ export class BookService extends BaseService<Book> {
         // Search among all the books in the database and return the top 10 books doing a average between the rating and the number of reviews
         const maxResults = 10;
 
-        console.log("Fetching trending books from the database...");
-
         const books = await this.bookRepository.findAll();
         if (!books || books.length === 0) {
             return [];
         }
-        console.log(`Found ${books.length} books in the database.`);
         // Calculate the average rating and number of reviews for each book
         const booksWithRatings = await Promise.all(books.map(async (book) => {
             const reviews = await this.reviewRepository.getByBookId(book.bookId);

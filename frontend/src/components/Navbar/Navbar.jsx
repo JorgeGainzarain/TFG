@@ -225,10 +225,6 @@ const Navbar = forwardRef((
                                             <span className="menu-icon">📚</span>
                                             Mi Librería
                                         </Link>
-                                        <Link to="/favorites" className="menu-item">
-                                            <span className="menu-icon">⭐</span>
-                                            Favoritos
-                                        </Link>
                                         <Link to="/settings" className="menu-item">
                                             <span className="menu-icon">⚙️</span>
                                             Configuración

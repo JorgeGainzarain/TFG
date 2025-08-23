@@ -24,7 +24,6 @@ export class BookController extends BaseController<Book> {
     }
 
     async getTrending(req: any, res: any, next: any): Promise<void> {
-        console.log("Fetching trending book...");
         try {
             const books = await this.bookService.getTrendingBooks();
             res.status(200).json({

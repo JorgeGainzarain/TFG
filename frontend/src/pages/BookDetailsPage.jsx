@@ -5,7 +5,7 @@ import BookDetails from '../components/BookDetails/BookDetails';
 import './Pages.css';
 import ReviewsSection from "../components/ReviewsSection/ReviewsSection";
 
-const BookDetailsPage = ({ user, isAuthenticated, onShowAuth }) => {
+const BookDetailsPage = ({ user, isAuthenticated, onShowAuth, handleAddToLibrary, libraryOptions }) => {
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -49,6 +49,8 @@ const BookDetailsPage = ({ user, isAuthenticated, onShowAuth }) => {
                 isAuthenticated={isAuthenticated}
                 onShowAuth={onShowAuth}
                 onGoBack={handleGoBack}
+                handleAddToLibrary={handleAddToLibrary}
+                libraryOptions={libraryOptions}
             />
             <ReviewsSection
                 book={book}

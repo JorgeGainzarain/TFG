@@ -8,11 +8,7 @@ export const getUserLibraries = async () => {
     try {
         const response = await makeAuthenticatedRequest('/library/');
 
-        console.log("Fetching user libraries from:", `${API_BASE_URL}/library/`);
-        console.log("Response: ", response);
-
         const data = (await response.json()).data;
-        console.log("Data: ", data);
         return data;
     } catch (error) {
         console.error('Error fetching user libraries:', error);
@@ -65,7 +61,6 @@ export const addBookToLibrary = async (bookId, bookData) => {
 };
 
 export const removeBookFromLibrary = async (book) => {
-    console.log("Removing book with ID:", book);
     try {
         const response = await makeAuthenticatedRequest(`/library/${book.bookId}`, {
             method: 'DELETE'

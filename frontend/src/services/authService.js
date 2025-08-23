@@ -260,8 +260,6 @@ export const register = async (userData) => {
             setTokens(result.data.accessToken, result.data.refreshToken);
             setUser(result.data.user);
 
-            console.log("User:", result.data.user);
-
             // Crear biblioteca por defecto
             try {
                 await createDefaultLibraries();
@@ -439,14 +437,12 @@ export const getAuthState = () => {
 // Función helper para crear biblioteca por defecto
 const createDefaultLibraries = async () => {
     try {
-        console.log("Creando biblioteca por defecto...");
 
         const response = await makeAuthenticatedRequest('/library/', {
             method: 'POST',
         });
 
         const result = await response.json();
-        console.log('Biblioteca por defecto creada:', result);
         return result;
     } catch (error) {
         console.error('Error creando biblioteca por defecto:', error);

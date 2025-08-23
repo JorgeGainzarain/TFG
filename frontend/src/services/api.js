@@ -79,7 +79,6 @@ export const handleApiError = (error) => {
 export const getReviewsFromBook = async (book) => {
     try {
         const response = await makeAuthenticatedRequest(`/review/${book.bookId}`);
-        console.log("Response from getReviewsFromBook:", response);
         return response.json();
     } catch (error) {
         console.error('Error fetching reviews:', error);
@@ -95,13 +94,11 @@ export const addReviewToBook = async (book, review) => {
         review.likedBy = '';
     }
     review.book = book;
-    console.log("Adding review to book:", book.bookId, review);
     try {
         const response = await makeAuthenticatedRequest(`/review/${book.bookId}`, {
             method: 'POST',
             body: JSON.stringify(review),
         });
-        console.log("Response from addReviewToBook:", response);
         return response;
     } catch (error) {
         console.error('Error adding review:', error);
@@ -111,7 +108,6 @@ export const addReviewToBook = async (book, review) => {
 
 export const addBookToLibrary = async (userId, book, libraryId) => {
     try {
-        console.log('Adding book with ID:', book.bookId, 'to library with ID:', libraryId);
         return await makeAuthenticatedRequest(`/library/${libraryId}`, {
             method: 'POST',
             body: JSON.stringify(book),
@@ -133,7 +129,6 @@ export const updateBook = async (book) => {
 }
 
 export const likeReview = async (userId, reviewId) => {
-    console.log("Liking review:", reviewId);
     try {
         const response = await makeAuthenticatedRequest(`/like`, {
             method: 'POST',
@@ -146,7 +141,6 @@ export const likeReview = async (userId, reviewId) => {
 }
 
 export const isLiked = async (userId, reviewId) => {
-    console.log("Checking if review is liked:", reviewId);
     try {
         const response = await makeAuthenticatedRequest(`/like/${reviewId}`, {
             method: 'GET',
@@ -173,7 +167,6 @@ export const getTrendingBooks = async () => {
 }
 
 export const updateReview = async (userId, review) => {
-    console.log("Review in updateReview:", review);
     try {
         return await makeAuthenticatedRequest(`/review/${review.id}`, {
             method: 'PUT',

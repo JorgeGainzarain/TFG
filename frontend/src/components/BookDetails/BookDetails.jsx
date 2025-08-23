@@ -1,47 +1,33 @@
 // frontend/src/components/BookDetails/BookDetails.jsx
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import './BookDetails.css';
 
-const BookDetails = ({ book, user, isAuthenticated, onShowAuth, onGoBack }) => {
-    const [addingToLibrary, setAddingToLibrary] = useState(false);
+const BookDetails = ({
+                         book,
+                         user,
+                         isAuthenticated,
+                         onShowAuth,
+                         onGoBack,
+                         libraryOptions = [],
+                         handleAddToLibrary,
+                         handleRemoveFromLibrary,
+                         isInLibrary = false
+                     }) => {
     const [imageError, setImageError] = useState(false);
+    const [showDropdown, setShowDropdown] = useState(false);
+    const buttonRef = useRef(null);
+    const dropdownRef = useRef(null);
 
-    // Datos de ejemplo si no se pasa libro (para testing)
-    const defaultBook = {
-        id: "example-book-1",
-        title: "El Nombre del Viento",
-        author: "Patrick Rothfuss",
-        categories: ["Fantasía", "Aventura", "Épico"],
-        rating: 4.8,
-        reviewCount: 28470,
-        coverEmoji: "🌪️",
-        publishedDate: "2007-03-27",
-        pageCount: 662,
-        language: "es",
-        imageLinks: {
-            thumbnail: "https://example.com/thumbnail.jpg",
-            smallThumbnail: "https://example.com/small-thumbnail.jpg"
-        },
-        description: "En una posada en tierra de nadie, un hombre se dispone a relatar, por primera vez, la auténtica historia de su vida. Una historia que únicamente él conoce y que ha dado lugar a su leyenda. Arrebatador, íntimo y atemporal, El Nombre del Viento es una novela de aventuras, de magia y de misterio. Una historia épica narrada de forma magistral que nos recuerda por qué amamos las historias. En una posada en tierra de nadie, un hombre se dispone a relatar, por primera vez, la auténtica historia de su vida. Una historia que únicamente él conoce y que ha dado lugar a su leyenda. Arrebatador, íntimo y atemporal, El Nombre del Viento es una novela de aventuras, de magia y de misterio. Una historia épica narrada de forma magistral que nos recuerda por qué amamos las historias.",
-        previewLink: "https://books.google.com/preview",
-        infoLink: "https://books.google.com/info"
-    };
-
-    // Usar el libro pasado como prop o el por defecto
     const currentBook = book || defaultBook;
 
-    // Better cover image handling
-    const getCoverImage = (book) => {
-        return book.thumbnail;
-    };
+    const getCoverImage = (book) => book.thumbnail;
 
     const coverImageUrl = getCoverImage(currentBook);
 
     const renderStars = (rating) => {
         const stars = [];
         const numericRating = Math.round(rating || 0);
-
         for (let i = 1; i <= 5; i++) {
             stars.push(
                 <span key={i} className="star">
@@ -52,28 +38,51 @@ const BookDetails = ({ book, user, isAuthenticated, onShowAuth, onGoBack }) => {
         return stars;
     };
 
-    const handleAddToLibrary = async () => {
+    const handleAddClick = (e) => {
+        e.stopPropagation();
+        setShowDropdown(!showDropdown);
+    };
+
+    const handleOptionClick = (option) => {
         if (!isAuthenticated) {
             if (onShowAuth) {
                 onShowAuth();
             } else {
                 alert('Debes iniciar sesión para añadir libros a tu librería');
             }
+            setShowDropdown(false);
             return;
         }
-
-        setAddingToLibrary(true);
-        try {
-            console.log('Añadiendo a la librería:', currentBook);
-            // Añadir aqui la lógica para añadir el libro a la librería del usuario
-            alert(`"${currentBook.title}" añadido a tu librería!`);
-        } catch (err) {
-            console.error('Error adding to library:', err);
-            alert('Error al añadir el libro a la librería');
-        } finally {
-            setAddingToLibrary(false);
+        if (handleAddToLibrary) {
+            handleAddToLibrary(currentBook, option);
         }
+        setShowDropdown(false);
     };
+
+    const handleRemoveClick = (e) => {
+        e.stopPropagation();
+        if (handleRemoveFromLibrary) {
+            handleRemoveFromLibrary(currentBook);
+        }
+        setShowDropdown(false);
+    };
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (
+                dropdownRef.current &&
+                !dropdownRef.current.contains(event.target) &&
+                buttonRef.current &&
+                !buttonRef.current.contains(event.target)
+            ) {
+                setShowDropdown(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
 
     const handleGoBack = () => {
         if (onGoBack) {
@@ -106,26 +115,17 @@ const BookDetails = ({ book, user, isAuthenticated, onShowAuth, onGoBack }) => {
 
     const cleanDescription = (description) => {
         if (!description) return 'Descripción no disponible';
-        const cleaned = description.replace(/<[^>]*>/g, '');
-        return cleaned;
+        return description.replace(/<[^>]*>/g, '');
     };
 
     return (
         <div className="book-details">
-
-            {/* Contenedor principal con diseño de libro */}
             <div className="book-details-container glass">
-
-                {/* Sección 1: Título y Autor - Ancho completo */}
                 <div className="book-title-header">
                     <h1 className="book-title">{currentBook.title}</h1>
-                    <p className="book-author">por {currentBook.authors.join(',').toString()}</p>
+                    <p className="book-author">por {Array.isArray(currentBook.authors) ? currentBook.authors.join(', ') : currentBook.authors}</p>
                 </div>
-
-                {/* Sección 2: Portada + Información */}
                 <div className="book-main-section">
-
-                    {/* Portada del libro */}
                     <div className="book-cover-section">
                         <div className="book-cover-large">
                             {coverImageUrl && !imageError ? (
@@ -141,11 +141,7 @@ const BookDetails = ({ book, user, isAuthenticated, onShowAuth, onGoBack }) => {
                             )}
                         </div>
                     </div>
-
-                    {/* Información del libro */}
                     <div className="book-info-section">
-
-                        {/* Géneros */}
                         {currentBook.categories && currentBook.categories.length > 0 && (
                             <div className="book-genres">
                                 {currentBook.categories.map((genre, index) => (
@@ -155,8 +151,6 @@ const BookDetails = ({ book, user, isAuthenticated, onShowAuth, onGoBack }) => {
                                 ))}
                             </div>
                         )}
-
-                        {/* Metadatos */}
                         <div className="book-metadata">
                             <div className="metadata-grid">
                                 <div className="metadata-item">
@@ -182,11 +176,7 @@ const BookDetails = ({ book, user, isAuthenticated, onShowAuth, onGoBack }) => {
                                 </div>
                             </div>
                         </div>
-
-                        {/* Rating y Botones */}
                         <div className="book-actions-row">
-
-                            {/* Rating */}
                             <div className="rating-container">
                                 <div className="stars-container">
                                     {renderStars(currentBook.rating)}
@@ -198,16 +188,47 @@ const BookDetails = ({ book, user, isAuthenticated, onShowAuth, onGoBack }) => {
                                     {currentBook.reviewCount ? `${currentBook.reviewCount.toLocaleString()} reseñas` : 'Sin reseñas'}
                                 </p>
                             </div>
-
-                            {/* Botones de acción */}
                             <div className="action-buttons">
-                                <button
-                                    className="add-to-library-btn"
-                                    onClick={handleAddToLibrary}
-                                >
-                                    📚 Add Library
-                                </button>
-
+                                <div className="add-button-container">
+                                    <button
+                                        ref={buttonRef}
+                                        className={`add-btn ${showDropdown ? 'active' : ''}`}
+                                        onClick={handleAddClick}
+                                    >
+                                        <span className="add-icon">{isInLibrary ? '✔' : '+'}</span>
+                                        {isInLibrary && currentBook.status
+                                            ? `${currentBook.status}`
+                                            : 'Añadir a mi librería'}
+                                        <span className={`dropdown-arrow ${showDropdown ? 'rotated' : ''}`}>▼</span>
+                                    </button>
+                                    {showDropdown && (
+                                        <div ref={dropdownRef} className="library-dropdown">
+                                            {libraryOptions.map((option) => (
+                                                <button
+                                                    key={option.id}
+                                                    className="dropdown-option"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleOptionClick(option.title);
+                                                    }}
+                                                >
+                                                    <span className="option-emoji">{option.emoji}</span>
+                                                    <span className="option-label">{option.title}</span>
+                                                </button>
+                                            ))}
+                                            {isInLibrary && (
+                                                <button
+                                                    className="dropdown-option"
+                                                    style={{ color: '#ef4444' }}
+                                                    onClick={handleRemoveClick}
+                                                >
+                                                    <span className="option-emoji">🗑️</span>
+                                                    <span className="option-label">Quitar de mi librería</span>
+                                                </button>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
                                 {currentBook.previewLink && (
                                     <a
                                         href={currentBook.previewLink}
@@ -222,8 +243,6 @@ const BookDetails = ({ book, user, isAuthenticated, onShowAuth, onGoBack }) => {
                         </div>
                     </div>
                 </div>
-
-                {/* Sección 3: Descripción - Ancho completo */}
                 <div className="book-description-section">
                     <div className="book-description">
                         {cleanDescription(currentBook.description)}

@@ -429,8 +429,12 @@ body {
 }
 
 .btn-primary {
+  align-content: center;
+  align-items: center;
+  justify-content: center;
   background: var(--primary-gradient);
   color: white;
+  width: 70%;
 }
 
 .btn-ghost {

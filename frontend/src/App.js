@@ -254,6 +254,8 @@ const AppContent = () => {
                                 user={user}
                                 isAuthenticated={isAuthenticated}
                                 onShowAuth={handleShowAuth}
+                                handleAddToLibrary={handleAddToLibrary}
+                                libraryOptions={libraryOptions}
                             />
                         }
                     />

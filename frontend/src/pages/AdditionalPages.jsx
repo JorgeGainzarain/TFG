@@ -49,7 +49,7 @@ export const ProfilePage = ({ user, isAuthenticated, onShowAuth, handleLogout })
                     <div className="user-details">
                         <h3>{user.username}</h3>
                         <p>{user.email}</p>
-                        <button className="btn btn-secondary" onClick={handleLogout}>
+                        <button className="btn btn-primary" onClick={handleLogout}>
                             🚪 Cerrar Sesión
                         </button>
                     </div>
