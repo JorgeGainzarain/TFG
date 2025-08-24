@@ -1,76 +1,117 @@
+// Faker/Faker.js
 import { faker } from '@faker-js/faker';
 import fs from 'fs';
 import fetch from 'node-fetch';
 import bcrypt from "bcrypt";
-import cliProgress from 'cli-progress'; // Progress bar
+import cliProgress from 'cli-progress';
 
 const NUM_USERS = 100;
-const NUM_REVIEWS = 1000;
+const NUM_REVIEWS = 500;
 
-// List of books to fetch
 const BOOK_LIST = [
-    { title: "Don Quijote de la Mancha", author: "Miguel de Cervantes" },
-    { title: "Historia de dos ciudades", author: "Charles Dickens" },
-    { title: "El Señor de los Anillos", author: "J. R. R. Tolkien" },
-    { title: "El Principito", author: "Antoine de Saint-Exupéry" },
-    { title: "Harry Potter y la piedra filosofal", author: "J. K. Rowling" },
-    { title: "Harry Potter y la cámara secreta", author: "J. K. Rowling" },
-    { title: "Harry Potter y el prisionero de Azkaban", author: "J. K. Rowling" },
-    { title: "Harry Potter y el cáliz de fuego", author: "J. K. Rowling" },
-    { title: "Harry Potter y la Orden del Fénix", author: "J. K. Rowling" },
-    { title: "Harry Potter y el misterio del príncipe", author: "J. K. Rowling" },
-    { title: "Harry Potter y las Reliquias de la Muerte", author: "J. K. Rowling" },
-    { title: "El Hobbit", author: "J. R. R. Tolkien" },
-    { title: "Alicia en el País de las Maravillas", author: "Lewis Carroll" },
-    { title: "Las aventuras de Sherlock Holmes", author: "Arthur Conan Doyle" },
-    { title: "Orgullo y prejuicio", author: "Jane Austen" },
     { title: "Cien años de soledad", author: "Gabriel García Márquez" },
-    { title: "Crimen y castigo", author: "Fiódor Dostoievski" },
-    { title: "Anna Karenina", author: "León Tolstói" },
-    { title: "Guerra y paz", author: "León Tolstói" },
-    { title: "Los miserables", author: "Victor Hugo" },
-    { title: "El conde de Montecristo", author: "Alexandre Dumas" },
-    { title: "Los tres mosqueteros", author: "Alexandre Dumas" },
-    { title: "La Odisea", author: "Homero" },
-    { title: "La Ilíada", author: "Homero" },
-    { title: "Hamlet", author: "William Shakespeare" },
-    { title: "Romeo y Julieta", author: "William Shakespeare" },
-    { title: "Macbeth", author: "William Shakespeare" },
-    { title: "El viejo y el mar", author: "Ernest Hemingway" },
-    { title: "Por quién doblan las campanas", author: "Ernest Hemingway" },
-    { title: "El guardián entre el centeno", author: "J. D. Salinger" },
-    { title: "Fahrenheit 451", author: "Ray Bradbury" },
-    { title: "1984", author: "George Orwell" },
-    { title: "Rebelión en la granja", author: "George Orwell" },
-    { title: "El código Da Vinci", author: "Dan Brown" },
-    { title: "Ángeles y demonios", author: "Dan Brown" },
-    { title: "Inferno", author: "Dan Brown" },
-    { title: "Los juegos del hambre", author: "Suzanne Collins" },
-    { title: "En llamas", author: "Suzanne Collins" },
-    { title: "Sinsajo", author: "Suzanne Collins" },
-    { title: "Crepúsculo", author: "Stephenie Meyer" },
-    { title: "Luna nueva", author: "Stephenie Meyer" },
-    { title: "Eclipse", author: "Stephenie Meyer" },
-    { title: "Amanecer", author: "Stephenie Meyer" },
-    { title: "Cincuenta sombras de Grey", author: "E. L. James" },
-    { title: "Cincuenta sombras más oscuras", author: "E. L. James" },
-    { title: "Cincuenta sombras liberadas", author: "E. L. James" },
-    { title: "It", author: "Stephen King" },
-    { title: "El resplandor", author: "Stephen King" },
-    { title: "Carrie", author: "Stephen King" },
-    { title: "El nombre de la rosa", author: "Umberto Eco" }
+    { title: "Don Quijote de la Mancha", author: "Miguel de Cervantes" },
+    { title: "La sombra del viento", author: "Carlos Ruiz Zafón" },
+    { title: "Rayuela", author: "Julio Cortázar" },
+    { title: "El amor en los tiempos del cólera", author: "Gabriel García Márquez" },
+    { title: "Pedro Páramo", author: "Juan Rulfo" },
+    { title: "Ficciones", author: "Jorge Luis Borges" },
+    { title: "El túnel", author: "Ernesto Sabato" },
+    { title: "La casa de los espíritus", author: "Isabel Allende" },
+    { title: "Crónica de una muerte anunciada", author: "Gabriel García Márquez" },
+    { title: "Como agua para chocolate", author: "Laura Esquivel" },
+    { title: "El Aleph", author: "Jorge Luis Borges" },
+    { title: "Sobre héroes y tumbas", author: "Ernesto Sabato" },
+    { title: "Los detectives salvajes", author: "Roberto Bolaño" },
+    { title: "La ciudad y los perros", author: "Mario Vargas Llosa" },
+    { title: "Pantaleón y las visitadoras", author: "Mario Vargas Llosa" },
+    { title: "Travesuras de la niña mala", author: "Mario Vargas Llosa" },
+    { title: "El coronel no tiene quien le escriba", author: "Gabriel García Márquez" },
+    { title: "Aura", author: "Carlos Fuentes" },
+    { title: "Terra Nostra", author: "Carlos Fuentes" }
 ];
 const API_KEY = 'AIzaSyD5WzdHI77Y8WLT4vBteP4W3VjtRafBt8Q';
 
+const uniqueGenres = [
+    'ANTIQUES & COLLECTIBLES', 'LITERARY COLLECTIONS', 'ARCHITECTURE', 'LITERARY CRITICISM', 'ART', 'MATHEMATICS',
+    'BIBLES', 'MEDICAL', 'BIOGRAPHY & AUTOBIOGRAPHY', 'MUSIC', 'BODY, MIND & SPIRIT', 'NATURE', 'BUSINESS & ECONOMICS',
+    'PERFORMING ARTS', 'COMICS & GRAPHIC NOVELS', 'PETS', 'COMPUTERS', 'PHILOSOPHY', 'COOKING', 'PHOTOGRAPHY',
+    'CRAFTS & HOBBIES', 'POETRY', 'DESIGN', 'POLITICAL SCIENCE', 'DRAMA', 'PSYCHOLOGY', 'EDUCATION', 'REFERENCE',
+    'FAMILY & RELATIONSHIPS', 'RELIGION', 'FICTION', 'SCIENCE', 'GAMES & ACTIVITIES', 'SELF-HELP', 'GARDENING',
+    'SOCIAL SCIENCE', 'HEALTH & FITNESS', 'SPORTS & RECREATION', 'HISTORY', 'STUDY AIDS', 'HOUSE & HOME',
+    'TECHNOLOGY & ENGINEERING', 'HUMOR', 'TRANSPORTATION', 'JUVENILE FICTION', 'TRAVEL', 'JUVENILE NONFICTION',
+    'TRUE CRIME', 'LANGUAGE ARTS & DISCIPLINES', 'YOUNG ADULT FICTION', 'LANGUAGE STUDY', 'YOUNG ADULT NONFICTION', 'LAW'
+];
+
+const genreTranslations = {
+    'ANTIQUES & COLLECTIBLES': 'Antigüedades y Coleccionables',
+    'LITERARY COLLECTIONS': 'Colecciones Literarias',
+    'ARCHITECTURE': 'Arquitectura',
+    'LITERARY CRITICISM': 'Crítica Literaria',
+    'ART': 'Arte',
+    'MATHEMATICS': 'Matemáticas',
+    'BIBLES': 'Biblias',
+    'MEDICAL': 'Medicina',
+    'BIOGRAPHY & AUTOBIOGRAPHY': 'Biografía y Autobiografía',
+    'MUSIC': 'Música',
+    'BODY, MIND & SPIRIT': 'Cuerpo, Mente y Espíritu',
+    'NATURE': 'Naturaleza',
+    'BUSINESS & ECONOMICS': 'Negocios y Economía',
+    'PERFORMING ARTS': 'Artes Escénicas',
+    'COMICS & GRAPHIC NOVELS': 'Cómics y Novelas Gráficas',
+    'PETS': 'Mascotas',
+    'COMPUTERS': 'Informática',
+    'PHILOSOPHY': 'Filosofía',
+    'COOKING': 'Cocina',
+    'PHOTOGRAPHY': 'Fotografía',
+    'CRAFTS & HOBBIES': 'Manualidades y Pasatiempos',
+    'POETRY': 'Poesía',
+    'DESIGN': 'Diseño',
+    'POLITICAL SCIENCE': 'Ciencias Políticas',
+    'DRAMA': 'Drama',
+    'PSYCHOLOGY': 'Psicología',
+    'EDUCATION': 'Educación',
+    'REFERENCE': 'Referencia',
+    'FAMILY & RELATIONSHIPS': 'Familia y Relaciones',
+    'RELIGION': 'Religión',
+    'FICTION': 'Ficción',
+    'SCIENCE': 'Ciencia',
+    'GAMES & ACTIVITIES': 'Juegos y Actividades',
+    'SELF-HELP': 'Autoayuda',
+    'GARDENING': 'Jardinería',
+    'SOCIAL SCIENCE': 'Ciencias Sociales',
+    'HEALTH & FITNESS': 'Salud y Bienestar',
+    'SPORTS & RECREATION': 'Deportes y Recreación',
+    'HISTORY': 'Historia',
+    'STUDY AIDS': 'Material de Estudio',
+    'HOUSE & HOME': 'Hogar',
+    'TECHNOLOGY & ENGINEERING': 'Tecnología e Ingeniería',
+    'HUMOR': 'Humor',
+    'TRANSPORTATION': 'Transporte',
+    'JUVENILE FICTION': 'Ficción Juvenil',
+    'TRAVEL': 'Viajes',
+    'JUVENILE NONFICTION': 'No Ficción Juvenil',
+    'TRUE CRIME': 'Crimen Real',
+    'LANGUAGE ARTS & DISCIPLINES': 'Artes y Disciplinas del Lenguaje',
+    'YOUNG ADULT FICTION': 'Ficción para Jóvenes Adultos',
+    'LANGUAGE STUDY': 'Estudio de Idiomas',
+    'YOUNG ADULT NONFICTION': 'No Ficción para Jóvenes Adultos',
+    'LAW': 'Derecho'
+};
+
 const hashedPassword = await bcrypt.hash("password123", 12);
 
-const users = Array.from({ length: NUM_USERS }, (_, i) => ({
-    id: i + 1,
-    username: faker.internet.username(),
-    email: faker.internet.email(),
-    password: hashedPassword,
-    createdAt: faker.date.past()
-}));
+const users = Array.from({ length: NUM_USERS }, (_, i) => {
+    const favoriteGenres = faker.helpers.shuffle(uniqueGenres).slice(0, faker.number.int({ min: 1, max: 3 }));
+    return {
+        id: i + 1,
+        username: faker.internet.username(),
+        email: faker.internet.email(),
+        password: hashedPassword,
+        createdAt: faker.date.past(),
+        favoriteGenres
+    };
+});
 
 async function fetchBooks() {
     const books = [];
@@ -96,6 +137,11 @@ async function fetchBooks() {
             });
             if (match) {
                 const v = match.volumeInfo;
+                // Filter categories to only those in uniqueGenres
+                let categories = Array.isArray(v.categories)
+                    ? v.categories.filter(cat => uniqueGenres.includes(cat.toUpperCase()))
+                    : [];
+                if (categories.length === 0) categories = ['Uncategorized'];
                 books.push({
                     bookId: match.id,
                     title: v.title,
@@ -103,7 +149,7 @@ async function fetchBooks() {
                     publishedDate: v.publishedDate || 'Unknown',
                     description: v.description || 'No description available.',
                     pageCount: v.pageCount || faker.number.int({ min: 100, max: 3000 }),
-                    categories: v.categories ? v.categories.join(', ') : 'Uncategorized',
+                    categories,
                     thumbnail: v.imageLinks ? v.imageLinks.thumbnail : '',
                     language: v.language || 'en',
                     previewLink: v.previewLink || ''
@@ -124,12 +170,30 @@ async function main() {
     }
     const bookIds = books.map(b => b.bookId);
 
+    // --- Generate libraries ---
     const LIBRARY_TITLES = ["Leyendo", "Completados", "Por Leer", "Favoritos"];
     const libraries = [];
     for (let userId = 1; userId <= NUM_USERS; userId++) {
+        const user = users.find(u => u.id === userId);
         for (const title of LIBRARY_TITLES) {
-            const numBooks = faker.number.int({ min: 0, max: Math.min(10, bookIds.length) });
-            const libraryBooks = faker.helpers.shuffle(bookIds).slice(0, numBooks);
+            let libraryBooks;
+            if (title === "Favoritos") {
+                const favBooks = books.filter(b =>
+                    b.categories.some(g => user.favoriteGenres.includes(g))
+                );
+                const maxFavBooks = Math.min(10, favBooks.length);
+                if (maxFavBooks > 0) {
+                    libraryBooks = faker.helpers.shuffle(favBooks.map(b => b.bookId))
+                        .slice(0, faker.number.int({ min: 1, max: maxFavBooks }));
+                } else {
+                    libraryBooks = [];
+                }
+            } else {
+                const maxBooks = Math.min(10, bookIds.length);
+                libraryBooks = maxBooks > 0
+                    ? faker.helpers.shuffle(bookIds).slice(0, faker.number.int({ min: 1, max: maxBooks }))
+                    : [];
+            }
             libraries.push({
                 id: libraries.length + 1,
                 userId,
@@ -139,28 +203,73 @@ async function main() {
         }
     }
 
-    // --- Generate reviews without likes field ---
+// --- Generate reviews ---
+    const positiveTemplates = [
+        "Me encantó la temática de {genre}. ¡Muy recomendable!",
+        "Una lectura fascinante para quienes disfrutan de {genre}. Lo disfruté mucho.",
+        "La historia es cautivadora y los elementos de {genre} están muy bien logrados."
+    ];
+    const negativeTemplates = [
+        "La temática de {genre} no es de mi estilo. No lo recomendaría.",
+        "El libro no logró atraparme, especialmente por su enfoque en {genre}.",
+        "No es mi tipo de lectura, sobre todo por el género {genre}."
+    ];
+
     const reviews = [];
     for (let i = 0; i < NUM_REVIEWS; i++) {
+        const user = faker.helpers.arrayElement(users);
+        const book = faker.helpers.arrayElement(books);
+        const matchesTaste = book.categories.some(g => user.favoriteGenres.includes(g.toUpperCase()));
+        const genre = genreTranslations[(faker.helpers.arrayElement(book.categories)).toUpperCase()];
+        // If genre is undefined, skip this review
+        if (genre === undefined) {
+            i--;
+            continue;
+        }
+        let comment;
+        if (matchesTaste) {
+            const template = faker.helpers.arrayElement(positiveTemplates);
+            comment = template
+                .replace("{genre}", genre)
+        } else {
+            const template = faker.helpers.arrayElement(negativeTemplates);
+            comment = template
+                .replace("{genre}", genre)
+        }
+        const rating = matchesTaste ? faker.number.int({ min: 4, max: 5 }) : faker.number.int({ min: 1, max: 3 });
         reviews.push({
             id: i + 1,
-            bookId: faker.helpers.arrayElement(bookIds),
-            userId: faker.number.int({ min: 1, max: NUM_USERS }),
-            rating: faker.number.int({ min: 1, max: 5 }),
-            comment: faker.lorem.sentence(),
-            createdAt: faker.date.recent()
+            bookId: book.bookId,
+            userId: user.id,
+            rating,
+            comment,
+            createdAt: faker.date.recent(),
+            categories: book.categories
         });
     }
 
     // --- Generate likes ---
     let likeId = 1;
-    const likes = reviews.flatMap(review =>
-        Array.from({ length: faker.number.int({ min: 0, max: 5 }) }, () => ({
-            id: likeId++,
-            reviewId: review.id,
-            userId: faker.number.int({ min: 1, max: NUM_USERS })
-        }))
-    );
+    const likes = [];
+    for (const user of users) {
+        // User likes reviews that match their taste and are positive
+        const matchingReviews = reviews.filter(r =>
+            r.categories.some(g => user.favoriteGenres.includes(g)) && r.rating >= 4
+        );
+        const maxLikes = Math.min(10, matchingReviews.length);
+        let reviewsToLike = [];
+        if (maxLikes > 0) {
+            reviewsToLike = faker.helpers.shuffle(matchingReviews)
+                .slice(0, faker.number.int({ min: 1, max: maxLikes }));
+        }
+        for (const review of reviewsToLike) {
+            likes.push({
+                id: likeId++,
+                reviewId: review.id,
+                userId: user.id
+            });
+        }
+    }
 
     // --- Set likes count in each review ---
     const likesCountMap = {};
@@ -169,6 +278,7 @@ async function main() {
     });
     reviews.forEach(review => {
         review.likes = likesCountMap[review.id] || 0;
+        delete review.categories; // Remove categories from review before saving
     });
 
     fs.writeFileSync("../Faker/users.json", JSON.stringify(users, null, 2));
@@ -177,7 +287,7 @@ async function main() {
     fs.writeFileSync("../Faker/reviews.json", JSON.stringify(reviews, null, 2));
     fs.writeFileSync("../Faker/likes.json", JSON.stringify(likes, null, 2));
 
-    console.log("✅ Datos simulados generados correctamente!");
+    console.log("✅ Simulated data generated successfully!");
 }
 
 main();
