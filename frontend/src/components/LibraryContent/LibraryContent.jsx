@@ -9,7 +9,8 @@ const LibraryContent = ({
                             onBookSelect,
                             onAddBook,
                             user,
-                            handleRemoveFromLibrary
+                            handleRemoveFromLibrary,
+                            genreTranslations
                         }) => {
     const [currentShelf, setCurrentShelf] = useState('all');
     const [currentView, setCurrentView] = useState('grid');
@@ -198,6 +199,7 @@ const LibraryContent = ({
                                     showDate={currentView !== 'grid'}
                                     maxGenres={2}
                                     isInLibrary={true}
+                                    genreTranslations={genreTranslations}
                                 />
                             ))
                         ) : (

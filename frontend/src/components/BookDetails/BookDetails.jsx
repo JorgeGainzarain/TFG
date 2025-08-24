@@ -12,14 +12,15 @@ const BookDetails = ({
                          libraryOptions = [],
                          handleAddToLibrary,
                          handleRemoveFromLibrary,
-                         isInLibrary = false
+                         isInLibrary = false,
+                         genreTranslations
                      }) => {
     const [imageError, setImageError] = useState(false);
     const [showDropdown, setShowDropdown] = useState(false);
     const buttonRef = useRef(null);
     const dropdownRef = useRef(null);
 
-    const currentBook = book || defaultBook;
+    const currentBook = book;
 
     const getCoverImage = (book) => book.thumbnail;
 
@@ -146,7 +147,9 @@ const BookDetails = ({
                             <div className="book-genres">
                                 {currentBook.categories.map((genre, index) => (
                                     <span key={index} className="genre-tag">
-                                        {genre}
+                                                {genreTranslations && genreTranslations[genre.toUpperCase()]
+                                                    ? genreTranslations[genre.toUpperCase()]
+                                                    : "Sin categorizar"}
                                     </span>
                                 ))}
                             </div>

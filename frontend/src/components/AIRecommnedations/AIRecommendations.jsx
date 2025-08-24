@@ -4,7 +4,7 @@ import BookCard from '../BookCard/BookCard';
 import FilterBar from '../FilterBar/FilterBar';
 import './AIRecommendations.css';
 
-const AIRecommendations = ({ user, isAuthenticated, onShowAuth }) => {
+const AIRecommendations = ({ user, isAuthenticated, onShowAuth, genreOptions, genreTranslations }) => {
     const scrollContainerRef = useRef(null);
     const [filters, setFilters] = useState({
         genre: '',
@@ -253,7 +253,12 @@ const AIRecommendations = ({ user, isAuthenticated, onShowAuth }) => {
                 </p>
             </div>
 
-            <FilterBar filters={filters} onFilterChange={handleFilterChange} />
+            <FilterBar
+                filters={filters}
+                onFilterChange={handleFilterChange}
+                genreOptions={genreOptions}
+                genreTranslations={genreTranslations}
+            />
 
             {filteredBooks.length > 0 ? (
                 <>
@@ -293,6 +298,7 @@ const AIRecommendations = ({ user, isAuthenticated, onShowAuth }) => {
                                         variant="vertical"
                                         showDate={true}
                                         onAddToLibrary={handleAddToLibrary}
+                                        genreTranslations={genreTranslations}
                                     />
                                 </div>
                             ))}

@@ -11,68 +11,13 @@ const SearchResults = ({
                            handleFilterChange,
                            libraryOptions,
                            onLoadMore,
-                           currentQuery
+                           currentQuery,
+                           genreOptions,
+                           genreTranslations,
                        }) => {
     const [filteredResults, setFilteredResults] = useState(results);
     const [prevQuery, setPrevQuery] = useState(currentQuery);
 
-
-    // Unique genres list
-    const uniqueGenres = useMemo(() => [
-        'ANTIQUES & COLLECTIBLES',
-        'LITERARY COLLECTIONS',
-        'ARCHITECTURE',
-        'LITERARY CRITICISM',
-        'ART',
-        'MATHEMATICS',
-        'BIBLES',
-        'MEDICAL',
-        'BIOGRAPHY & AUTOBIOGRAPHY',
-        'MUSIC',
-        'BODY, MIND & SPIRIT',
-        'NATURE',
-        'BUSINESS & ECONOMICS',
-        'PERFORMING ARTS',
-        'COMICS & GRAPHIC NOVELS',
-        'PETS',
-        'COMPUTERS',
-        'PHILOSOPHY',
-        'COOKING',
-        'PHOTOGRAPHY',
-        'CRAFTS & HOBBIES',
-        'POETRY',
-        'DESIGN',
-        'POLITICAL SCIENCE',
-        'DRAMA',
-        'PSYCHOLOGY',
-        'EDUCATION',
-        'REFERENCE',
-        'FAMILY & RELATIONSHIPS',
-        'RELIGION',
-        'FICTION',
-        'SCIENCE',
-        'GAMES & ACTIVITIES',
-        'SELF-HELP',
-        'GARDENING',
-        'SOCIAL SCIENCE',
-        'HEALTH & FITNESS',
-        'SPORTS & RECREATION',
-        'HISTORY',
-        'STUDY AIDS',
-        'HOUSE & HOME',
-        'TECHNOLOGY & ENGINEERING',
-        'HUMOR',
-        'TRANSPORTATION',
-        'JUVENILE FICTION',
-        'TRAVEL',
-        'JUVENILE NONFICTION',
-        'TRUE CRIME',
-        'LANGUAGE ARTS & DISCIPLINES',
-        'YOUNG ADULT FICTION',
-        'LANGUAGE STUDY',
-        'YOUNG ADULT NONFICTION',
-        'LAW'
-    ], []);
 
     useEffect(() => {
         let filtered = [...results];
@@ -140,7 +85,8 @@ const SearchResults = ({
             <FilterBar
                 filters={filters}
                 onFilterChange={handleFilterChange}
-                genreOptions={uniqueGenres}
+                genreOptions={genreOptions}
+                genreTranslations={genreTranslations}
             />
 
             {isNewQueryLoading ? (
@@ -162,6 +108,7 @@ const SearchResults = ({
                                 book={book}
                                 handleAddToLibrary={handleAddToLibrary}
                                 libraryOptions={libraryOptions}
+                                genreTranslations={genreTranslations}
                             />
                         ))}
                     </div>

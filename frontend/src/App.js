@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, {useState, useEffect, useRef, useMemo} from 'react';
 import {BrowserRouter as Router, Routes, Route, useLocation, useNavigate} from 'react-router-dom';
 import Navbar from './components/Navbar/Navbar';
 import MobileNavbar from './components/MobileNavbar/MobileNavbar';
@@ -34,6 +34,119 @@ const AppContent = () => {
     // Hook de autenticación
     const { user, isAuthenticated, initialized } = useAuth();
     const location = useLocation();
+
+    // Unique genres list
+    const uniqueGenres = useMemo(() => [
+        'ANTIQUES & COLLECTIBLES',
+        'LITERARY COLLECTIONS',
+        'ARCHITECTURE',
+        'LITERARY CRITICISM',
+        'ART',
+        'MATHEMATICS',
+        'BIBLES',
+        'MEDICAL',
+        'BIOGRAPHY & AUTOBIOGRAPHY',
+        'MUSIC',
+        'BODY, MIND & SPIRIT',
+        'NATURE',
+        'BUSINESS & ECONOMICS',
+        'PERFORMING ARTS',
+        'COMICS & GRAPHIC NOVELS',
+        'PETS',
+        'COMPUTERS',
+        'PHILOSOPHY',
+        'COOKING',
+        'PHOTOGRAPHY',
+        'CRAFTS & HOBBIES',
+        'POETRY',
+        'DESIGN',
+        'POLITICAL SCIENCE',
+        'DRAMA',
+        'PSYCHOLOGY',
+        'EDUCATION',
+        'REFERENCE',
+        'FAMILY & RELATIONSHIPS',
+        'RELIGION',
+        'FICTION',
+        'SCIENCE',
+        'GAMES & ACTIVITIES',
+        'SELF-HELP',
+        'GARDENING',
+        'SOCIAL SCIENCE',
+        'HEALTH & FITNESS',
+        'SPORTS & RECREATION',
+        'HISTORY',
+        'STUDY AIDS',
+        'HOUSE & HOME',
+        'TECHNOLOGY & ENGINEERING',
+        'HUMOR',
+        'TRANSPORTATION',
+        'JUVENILE FICTION',
+        'TRAVEL',
+        'JUVENILE NONFICTION',
+        'TRUE CRIME',
+        'LANGUAGE ARTS & DISCIPLINES',
+        'YOUNG ADULT FICTION',
+        'LANGUAGE STUDY',
+        'YOUNG ADULT NONFICTION',
+        'LAW'
+    ], []);
+
+    const genreTranslations = {
+        'ANTIQUES & COLLECTIBLES': 'Antigüedades y Coleccionables',
+        'LITERARY COLLECTIONS': 'Colecciones Literarias',
+        'ARCHITECTURE': 'Arquitectura',
+        'LITERARY CRITICISM': 'Crítica Literaria',
+        'ART': 'Arte',
+        'MATHEMATICS': 'Matemáticas',
+        'BIBLES': 'Biblias',
+        'MEDICAL': 'Medicina',
+        'BIOGRAPHY & AUTOBIOGRAPHY': 'Biografía y Autobiografía',
+        'MUSIC': 'Música',
+        'BODY, MIND & SPIRIT': 'Cuerpo, Mente y Espíritu',
+        'NATURE': 'Naturaleza',
+        'BUSINESS & ECONOMICS': 'Negocios y Economía',
+        'PERFORMING ARTS': 'Artes Escénicas',
+        'COMICS & GRAPHIC NOVELS': 'Cómics y Novelas Gráficas',
+        'PETS': 'Mascotas',
+        'COMPUTERS': 'Informática',
+        'PHILOSOPHY': 'Filosofía',
+        'COOKING': 'Cocina',
+        'PHOTOGRAPHY': 'Fotografía',
+        'CRAFTS & HOBBIES': 'Manualidades y Pasatiempos',
+        'POETRY': 'Poesía',
+        'DESIGN': 'Diseño',
+        'POLITICAL SCIENCE': 'Ciencias Políticas',
+        'DRAMA': 'Drama',
+        'PSYCHOLOGY': 'Psicología',
+        'EDUCATION': 'Educación',
+        'REFERENCE': 'Referencia',
+        'FAMILY & RELATIONSHIPS': 'Familia y Relaciones',
+        'RELIGION': 'Religión',
+        'FICTION': 'Ficción',
+        'SCIENCE': 'Ciencia',
+        'GAMES & ACTIVITIES': 'Juegos y Actividades',
+        'SELF-HELP': 'Autoayuda',
+        'GARDENING': 'Jardinería',
+        'SOCIAL SCIENCE': 'Ciencias Sociales',
+        'HEALTH & FITNESS': 'Salud y Bienestar',
+        'SPORTS & RECREATION': 'Deportes y Recreación',
+        'HISTORY': 'Historia',
+        'STUDY AIDS': 'Material de Estudio',
+        'HOUSE & HOME': 'Hogar',
+        'TECHNOLOGY & ENGINEERING': 'Tecnología e Ingeniería',
+        'HUMOR': 'Humor',
+        'TRANSPORTATION': 'Transporte',
+        'JUVENILE FICTION': 'Ficción Juvenil',
+        'TRAVEL': 'Viajes',
+        'JUVENILE NONFICTION': 'No Ficción Juvenil',
+        'TRUE CRIME': 'Crimen Real',
+        'LANGUAGE ARTS & DISCIPLINES': 'Artes y Disciplinas del Lenguaje',
+        'YOUNG ADULT FICTION': 'Ficción para Jóvenes Adultos',
+        'LANGUAGE STUDY': 'Estudio de Idiomas',
+        'YOUNG ADULT NONFICTION': 'No Ficción para Jóvenes Adultos',
+        'LAW': 'Derecho'
+    };
 
     useEffect(() => {
         const fetchLibraryOptions = async () => {
@@ -225,6 +338,8 @@ const AppContent = () => {
                                 onShowAuth={handleShowAuth}
                                 handleAddToLibrary={handleAddToLibrary}
                                 libraryOptions={libraryOptions}
+                                genreOptions={uniqueGenres}
+                                genreTranslations={genreTranslations}
                             />
                         }
                     />
@@ -244,6 +359,8 @@ const AppContent = () => {
                                 user={user}
                                 isAuthenticated={isAuthenticated}
                                 handleAddToLibrary={handleAddToLibrary}
+                                genreOptions={uniqueGenres}
+                                genreTranslations={genreTranslations}
                             />
                         }
                     />
@@ -256,6 +373,7 @@ const AppContent = () => {
                                 onShowAuth={handleShowAuth}
                                 handleAddToLibrary={handleAddToLibrary}
                                 libraryOptions={libraryOptions}
+                                genreTranslations={genreTranslations}
                             />
                         }
                     />
@@ -264,6 +382,7 @@ const AppContent = () => {
                         element={<LibraryPage
                             handleAddToLibrary={handleAddToLibrary}
                             libraryOptions={libraryOptions}
+                            genreTranslations={genreTranslations}
                         />
                     }
                     />
@@ -292,6 +411,8 @@ const AppContent = () => {
                         path="/favorites"
                         element={<LibraryPage
                             handleAddToLibrary={handleAddToLibrary}
+                            libraryOptions={libraryOptions}
+                            genreTranslations={genreTranslations}
                         />}
                     />
                     <Route

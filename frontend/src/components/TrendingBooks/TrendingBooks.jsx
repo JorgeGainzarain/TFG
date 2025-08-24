@@ -6,7 +6,8 @@ import './TrendingBooks.css';
 
 const TrendingBooks = ({
                            handleAddToLibrary,
-                           libraryOptions = []
+                           libraryOptions,
+                           genreTranslations
                        }) => {
     const scrollContainerRef = useRef(null);
     const [showLeftButton, setShowLeftButton] = useState(false);
@@ -105,6 +106,7 @@ const TrendingBooks = ({
                                 handleAddToLibrary={handleAddToLibrary}
                                 libraryOptions={libraryOptions}
                                 hideAddButton={true}
+                                genreTranslations={genreTranslations}
                             />
                         </div>
                     ))}

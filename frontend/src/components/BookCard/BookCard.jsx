@@ -12,7 +12,8 @@ const BookCard = ({
                       showDescription = false,
                       showDate = true,
                       isInLibrary = false,
-                      hideAddButton = false
+                      hideAddButton = false,
+                      genreTranslations
                   }) => {
     const navigate = useNavigate();
     const [showDropdown, setShowDropdown] = useState(false);
@@ -91,7 +92,12 @@ const BookCard = ({
         return year;
     };
 
-    const displayGenres = (book.genres || book.categories || []).slice(0, 3);
+    const displayGenres = (book.categories || []).map(
+        genre => genreTranslations[genre?.toUpperCase()] || "Sin categorizar"
+    );
+    console.log('Book genres:', book.categories);
+    console.log('Display genres:', displayGenres);
+
     const displayRating = book.rating || book.averageRating || 0;
     const reviewCount = book.reviewCount || book.ratingsCount || 0;
     const description = book.description || '';
@@ -252,7 +258,7 @@ const BookCard = ({
                         <div className="book-genres">
                             {displayGenres.map((genre, index) => (
                                 <span key={index} className="genre-tag">
-                                    {genre}
+                                   {genre}
                                 </span>
                             ))}
                         </div>

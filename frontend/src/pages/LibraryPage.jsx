@@ -6,7 +6,7 @@ import AuthOverlay from '../components/AuthOverlay/AuthOverlay';
 import LibraryContent from '../components/LibraryContent/LibraryContent';
 import './Pages.css';
 
-const LibraryPage = ({handleAddToLibrary, libraryOptions}) => {
+const LibraryPage = ({handleAddToLibrary, libraryOptions, genreTranslations}) => {
     const { user, isAuthenticated, loading, initialized, error } = useAuth();
     const [userBooks, setUserBooks] = useState([]);
     const [booksLoading, setBooksLoading] = useState(false);
@@ -187,6 +187,7 @@ const LibraryPage = ({handleAddToLibrary, libraryOptions}) => {
                 user={user}
                 onRefresh={handleRefreshLibrary}
                 handleRemoveFromLibrary={handleRemoveFromLibrary}
+                genreTranslations={genreTranslations}
             />
         </div>
     );

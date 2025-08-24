@@ -8,7 +8,8 @@ const FilterBar = ({
                            sortBy: 'relevance',
                        },
                        onFilterChange,
-                       genreOptions = []
+                       genreOptions = [],
+                       genreTranslations = {}
                    }) => {
     const handleSelectChange = (filterType, value) => {
         onFilterChange(filterType, value);
@@ -24,7 +25,7 @@ const FilterBar = ({
                 <option value="">Todos los géneros</option>
                 {genreOptions.map(genre => (
                     <option key={genre} value={genre}>
-                        {genre}
+                        {genreTranslations[genre] || genre}
                     </option>
                 ))}
             </select>

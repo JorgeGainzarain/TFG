@@ -15,7 +15,9 @@ const SearchPage = ({
                         user,
                         isAuthenticated,
                         handleAddToLibrary,
-                        libraryOptions
+                        libraryOptions,
+                        genreOptions,
+                        genreTranslations,
                     }) => {
     const [searchParams] = useSearchParams();
     const [filters, setFilters] = useState({
@@ -121,34 +123,6 @@ const SearchPage = ({
         }
     };
 
-
-    /*
-    const handleFilterChange = async (filterType, value) => {
-        const newFilters = { ...filters, [filterType]: value };
-
-        setFilters(newFilters);
-
-        onSearchLoading(true);
-        try {
-            const results = await bookAPI.searchBooks(query, {
-                orderBy: newFilters.sortBy,
-                genre: newFilters.genre,
-                year: newFilters.year,
-            });
-            console.log("Results after filter change:", results);
-            onSearchResults(results, query);
-            onSearchError(null);
-        } catch (error) {
-            const errorMessage = handleApiError(error);
-            onSearchError(errorMessage);
-            onSearchResults([], query);
-        } finally {
-            onSearchLoading(false);
-        }
-    };
-
-     */
-
     return (
         <SearchResults
             results={searchResults}
@@ -165,6 +139,8 @@ const SearchPage = ({
             isRecommendations={isRecommendations}
             handleAddToLibrary={handleAddToLibrary}
             onLoadMore={handleLoadMore}
+            genreOptions={genreOptions}
+            genreTranslations={genreTranslations}
         />
     );
 };
