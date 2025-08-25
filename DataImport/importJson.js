@@ -126,7 +126,7 @@ async function importJsonToDb() {
     for (const lib of libraries) {
         await db.run(
             `INSERT INTO libraries (id, userId, title, bookIds) VALUES (?, ?, ?, ?)`,
-            [lib.id, lib.userId, lib.title, lib.bookIds]
+            [lib.id, lib.userId, lib.title, lib.bookIds.toString()]
         );
         bars.libraries.increment();
     }

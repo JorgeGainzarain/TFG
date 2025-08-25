@@ -122,7 +122,7 @@ export class BookService extends BaseService<Book> {
         const GOOGLE_BOOKS_API_URL = 'https://www.googleapis.com/books/v1/volumes';
         const API_KEY = config.googleBooksApiKey;
 
-        let apiUrl = `${GOOGLE_BOOKS_API_URL}?q=${encodeURIComponent(searchQuery)}+subject:${category}&maxResults=${maxResults}&startIndex=${startIndex}&orderBy=${orderBy}`;
+        let apiUrl = `${GOOGLE_BOOKS_API_URL}?q=intitle:${encodeURIComponent(searchQuery)}+subject:${category}&maxResults=${maxResults}&startIndex=${startIndex}&orderBy=${orderBy}`;
 
         console.log("API URL: " + apiUrl);
 
