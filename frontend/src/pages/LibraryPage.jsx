@@ -1,7 +1,7 @@
 // REEMPLAZAR frontend/src/pages/LibraryPage.jsx
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { getUserLibraries, createLibrary, addBookToLibrary, removeBookFromLibrary } from '../services/libraryService';
+import { getUserLibraries, removeBookFromLibrary } from '../services/libraryService';
 import AuthOverlay from '../components/AuthOverlay/AuthOverlay';
 import LibraryContent from '../components/LibraryContent/LibraryContent';
 import './Pages.css';

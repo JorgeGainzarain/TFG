@@ -9,7 +9,8 @@ import BookDetailsPage from './pages/BookDetailsPage';
 import LibraryPage from './pages/LibraryPage';
 import { AIRecommendationsPage, ProfilePage, NotFoundPage } from './pages/AdditionalPages';
 import { useAuth } from './hooks/useAuth';
-import { healthCheck, addBookToLibrary, getRecommendations } from './services/api';
+import { healthCheck, getRecommendations } from './services/api';
+import {addBookToLibrary, getUserLibraries} from './services/libraryService';
 import './App.css';
 import {initializeAuth, getDefaultLibraries, logout} from "./services/authService";
 
@@ -151,11 +152,15 @@ const AppContent = () => {
     useEffect(() => {
         const fetchLibraryOptions = async () => {
             try {
-                const response = await getDefaultLibraries();
-                const mappedLibraries = response.data.map((title, index) => ({
-                    id: index.toString(),
-                    title: title
-                }));
+                const response = await getUserLibraries(user?.id || 1);
+                console.log("Response from getUserLibraries:", response);
+                const mappedLibraries = Array.isArray(response)
+                    ? response.map(lib => ({
+                        id: lib.id,
+                        title: lib.title
+                    }))
+                    : [];
+                console.log("Mapped library options:", mappedLibraries);
                 setLibraryOptions(mappedLibraries);
             } catch (error) {
                 console.error('Error fetching default libraries:', error);

@@ -95,8 +95,6 @@ const BookCard = ({
     const displayGenres = (book.categories || []).map(
         genre => genreTranslations[genre?.toUpperCase()] || "Sin categorizar"
     );
-    console.log('Book genres:', book.categories);
-    console.log('Display genres:', displayGenres);
 
     const displayRating = book.rating || book.averageRating || 0;
     const reviewCount = book.reviewCount || book.ratingsCount || 0;

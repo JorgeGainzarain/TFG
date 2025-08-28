@@ -4,10 +4,10 @@ import {Review} from "./review.model";
 import {ReviewRepository} from "./review.repository";
 import {BaseService} from "../base/base.service";
 import {config} from "../../config/environment";
-import {BookService} from "../book/book.service";
+import {BookService} from "../books/book.service";
 import {validateObject} from "../../utils/validation";
 import {StatusError} from "../../utils/status_error";
-import {UserService} from "../user/user.service";
+import {UserService} from "../auth/user.service";
 
 @Service()
 export class ReviewService extends BaseService<Review> {

@@ -1,12 +1,12 @@
 import {Like} from "./like.model";
 import { Service } from 'typedi';
 import { BaseService } from "../base/base.service";
-import { ReviewService} from "../review/review.service";
+import { ReviewService} from "../reviews/review.service";
 import { LikeRepository } from "./like.repository";
 import { AuditService } from "../audit/audit.service";
 import { config } from "../../config/environment";
 import { StatusError } from "../../utils/status_error";
-import {BookService} from "../book/book.service";
+import {BookService} from "../books/book.service";
 
 @Service()
 export class LikeService extends BaseService<Like> {

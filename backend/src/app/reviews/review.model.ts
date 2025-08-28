@@ -1,6 +1,6 @@
 import {BaseModel} from "../base/base.model";
-import {Book} from "../book/book.model";
-import {User} from "../user/user.model";
+import {Book} from "../books/book.model";
+import {User} from "../auth/user.model";
 
 export interface Review extends BaseModel {
     id?: number;
@@ -12,6 +12,5 @@ export interface Review extends BaseModel {
     comment: string;
     createdAt?: Date;
     likes: number;
-    likedBy: string[];
 }
 

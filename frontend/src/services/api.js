@@ -42,7 +42,7 @@ export const bookAPI = {
         if (page) params.append('page', page);
 
         try {
-            const response = await apiRequest(`/book/?${params.toString()}`);
+            const response = await apiRequest(`/books/?${params.toString()}`);
             return response.data || [];
         } catch (error) {
             console.error('Error searching books:', error);
@@ -78,7 +78,7 @@ export const handleApiError = (error) => {
 
 export const getReviewsFromBook = async (book) => {
     try {
-        const response = await makeAuthenticatedRequest(`/review/${book.bookId}`);
+        const response = await makeAuthenticatedRequest(`/reviews/${book.bookId}`);
         return response.json();
     } catch (error) {
         console.error('Error fetching reviews:', error);
@@ -95,7 +95,7 @@ export const addReviewToBook = async (book, review) => {
     }
     review.book = book;
     try {
-        const response = await makeAuthenticatedRequest(`/review/${book.bookId}`, {
+        const response = await makeAuthenticatedRequest(`/reviews/${book.bookId}`, {
             method: 'POST',
             body: JSON.stringify(review),
         });
@@ -106,20 +106,9 @@ export const addReviewToBook = async (book, review) => {
     }
 }
 
-export const addBookToLibrary = async (userId, book, libraryId) => {
-    try {
-        return await makeAuthenticatedRequest(`/library/${libraryId}`, {
-            method: 'POST',
-            body: JSON.stringify(book),
-        });
-    } catch (error) {
-        console.error('Error adding book to library:', error);
-    }
-};
-
 export const updateBook = async (book) => {
     try {
-        return await makeAuthenticatedRequest(`/library/${book.bookId}`, {
+        return await makeAuthenticatedRequest(`/libraries/${book.bookId}`, {
             method: 'PUT',
             body: JSON.stringify(book),
         });
@@ -156,7 +145,7 @@ export const isLiked = async (userId, reviewId) => {
 
 export const getTrendingBooks = async () => {
     try {
-        const response = await apiRequest('/book/trending', {
+        const response = await apiRequest('/books/trending', {
             method: 'GET',
         });
 
@@ -168,7 +157,7 @@ export const getTrendingBooks = async () => {
 
 export const updateReview = async (userId, review) => {
     try {
-        return await makeAuthenticatedRequest(`/review/${review.id}`, {
+        return await makeAuthenticatedRequest(`/reviews/${review.id}`, {
             method: 'PUT',
             body: JSON.stringify(review),
         });
@@ -179,7 +168,7 @@ export const updateReview = async (userId, review) => {
 
 export const deleteReview = async (reviewId) => {
     try {
-        return await makeAuthenticatedRequest(`/review/${reviewId}`, {
+        return await makeAuthenticatedRequest(`/reviews/${reviewId}`, {
             method: 'DELETE',
         });
     } catch (error) {

@@ -18,13 +18,11 @@ export class UserController extends BaseController<User> {
     ) {
         super(userService);
 
-        // Rutas de autenticación (sin JWT)
         this.getRouter().post('/register', this.register.bind(this));
         this.getRouter().post('/login', this.login.bind(this));
         this.getRouter().post('/logout', this.logout.bind(this));
         this.getRouter().post('/refresh', this.refresh.bind(this));
 
-        // ARREGLAR: Añadir authenticateJWT middleware a /me
         this.getRouter().get('/me', authenticateJWT, this.getCurrentUser.bind(this));
     }
 

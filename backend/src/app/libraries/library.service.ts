@@ -5,7 +5,7 @@ import { LibraryRepository } from "./library.repository";
 import { AuditService } from "../audit/audit.service";
 import { config } from "../../config/environment";
 import { StatusError } from "../../utils/status_error";
-import {BookService} from "../book/book.service";
+import {BookService} from "../books/book.service";
 
 @Service()
 export class LibraryService extends BaseService<Library> {
@@ -99,7 +99,7 @@ export class LibraryService extends BaseService<Library> {
         // Remove the book from any other library of the same user
         const userLibraries = await this.libraryRepository.getAllByUser(userId);
         for (const lib of userLibraries) {
-            if (lib.title !== title && lib.bookIds && lib.bookIds.includes(book.bookId)) {
+            if (lib.id !== title && lib.bookIds && lib.bookIds.includes(book.bookId)) {
                 await this.libraryRepository.removeBook(userId, lib.title, book.bookId);
             }
         }

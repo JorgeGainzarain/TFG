@@ -20,8 +20,7 @@ export class LibraryController extends BaseController<Library> {
         super(libraryService);
 
         this.getRouter().get('/', authenticateToken, this.getAllByUser.bind(this));
-        this.getRouter().post('/:libraryId/', authenticateToken, this.addBookToUserLibrary.bind(this));
-        this.getRouter().post("/", authenticateToken, this.createDefaultLibraries.bind(this));
+        this.getRouter().post('/', authenticateToken, this.addBookToUserLibrary.bind(this));
         this.getRouter().get("/default", this.getDefaultLibraries.bind(this));
         this.getRouter().delete('/:bookId', authenticateToken, this.removeBook.bind(this));
     }
@@ -53,28 +52,18 @@ export class LibraryController extends BaseController<Library> {
     }
 
     private async addBookToUserLibrary(req: any, res: any, next: any) {
-        const title = req.params.libraryId;
 
-        if(title == "default") {
-            return await this.createDefaultLibraries(req, res, next);
+        let userId = req.params.userId;
+        console.log('User ID from params:', userId);
+        if (!userId) {
+            userId = req.user?.id;
         }
-
-        const userId = req.user?.id;
-        const book = req.body; // Assuming book details are sent in the request body
+        let title = req.body.title;
+        const book = req.body.book;
 
         try {
             const updatedLibrary = await this.libraryService.addBookToUserLibrary(userId, title, book);
             res.status(200).json(createResponse('success', 'Libraries added successfully', updatedLibrary));
-        } catch (error) {
-            next(error);
-        }
-    }
-
-    async createDefaultLibraries(req: any, res: any, next: any) {
-        const userId = req.user?.id;
-        try {
-            const libraries = await this.libraryService.createDefaultLibraries(userId);
-            res.status(201).json(createResponse('success', 'Default libraries created successfully', libraries));
         } catch (error) {
             next(error);
         }

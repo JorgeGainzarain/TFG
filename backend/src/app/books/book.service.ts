@@ -5,7 +5,7 @@ import { BookRepository } from "./book.repository";
 import { AuditService } from "../audit/audit.service";
 import { config } from "../../config/environment";
 import { StatusError } from "../../utils/status_error";
-import {ReviewRepository} from "../review/review.repository";
+import {ReviewRepository} from "../reviews/review.repository";
 import {validateObject} from "../../utils/validation";
 
 enum categories {

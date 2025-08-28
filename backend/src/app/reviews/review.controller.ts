@@ -17,9 +17,9 @@ export class ReviewController extends BaseController<Review> {
         super(reviewService);
 
         this.getRouter().put('/:id', authenticateToken, this.update.bind(this));
-        this.getRouter().post('/:bookId', authenticateToken, this.create.bind(this));
+        this.getRouter().post('/:id', authenticateToken, this.create.bind(this));
         this.getRouter().delete('/:id', authenticateToken, this.delete.bind(this));
-        this.getRouter().get('/:bookId', this.getByBookId.bind(this));
+        this.getRouter().get('/:id', this.getByBookId.bind(this));
     }
 
     async update(req: any, res: any, next: any): Promise<void> {
@@ -34,7 +34,7 @@ export class ReviewController extends BaseController<Review> {
 
     async getByBookId(req: any, res: any, next: any): Promise<void> {
         try {
-            const bookId = req.params.bookId;
+            const bookId = req.params.id;
             const reviews = await this.reviewService.getByBookId(bookId);
             res.status(200).json(reviews);
         } catch (error: any) {
@@ -44,7 +44,7 @@ export class ReviewController extends BaseController<Review> {
 
     async create(req: any, res: any, next: any): Promise<void> {
         try {
-            const bookId = req.params.bookId;
+            const bookId = req.params.id;
             const userId = req.user?.id;
             req.body.bookId = bookId;
             req.body.userId = userId;

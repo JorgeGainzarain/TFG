@@ -1,10 +1,10 @@
 import {NextFunction, Request, Response, Router} from 'express';
 import { Service } from 'typedi';
-import {ReviewController} from "../../app/review/review.controller";
-import {UserController} from "../../app/user/user.controller";
-import {BookController} from "../../app/book/book.controller";
-import {LibraryController} from "../../app/library/library.controller";
-import {LikeController} from "../../app/like/like.controller";
+import {ReviewController} from "../../app/reviews/review.controller";
+import {UserController} from "../../app/auth/user.controller";
+import {BookController} from "../../app/books/book.controller";
+import {LibraryController} from "../../app/libraries/library.controller";
+import {LikeController} from "../../app/likes/like.controller";
 
 @Service()
 export class Api {
@@ -18,12 +18,12 @@ export class Api {
       protected likeController: LikeController
   ) {
     this.apiRouter = Router();
-    this.apiRouter.use('/review', reviewController.getRouter());
+    this.apiRouter.use('/reviews', reviewController.getRouter());
     this.apiRouter.use('/auth', userController.getRouter());
     this.apiRouter.use('/health', this.healthCheck.bind(this));
-    this.apiRouter.use('/book', bookController.getRouter());
-    this.apiRouter.use('/library', libraryController.getRouter());
-    this.apiRouter.use('/like', likeController.getRouter());
+    this.apiRouter.use('/books', bookController.getRouter());
+    this.apiRouter.use('/users/:userId/libraries', libraryController.getRouter());
+    this.apiRouter.use('/likes', likeController.getRouter());
   }
 
   async healthCheck(req: Request, res: Response, next: NextFunction): Promise<void> {

@@ -1,12 +1,12 @@
 // src/config/environment/base.ts
-import { Review} from "../../app/review/review.model";
-import { User } from "../../app/user/user.model";
+import { Review} from "../../app/reviews/review.model";
+import { User } from "../../app/auth/user.model";
 import { Audit } from "../../app/audit/audit.model";
 import { EntityConfig } from "../../app/base/base.model";
 import { DBOptions } from "../../database/models/db-options";
-import {Book} from "../../app/book/book.model";
-import {Library} from "../../app/library/library.model";
-import {Like} from "../../app/like/like.model"
+import {Book} from "../../app/books/book.model";
+import {Library} from "../../app/libraries/library.model";
+import {Like} from "../../app/likes/like.model"
 
 const libraries =  [
     "Leyendo",
