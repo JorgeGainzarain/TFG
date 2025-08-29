@@ -1,7 +1,8 @@
 import React, { forwardRef, useImperativeHandle, useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { bookAPI, handleApiError, getRecommendations } from '../../services/api';
+import { handleApiError } from '../../services/api';
 import { useLocation } from 'react-router-dom';
+import { bookAPI } from '../../services/bookService';
 import './Navbar.css';
 
 const Navbar = forwardRef((
@@ -67,7 +68,7 @@ const Navbar = forwardRef((
             let trimmedQuery = query.trim();
 
             if (!trimmedQuery) {
-                results = getRecommendations();
+                results = [];
                 trimmedQuery = '';
                 await new Promise(resolve => setTimeout(resolve, 500));
             } else {

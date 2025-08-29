@@ -1,3 +1,5 @@
+import { makeAuthenticatedRequest} from "./api";
+
 // frontend/src/services/authService.js
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
@@ -6,6 +8,102 @@ const TOKEN_KEY = 'bookhub_access_token';
 const REFRESH_TOKEN_KEY = 'bookhub_refresh_token';
 const USER_KEY = 'bookhub_user';
 
+
+export const login = async (credentials) => {
+    try {
+        authState.loading = true;
+        notifyAuthChange();
+
+        // Validaciones básicas
+        if (!credentials.email || !credentials.password) {
+            throw new Error('Email y contraseña son requeridos');
+        }
+
+        const loginData = {
+            email: credentials.email.trim(),
+            password: credentials.password
+        };
+
+        const response = await fetch(`${API_BASE_URL}/auth/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(loginData),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            if (response.status === 401) {
+                throw new Error('Email o contraseña incorrectos');
+            }
+            throw new Error(result.error || result.message || 'Error en el login');
+        }
+
+        if (result.status === 'success' && result.data) {
+            // Guardar tokens y usuario
+            setTokens(result.data.accessToken, result.data.refreshToken);
+            setUser(result.data.user);
+
+            return {
+                success: true,
+                user: result.data.user,
+                message: result.message
+            };
+        }
+
+        throw new Error('Respuesta inválida del servidor');
+
+    } catch (error) {
+        console.error('Login error:', error);
+        throw error;
+    } finally {
+        authState.loading = false;
+        notifyAuthChange();
+    }
+};
+
+export const logout = async () => {
+    try {
+        const token = getAccessToken();
+
+        // Intentar notificar al servidor (no crítico si falla)
+        if (token) {
+            try {
+                await makeAuthenticatedRequest('/auth/logout', { method: 'POST' });
+            } catch (error) {
+                console.warn('Error notificando logout al servidor:', error);
+            }
+        }
+    } catch (error) {
+        console.error('Logout error:', error);
+    } finally {
+        // Limpiar datos locales siempre
+        clearTokens();
+        authState.user = null;
+        authState.isAuthenticated = false;
+        notifyAuthChange();
+    }
+};
+
+export const getCurrentUser = async () => {
+    try {
+        const result = await makeAuthenticatedRequest('/auth/me');
+
+        if (result.status === 'success' && result.data) {
+            // Actualizar usuario en el estado
+            setUser(result.data.user);
+            return result.data.user;
+        }
+
+        return null;
+    } catch (error) {
+        console.error('Error getting current user:', error);
+        return null;
+    }
+};
+
 // Estado de autenticación centralizado
 let authState = {
     user: null,
@@ -13,6 +111,7 @@ let authState = {
     loading: false,
     initialized: false
 };
+
 
 // Listeners para cambios de estado
 const authListeners = [];
@@ -118,7 +217,7 @@ export const getStoredUser = () => {
 
 // === UTILIDADES DE TOKEN ===
 
-const isTokenExpired = (token) => {
+export const isTokenExpired = (token) => {
     if (!token) return true;
 
     try {
@@ -126,54 +225,6 @@ const isTokenExpired = (token) => {
         return Date.now() >= (payload.exp * 1000);
     } catch (error) {
         return true;
-    }
-};
-
-// === REQUESTS AUTENTICADOS ===
-
-export const makeAuthenticatedRequest = async (endpoint, options = {}) => {
-    let token = getAccessToken();
-
-    // Verificar si el token está expirado
-    if (token && isTokenExpired(token)) {
-        const refreshed = await refreshAccessToken();
-        if (!refreshed) {
-            await logout();
-            throw new Error('Sesión expirada. Por favor inicia sesión nuevamente.');
-        }
-        token = getAccessToken();
-    }
-
-    const config = {
-        headers: {
-            'Content-Type': 'application/json',
-            ...(token && { 'Authorization': `Bearer ${token}` }),
-            ...options.headers,
-        },
-        ...options,
-    };
-
-    try {
-        let response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-
-        // Si recibimos 401, intentar refresh una vez
-        if (response.status === 401 && token) {
-            const refreshed = await refreshAccessToken();
-            if (refreshed) {
-                config.headers['Authorization'] = `Bearer ${getAccessToken()}`;
-                response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-            } else {
-                await logout();
-                throw new Error('Sesión expirada. Por favor inicia sesión nuevamente.');
-            }
-        }
-
-        const data = await response;
-
-        return data;
-    } catch (error) {
-        console.error('Request failed:', error);
-        throw error;
     }
 };
 
@@ -260,13 +311,6 @@ export const register = async (userData) => {
             setTokens(result.data.accessToken, result.data.refreshToken);
             setUser(result.data.user);
 
-            // Crear biblioteca por defecto
-            try {
-                await createDefaultLibraries();
-            } catch (libraryError) {
-                console.warn('Error creando biblioteca por defecto:', libraryError);
-            }
-
             return {
                 success: true,
                 user: result.data.user,
@@ -282,101 +326,6 @@ export const register = async (userData) => {
     } finally {
         authState.loading = false;
         notifyAuthChange();
-    }
-};
-
-export const login = async (credentials) => {
-    try {
-        authState.loading = true;
-        notifyAuthChange();
-
-        // Validaciones básicas
-        if (!credentials.email || !credentials.password) {
-            throw new Error('Email y contraseña son requeridos');
-        }
-
-        const loginData = {
-            email: credentials.email.trim(),
-            password: credentials.password
-        };
-
-        const response = await fetch(`${API_BASE_URL}/auth/login`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(loginData),
-        });
-
-        const result = await response.json();
-
-        if (!response.ok) {
-            if (response.status === 401) {
-                throw new Error('Email o contraseña incorrectos');
-            }
-            throw new Error(result.error || result.message || 'Error en el login');
-        }
-
-        if (result.status === 'success' && result.data) {
-            // Guardar tokens y usuario
-            setTokens(result.data.accessToken, result.data.refreshToken);
-            setUser(result.data.user);
-
-            return {
-                success: true,
-                user: result.data.user,
-                message: result.message
-            };
-        }
-
-        throw new Error('Respuesta inválida del servidor');
-
-    } catch (error) {
-        console.error('Login error:', error);
-        throw error;
-    } finally {
-        authState.loading = false;
-        notifyAuthChange();
-    }
-};
-
-export const logout = async () => {
-    try {
-        const token = getAccessToken();
-
-        // Intentar notificar al servidor (no crítico si falla)
-        if (token) {
-            try {
-                await makeAuthenticatedRequest('/auth/logout', { method: 'POST' });
-            } catch (error) {
-                console.warn('Error notificando logout al servidor:', error);
-            }
-        }
-    } catch (error) {
-        console.error('Logout error:', error);
-    } finally {
-        // Limpiar datos locales siempre
-        clearTokens();
-        authState.user = null;
-        authState.isAuthenticated = false;
-        notifyAuthChange();
-    }
-};
-
-export const getCurrentUser = async () => {
-    try {
-        const result = await makeAuthenticatedRequest('/auth/me');
-
-        if (result.status === 'success' && result.data) {
-            // Actualizar usuario en el estado
-            setUser(result.data.user);
-            return result.data.user;
-        }
-
-        return null;
-    } catch (error) {
-        console.error('Error getting current user:', error);
-        return null;
     }
 };
 
@@ -434,32 +383,3 @@ export const getAuthState = () => {
     return { ...authState };
 };
 
-// Función helper para crear biblioteca por defecto
-const createDefaultLibraries = async () => {
-    try {
-
-        const response = await makeAuthenticatedRequest('/library/', {
-            method: 'POST',
-        });
-
-        const result = await response.json();
-        return result;
-    } catch (error) {
-        console.error('Error creando biblioteca por defecto:', error);
-        throw error;
-    }
-};
-
-export const getDefaultLibraries = async () => {
-    try {
-        const response = await makeAuthenticatedRequest('/library/default', {
-            method: 'GET',
-        });
-
-        const result = await response.json();
-        return result;
-    } catch (error) {
-        console.error('Error obteniendo bibliotecas por defecto:', error);
-        throw error;
-    }
-}

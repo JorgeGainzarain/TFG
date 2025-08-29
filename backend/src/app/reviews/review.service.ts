@@ -95,7 +95,6 @@ export class ReviewService extends BaseService<Review> {
             review.book = book;
             review.user = user;
         }
-        console.log("Reviews for book with ID:", bookId, reviews);
         return reviews
     }
 }

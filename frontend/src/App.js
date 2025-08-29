@@ -9,10 +9,10 @@ import BookDetailsPage from './pages/BookDetailsPage';
 import LibraryPage from './pages/LibraryPage';
 import { AIRecommendationsPage, ProfilePage, NotFoundPage } from './pages/AdditionalPages';
 import { useAuth } from './hooks/useAuth';
-import { healthCheck, getRecommendations } from './services/api';
+import { healthCheck } from './services/api';
 import {addBookToLibrary, getUserLibraries} from './services/libraryService';
 import './App.css';
-import {initializeAuth, getDefaultLibraries, logout} from "./services/authService";
+import {getCurrentUser, initializeAuth, logout} from "./services/authService";
 
 // Componente interno que tiene acceso a useLocation
 const AppContent = () => {
@@ -152,7 +152,7 @@ const AppContent = () => {
     useEffect(() => {
         const fetchLibraryOptions = async () => {
             try {
-                const response = await getUserLibraries(user?.id || 1);
+                const response = await getUserLibraries(user?.id || 'default');
                 console.log("Response from getUserLibraries:", response);
                 const mappedLibraries = Array.isArray(response)
                     ? response.map(lib => ({
@@ -254,7 +254,7 @@ const AppContent = () => {
     };
 
     const clearSearch = () => {
-        const recommendations = getRecommendations();
+        const recommendations = [];
         setSearchResults(recommendations);
         setSearchQuery('');
         setSearchError(null);

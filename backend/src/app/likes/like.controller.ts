@@ -15,23 +15,26 @@ export class LikeController extends BaseController<Like> {
         protected likeService: LikeService
     ) {
         super(likeService);
-        this.getRouter().use(authenticateToken);
 
-        this.getRouter().post('/', this.like.bind(this));
-        this.getRouter().get('/:id', this.isLiked.bind(this));
+        this.getRouter().post('/', authenticateToken, this.like.bind(this));
+        this.getRouter().get('/me', authenticateToken, this.isLiked.bind(this));
     }
 
     async isLiked(req: any, res: any, next:any): Promise<void> {
         const userId = req.user?.id;
-        const reviewId = parseInt(req.params.id, 10);
-        // Validate if a like exists for the user and review
-        if (!userId || isNaN(reviewId)) {
-            console.log("Invalid like check request: userId or reviewId is missing");
-            console.log("userId:", userId, "reviewId:", reviewId);
-            res.status(400).send({error: 'userId and reviewId are required'});
-        }
+        const reviewId = req.params.reviewId;
+
         try {
-            const like = await this.likeService.existsByFields({userId: userId, reviewId: reviewId});
+            let like;
+            // Validate if a like exists for the user and review
+            if (!userId || !reviewId) {
+                console.log("Invalid like check request: userId or reviewId is missing");
+                console.log("userId:", userId, "reviewId:", reviewId);
+                like = false;
+            }
+            else {
+                like = await this.likeService.existsByFields({userId: userId, reviewId: reviewId});
+            }
             console.log("Like check result:", like);
             if (like) {
                 res.status(200).send({liked: true});
@@ -44,7 +47,7 @@ export class LikeController extends BaseController<Like> {
     }
 
     async like(req: any, res: any, next: any): Promise<void> {
-        const reviewId = req.body.reviewId;
+        const reviewId = req.params.reviewId;
         const userId = req.user?.id;
 
         // Validate the like object

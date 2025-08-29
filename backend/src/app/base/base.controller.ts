@@ -6,17 +6,17 @@ import {EntityConfig} from "./base.model";
 export abstract class BaseController<T extends {}> {
     protected abstract entityConfig: EntityConfig<T>;
 
-    protected readonly companyRouter: Router;
+    protected readonly baseRouter: Router;
 
     protected constructor(
         private readonly service: BaseService<T>
     ) {
-        this.companyRouter = Router();
+        this.baseRouter = Router({ mergeParams: true });
     }
 
 
     getRouter(): Router {
-        return this.companyRouter;
+        return this.baseRouter;
     }
 
     async create(req: Request, res: Response, next: NextFunction): Promise<void> {

@@ -1,6 +1,6 @@
 // frontend/src/components/ReviewsSection/ReviewsSection.jsx
 import React, { useState, useEffect } from 'react';
-import {addReviewToBook, getReviewsFromBook, updateReview, deleteReview, likeReview, isLiked} from "../../services/api";
+import {addReviewToBook, getReviewsFromBook, updateReview, deleteReview, likeReview, isLiked} from "../../services/reviewService";
 import './ReviewsSection.css';
 import { useAuth } from "../../hooks/useAuth";
 
@@ -24,7 +24,7 @@ const ReviewsSection = ({ book, isAuthenticated, onShowAuth }) => {
         const checkLiked = async () => {
             const likedSet = new Set();
             for (const review of reviews) {
-                const liked = await isLiked(user.id, review.id);
+                const liked = await isLiked(user.id, book, review);
                 console.log("Checking if review is liked:", review.id, "Result:", liked);
                 console.log(liked);
                 if (liked.liked) likedSet.add(review.id || review._id);
@@ -68,7 +68,7 @@ const ReviewsSection = ({ book, isAuthenticated, onShowAuth }) => {
                     rating: newReview.rating,
                     comment: newReview.comment + ` (Editado el ${new Date().toLocaleDateString()})`
                 };
-                await updateReview(user.userId, updated);
+                await updateReview(user.userId, book, updated);
                 setReviews(reviews.map(r => (r._id || r.id) === editingReviewId ? updated : r));
                 setEditingReviewId(null);
             } else {
@@ -97,16 +97,15 @@ const ReviewsSection = ({ book, isAuthenticated, onShowAuth }) => {
 
     const handleLikeReview = async (review) => {
         if (!isAuthenticated) return onShowAuth();
-        const reviewId = review.id || review._id;
         const userId = user.id;
         try {
-            const likes = await likeReview(userId, reviewId);
+            const likes = await likeReview(userId, book, review);
             setReviews(reviews =>
                 reviews.map(r =>
-                    (r.id || r._id) === reviewId ? { ...r, likes } : r
+                    (r.id || r._id) === review.id ? { ...r, likes } : r
                 )
             );
-            setLikedReviews(prev => new Set(prev).add(reviewId));
+            setLikedReviews(prev => new Set(prev).add(review.id));
         } catch (err) {
             alert("Error al dar like a la reseña");
         }
@@ -115,7 +114,7 @@ const ReviewsSection = ({ book, isAuthenticated, onShowAuth }) => {
     const handleDeleteReview = async (id) => {
         if (!window.confirm("¿Estás seguro de que quieres eliminar esta reseña?")) return;
         console.log("Deleting review with ID:", id);
-        await deleteReview(id);
+        await deleteReview(book, id);
         setReviews(reviews.filter(r => (r._id || r.id) !== id));
     };
 

@@ -19,10 +19,30 @@ export class LibraryController extends BaseController<Library> {
     ) {
         super(libraryService);
 
-        this.getRouter().get('/', authenticateToken, this.getAllByUser.bind(this));
+        this.getRouter().use(this.verifyOwnership.bind(this));
+
+        this.getRouter().get('/', this.getAllByUser.bind(this));
         this.getRouter().post('/', authenticateToken, this.addBookToUserLibrary.bind(this));
-        this.getRouter().get("/default", this.getDefaultLibraries.bind(this));
         this.getRouter().delete('/:bookId', authenticateToken, this.removeBook.bind(this));
+    }
+
+    private async verifyOwnership(req: any, res: any, next: any) {
+        const userId = req.user?.id;
+        const paramUserId = req.params.userId;
+
+        // If userId is default return default libraries
+        if (paramUserId === 'default') {
+            const defaultLibraries = this.entityConfig.defaultEntities;
+            const mappedLibraries = defaultLibraries.map((title: string, index: number) => ({ id: index, title }));
+
+            res.status(200).json(createResponse('success', 'Default libraries retrieved successfully', mappedLibraries));
+            return;
+        }
+
+        if (paramUserId && userId !== paramUserId) {
+            next(new StatusError(403, 'Forbidden: You do not have access to this resource'));
+        }
+        next();
     }
 
     private async removeBook(req: any, res: any, next: any) {
@@ -69,15 +89,4 @@ export class LibraryController extends BaseController<Library> {
         }
     }
 
-    async getDefaultLibraries(req: any, res: any, next: any) {
-        try {
-            const defaultLibraries = this.entityConfig.defaultEntities;
-            if (!defaultLibraries || defaultLibraries.length === 0) {
-                throw new StatusError(404, 'No default libraries found');
-            }
-            res.status(200).json(createResponse('success', 'Default libraries retrieved successfully', defaultLibraries));
-        } catch (error) {
-            next(error);
-        }
-    }
 }

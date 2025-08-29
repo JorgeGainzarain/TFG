@@ -11,6 +11,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { StatusError } from "../../utils/status_error";
 import { validateObject, validatePartialObject } from "../../utils/validation";
+import {LibraryService} from "../libraries/library.service";
 
 dotenv.config();
 
@@ -20,7 +21,8 @@ export class UserService extends BaseService<User> {
 
     constructor(
         protected auditService: AuditService,
-        protected userRepository: UserRepository
+        protected userRepository: UserRepository,
+        protected libraryService: LibraryService,
     ) {
         super(auditService, userRepository);
     }
@@ -67,6 +69,8 @@ export class UserService extends BaseService<User> {
             jwtSecret,
             { expiresIn: config.jwt?.accessTokenExpiry || '24h' }
         );
+
+        await this.libraryService.createDefaultLibraries(createdUser.id);
 
         await this.auditAction({ ...userWithoutPassword, password: '' } as User, 'registered');
         return { user: userWithoutPassword, token };

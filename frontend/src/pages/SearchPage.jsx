@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import SearchResults from '../components/SearchResults/SearchResults';
-import { bookAPI, handleApiError, getRecommendations } from '../services/api';
+import { handleApiError } from '../services/api';
+import { bookAPI } from '../services/bookService';
 
 const SearchPage = ({
                         searchResults,
@@ -96,7 +97,7 @@ const SearchPage = ({
             } else if (isRecommendations && searchResults.length === 0 && !isSearching) {
                 onSearchLoading(true);
                 try {
-                    const recommendations = getRecommendations();
+                    const recommendations = [];
                     onSearchResults(recommendations, '');
                     onSearchError(null);
                 } catch (error) {

@@ -1,10 +1,10 @@
 // src/services/api.js
-import {makeAuthenticatedRequest} from './authService.js';
+import {getAccessToken, logout, refreshAccessToken, isTokenExpired} from './authService.js';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 // Generic API request function
-const apiRequest = async (endpoint, options = {}) => {
+export const apiRequest = async (endpoint, options = {}) => {
     try {
         const url = `${API_BASE_URL}${endpoint}`;
         const config = {
@@ -29,27 +29,49 @@ const apiRequest = async (endpoint, options = {}) => {
     }
 };
 
-// Book API functions - estos endpoints necesitarán ser implementados en tu backend
-export const bookAPI = {
-    // Search books - este endpoint necesita ser implementado
-// Accepts query, orderBy, maxResults, genre, year, etc.
-    searchBooks: async (query, { orderBy, genre, year, page } = {}) => {
-        const params = new URLSearchParams();
-        if (query) params.append('q', query);
-        if (orderBy) params.append('orderBy', orderBy);
-        if (genre) params.append('category', genre);
-        if (year) params.append('year', year);
-        if (page) params.append('page', page);
 
-        try {
-            const response = await apiRequest(`/books/?${params.toString()}`);
-            return response.data || [];
-        } catch (error) {
-            console.error('Error searching books:', error);
-            throw error;
+export const makeAuthenticatedRequest = async (endpoint, options = {}) => {
+    let token = getAccessToken();
+
+    // Verificar si el token está expirado
+    if (token && isTokenExpired(token)) {
+        const refreshed = await refreshAccessToken();
+        if (!refreshed) {
+            await logout();
+            throw new Error('Sesión expirada. Por favor inicia sesión nuevamente.');
         }
-    },
+        token = getAccessToken();
+    }
 
+    const config = {
+        headers: {
+            'Content-Type': 'application/json',
+            ...(token && { 'Authorization': `Bearer ${token}` }),
+            ...options.headers,
+        },
+        ...options,
+    };
+
+    try {
+        let response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+
+        // Si recibimos 401, intentar refresh una vez
+        if (response.status === 401 && token) {
+            const refreshed = await refreshAccessToken();
+            if (refreshed) {
+                config.headers['Authorization'] = `Bearer ${getAccessToken()}`;
+                response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+            } else {
+                await logout();
+                throw new Error('Sesión expirada. Por favor inicia sesión nuevamente.');
+            }
+        }
+
+        return await response;
+    } catch (error) {
+        console.error('Request failed:', error);
+        throw error;
+    }
 };
 
 // Health check
@@ -72,219 +94,6 @@ export const handleApiError = (error) => {
     }
 
     return error.message || 'Ha ocurrido un error inesperado.';
-};
-
-// Library API functions
-
-export const getReviewsFromBook = async (book) => {
-    try {
-        const response = await makeAuthenticatedRequest(`/reviews/${book.bookId}`);
-        return response.json();
-    } catch (error) {
-        console.error('Error fetching reviews:', error);
-        throw error;
-    }
-}
-
-export const addReviewToBook = async (book, review) => {
-    if (!review.createdAt) {
-        review.createdAt = new Date().toISOString();
-    }
-    if (!review.likedBy) {
-        review.likedBy = '';
-    }
-    review.book = book;
-    try {
-        const response = await makeAuthenticatedRequest(`/reviews/${book.bookId}`, {
-            method: 'POST',
-            body: JSON.stringify(review),
-        });
-        return response;
-    } catch (error) {
-        console.error('Error adding review:', error);
-        throw error;
-    }
-}
-
-export const updateBook = async (book) => {
-    try {
-        return await makeAuthenticatedRequest(`/libraries/${book.bookId}`, {
-            method: 'PUT',
-            body: JSON.stringify(book),
-        });
-    } catch (error) {
-        console.error('Error updating book:', error);
-    }
-}
-
-export const likeReview = async (userId, reviewId) => {
-    try {
-        const response = await makeAuthenticatedRequest(`/like`, {
-            method: 'POST',
-            body: JSON.stringify({ reviewId: reviewId}),
-        });
-        return response.json();
-    } catch (error) {
-        console.error('Error liking review:', error);
-    }
-}
-
-export const isLiked = async (userId, reviewId) => {
-    try {
-        const response = await makeAuthenticatedRequest(`/like/${reviewId}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-        return response.json();
-    } catch (error) {
-        console.error('Error checking if review is liked:', error);
-    }
-}
-
-export const getTrendingBooks = async () => {
-    try {
-        const response = await apiRequest('/books/trending', {
-            method: 'GET',
-        });
-
-        return response;
-    } catch (error) {
-        console.error('Error fetching trending books:', error);
-    }
-}
-
-export const updateReview = async (userId, review) => {
-    try {
-        return await makeAuthenticatedRequest(`/reviews/${review.id}`, {
-            method: 'PUT',
-            body: JSON.stringify(review),
-        });
-    } catch (error) {
-        console.error('Error updating review:', error);
-    }
-}
-
-export const deleteReview = async (reviewId) => {
-    try {
-        return await makeAuthenticatedRequest(`/reviews/${reviewId}`, {
-            method: 'DELETE',
-        });
-    } catch (error) {
-        console.error('Error deleting review:', error);
-    }
-}
-
-// Función para obtener recomendaciones de libros (placeholders)
-export const getRecommendations = () => {
-    return [
-        {
-            id: 'placeholder-1',
-            title: 'El Nombre del Viento',
-            authors: ['Patrick Rothfuss'],
-            genres: ['Fantasía', 'Aventura'],
-            categories: ['Fantasía', 'Aventura'],
-            rating: 5,
-            averageRating: 5,
-            reviewCount: 28470,
-            ratingsCount: 28470,
-            coverEmoji: '🌪️',
-            thumbnail: '',
-            image: 'https://via.placeholder.com/150x200?text=El+Nombre+del+Viento',
-            isPlaceholder: true,
-            publishedDate: '2007',
-            description: 'Una historia épica sobre un joven héroe y su búsqueda de la verdad.',
-            pageCount: 662,
-            language: 'es',
-            previewLink: '',
-            infoLink: ''
-        },
-        {
-            id: 'placeholder-2',
-            title: 'Cien años de soledad',
-            authors: ['Gabriel García Márquez'],
-            genres: ['Realismo Mágico', 'Literatura'],
-            categories: ['Realismo Mágico', 'Literatura'],
-            rating: 5,
-            averageRating: 5,
-            reviewCount: 45230,
-            ratingsCount: 45230,
-            coverEmoji: '📖',
-            thumbnail: '',
-            image: 'https://via.placeholder.com/150x200?text=Cien+años+de+soledad',
-            isPlaceholder: true,
-            publishedDate: '1967',
-            description: 'Una obra maestra del realismo mágico latinoamericano.',
-            pageCount: 417,
-            language: 'es',
-            previewLink: '',
-            infoLink: ''
-        },
-        {
-            id: 'placeholder-3',
-            title: 'Sapiens',
-            authors: ['Yuval Noah Harari'],
-            genres: ['Historia', 'Antropología'],
-            categories: ['Historia', 'Antropología'],
-            rating: 5,
-            averageRating: 5,
-            reviewCount: 67890,
-            ratingsCount: 67890,
-            coverEmoji: '🧠',
-            thumbnail: '',
-            image: 'https://via.placeholder.com/150x200?text=Sapiens',
-            isPlaceholder: true,
-            publishedDate: '2014',
-            description: 'Una mirada fascinante a la historia de la humanidad.',
-            pageCount: 413,
-            language: 'es',
-            previewLink: '',
-            infoLink: ''
-        },
-        {
-            id: 'placeholder-4',
-            title: 'La Odisea',
-            authors: ['Homero'],
-            genres: ['Épica', 'Clásico'],
-            categories: ['Épica', 'Clásico'],
-            rating: 4.2,
-            averageRating: 4.2,
-            reviewCount: 15670,
-            ratingsCount: 15670,
-            coverEmoji: '⚓',
-            thumbnail: '',
-            image: 'https://via.placeholder.com/150x200?text=La+Odisea',
-            isPlaceholder: true,
-            publishedDate: '-800',
-            description: 'El viaje épico de Odiseo de regreso a casa.',
-            pageCount: 541,
-            language: 'es',
-            previewLink: '',
-            infoLink: ''
-        },
-        {
-            id: 'placeholder-5',
-            title: '1984',
-            authors: ['George Orwell'],
-            genres: ['Distopía', 'Ciencia Ficción'],
-            categories: ['Distopía', 'Ciencia Ficción'],
-            rating: 4.4,
-            averageRating: 4.4,
-            reviewCount: 28340,
-            ratingsCount: 28340,
-            coverEmoji: '👁️',
-            thumbnail: '',
-            image: 'https://via.placeholder.com/150x200?text=1984',
-            isPlaceholder: true,
-            publishedDate: '1949',
-            description: 'Una visión aterradora del futuro en una sociedad totalitaria.',
-            pageCount: 328,
-            language: 'es',
-            previewLink: '',
-            infoLink: ''
-        }
-    ];
 };
 
 // Validaciones del lado cliente

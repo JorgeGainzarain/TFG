@@ -17,13 +17,13 @@ export class Api {
       protected libraryController: LibraryController,
       protected likeController: LikeController
   ) {
-    this.apiRouter = Router();
-    this.apiRouter.use('/reviews', reviewController.getRouter());
+    this.apiRouter = Router({ mergeParams: true });
+    this.apiRouter.use('/books/:bookId/reviews', reviewController.getRouter());
     this.apiRouter.use('/auth', userController.getRouter());
     this.apiRouter.use('/health', this.healthCheck.bind(this));
     this.apiRouter.use('/books', bookController.getRouter());
     this.apiRouter.use('/users/:userId/libraries', libraryController.getRouter());
-    this.apiRouter.use('/likes', likeController.getRouter());
+    this.apiRouter.use('/books/:bookId/reviews/:reviewId/likes', likeController.getRouter());
   }
 
   async healthCheck(req: Request, res: Response, next: NextFunction): Promise<void> {
