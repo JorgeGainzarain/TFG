@@ -30,8 +30,9 @@ export class UserService extends BaseService<User> {
     public async register(part_user: Partial<User>): Promise<{ user: Omit<User, 'password'>, token: string }> {
 
         // Validar que el username no exista
-        const existingUser = await this.userRepository.findByFields({ email: part_user.email });
-        if (existingUser) {
+        const existingUsers = await this.userRepository.findByFields({ email: part_user.email });
+        console.log('Existing users with email:', existingUsers);
+        if (existingUsers && existingUsers.length > 0) {
             throw new StatusError(409, 'A user with this username already exists');
         }
 
@@ -44,7 +45,9 @@ export class UserService extends BaseService<User> {
         const user = validateObject(part_user, this.entityConfig.requiredFields);
         const saltRounds = config.security?.bcryptRounds;
         user.password = await bcrypt.hash(user.password, saltRounds);
+        console.log('Creating user with data:', { ...user, password: '***' });
         const createdUser = await this.userRepository.create(user);
+        console.log("User created:", { ...createdUser, password: '***' });
         const { password, ...userWithoutPassword } = createdUser;
 
         // ARREGLAR: Usar el secret correcto del config
@@ -83,10 +86,14 @@ export class UserService extends BaseService<User> {
         }
 
 
-        const foundUser = await this.userRepository.findByFields({ email: user.email });
-        if (!foundUser) {
+        const foundUsers = await this.userRepository.findByFields({ email: user.email });
+        console.log('Found users:', foundUsers);
+        if (!foundUsers || foundUsers.length !== 1) {
+            console.log('User not found or multiple users with same email');
             throw new StatusError(401, 'Invalid email or password');
         }
+        const foundUser = foundUsers[0];
+        console.log('Found user for login:', foundUser);
 
         const isValidPassword = await bcrypt.compare(user.password, foundUser.password);
 

@@ -21,12 +21,18 @@ export class BookRepository extends BaseRepository<Book> {
         return Promise.all(books.map((book) => this.process(book)));
     }
 
-    async findByFields(fields: Partial<Book>): Promise<Book | undefined> {
-        const book = await super.findByFields(fields);
-        if (!book) {
+    async findByFields(fields: Partial<Book>): Promise<Book[] | undefined> {
+        const books = await super.findByFields(fields);
+        if (!books) {
             return undefined;
         }
-        return await this.process(book);
+
+        let processedBooks = [];
+        for (const book of books) {
+            const processedBook = await this.process(book);
+            processedBooks.push(processedBook);
+        }
+        return processedBooks;
     }
 
     async findById(id: number): Promise<Book> {

@@ -87,18 +87,25 @@ export abstract class BaseRepository<T extends Object> {
     async existsById(id: number): Promise<boolean> {
         return (await this.findById(id) !== null);
     }
-    async findByFields(fields: Partial<T>): Promise<T | undefined> {
-        const columns = Object.keys(fields).map(key => `${key} = ?`).join(' AND ');
+    async findByFields(fields: Partial<T>): Promise<T[] | undefined> {
+        const filteredFields = Object.fromEntries(
+            Object.entries(fields).filter(([_, value]) => value !== undefined)
+        );
+        const columns = Object.keys(filteredFields).map(key => `${key} = ?`).join(' AND ');
         const queryDoc = {
             sql: `SELECT * FROM ${this.entityConfig.table_name} WHERE ${columns}`,
-            params: Object.values(fields)
+            params: Object.values(filteredFields)
         };
+        console.log("Executing Query:", queryDoc);
         const result = await this.databaseService.execQuery(queryDoc);
 
-        return result.rows[0]?? undefined;
+        console.log("Query Result:", result);
+
+        return result.rows ?? undefined;
     }
 
     async exists(fields: Partial<T>): Promise<boolean> {
-        return (await this.findByFields(fields) !== undefined);
+        const entries = await this.findByFields(fields);
+        return (entries !== undefined && entries.length > 0);
     }
 }

@@ -88,7 +88,7 @@ const LibraryPage = ({handleAddToLibrary, libraryOptions, genreTranslations}) =>
 
     const handleRemoveFromLibrary = async (bookId) => {
         try {
-            await removeBookFromLibrary(bookId);
+            await removeBookFromLibrary(user.id , bookId);
             // Refrescar la biblioteca después de eliminar el libro
             getUserBooks();
         } catch (error) {

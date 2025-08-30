@@ -81,17 +81,19 @@ export class BookService extends BaseService<Book> {
             return await super.getById(id);
         }
         else {
-            let book = await this.bookRepository.findByFields( { bookId: id })
-            if (!book) {
+            let books = await this.bookRepository.findByFields( { bookId: id })
+            if (!books) {
                 throw new StatusError(404, `Book with ID "${id}" not found.`);
             }
-            else {
-                // Retrieve the book from the database if it exists to see the rating and number of reviews, otherwise set it to 0
-                const reviews = await this.reviewRepository.getByBookId(book.bookId);
-                (book as any).reviewCount = reviews.length;
-                (book as any).rating = reviews.reduce((acc, review) => acc + (review.rating || 0), 0) / (reviews.length || 1);
-                return book;
+            if (books.length > 1) {
+                throw new StatusError(500, `Multiple books found with the same book ID "${id}".`);
             }
+            let book = books[0];
+            // Retrieve the book from the database if it exists to see the rating and number of reviews, otherwise set it to 0
+            const reviews = await this.reviewRepository.getByBookId(book.bookId);
+            (book as any).reviewCount = reviews.length;
+            (book as any).rating = reviews.reduce((acc, review) => acc + (review.rating || 0), 0) / (reviews.length || 1);
+            return book;
         }
     }
 
@@ -104,7 +106,10 @@ export class BookService extends BaseService<Book> {
         return await super.create(book);
     }
 
-    public async searchBooks(searchQuery: string, orderBy: string = 'relevance', page = 0, category = ''): Promise<Book[]> {
+    public async searchBooks(searchQuery: string, orderBy: string = 'relevance', page = 0, category = '', id = ''): Promise<Book[]> {
+        if (id.trim() !== '') {
+            searchQuery = 'default'; // to bypass the empty search query error
+        }
         if (!searchQuery || searchQuery.trim() === '') {
             throw new StatusError(400, 'Search query cannot be empty');
         }
@@ -122,7 +127,15 @@ export class BookService extends BaseService<Book> {
         const GOOGLE_BOOKS_API_URL = 'https://www.googleapis.com/books/v1/volumes';
         const API_KEY = config.googleBooksApiKey;
 
-        let apiUrl = `${GOOGLE_BOOKS_API_URL}?q=intitle:${encodeURIComponent(searchQuery)}+subject:${category}&maxResults=${maxResults}&startIndex=${startIndex}&orderBy=${orderBy}`;
+
+        let apiUrl = '';
+        if (id && id.trim() !== '') {
+            apiUrl = `${GOOGLE_BOOKS_API_URL}?q=${id}`
+        }
+        else {
+            apiUrl = `${GOOGLE_BOOKS_API_URL}?q=intitle:${encodeURIComponent(searchQuery)}+subject:${category}&maxResults=${maxResults}&startIndex=${startIndex}&orderBy=${orderBy}`;
+
+        }
 
         console.log("API URL: " + apiUrl);
 

@@ -149,10 +149,29 @@ const AppContent = () => {
         'LAW': 'Derecho'
     };
 
+    const defaultLibraries = [
+        { id: 1, title: 'Leyendo' },
+        { id: 2, title: 'Completados' },
+        { id: 3, title: 'Por Leer' },
+        { id: 4, title: 'Favoritos' }
+
+    ];
+
+    useEffect(() => {
+        initializeAuth().then(() => {
+            setApiStatus('connected');
+        });
+    }, []);
+
     useEffect(() => {
         const fetchLibraryOptions = async () => {
             try {
-                const response = await getUserLibraries(user?.id || 'default');
+                console.log("Fetching libraries for user:", user);
+                if (!user) {
+                    setLibraryOptions(defaultLibraries);
+                    return;
+                }
+                const response = await getUserLibraries(user.id);
                 console.log("Response from getUserLibraries:", response);
                 const mappedLibraries = Array.isArray(response)
                     ? response.map(lib => ({
@@ -196,12 +215,6 @@ const AppContent = () => {
 
         performHealthCheck();
     }, []); // Solo ejecutar una vez al montar
-
-    useEffect(() => {
-        initializeAuth().then(() => {
-            setApiStatus('connected');
-        });
-    }, []);
 
     // Limpiar estado
     useEffect(() => {
@@ -280,9 +293,13 @@ const AppContent = () => {
         setShowAuthPrompt(false);
     };
 
-    const handleAddToLibrary = async (book, libraryId) => {
-        console.log("Adding book to library:", book, "in library:", libraryId);
-        await addBookToLibrary(user.id, book, libraryId);
+    const handleAddToLibrary = async (book, libraryTitle) => {
+        if(!user) {
+            setShowAuthPrompt(true);
+            return;
+        }
+        console.log("Adding book to library:", book, "in library:", libraryTitle);
+        await addBookToLibrary(user.id, book, libraryTitle);
         alert('Libro añadido a tu librería');
     }
 

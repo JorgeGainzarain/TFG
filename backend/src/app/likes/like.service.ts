@@ -26,7 +26,11 @@ export class LikeService extends BaseService<Like> {
     async like(like: Like): Promise<number> {
         console.log('Liking review:', like);
         // Check if the like already exists
-        const existingLike = await this.likeRepository.findByFields({ userId: like.userId, reviewId: like.reviewId });
+        const existingLikes = await this.likeRepository.findByFields({ userId: like.userId, reviewId: like.reviewId });
+        if (existingLikes && existingLikes.length > 1) {
+            throw new StatusError(500, 'Data integrity error: multiple likes found for the same user and review.');
+        }
+        const existingLike = existingLikes && existingLikes.length === 1 ? existingLikes[0] : undefined;
         if (existingLike) {
 
             console.log(like);

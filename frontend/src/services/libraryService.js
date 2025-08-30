@@ -1,13 +1,20 @@
 // frontend/src/services/libraryService.js
-import { makeAuthenticatedRequest } from './api.js';
+import {makeAuthenticatedRequest} from './api.js';
 
 // Get user's libraries (no userId needed - extracted from token)
-export const getUserLibraries = async (userId) => {
+export const getUserLibraries = async (userId, params = {
+    bookId: undefined,
+    libraryTitle: undefined
+}) => {
     try {
-        const response = await makeAuthenticatedRequest(`/users/${userId}/libraries/`);
+        let url = `/users/${userId}/libraries/`;
+        const queryParams = [];
+        if (params.bookId) queryParams.push(`bookId=${encodeURIComponent(params.bookId)}`);
+        if (params.libraryTitle) queryParams.push(`libraryTitle=${encodeURIComponent(params.libraryTitle)}`);
+        if (queryParams.length) url += `?${queryParams.join('&')}`;
+        const response = await makeAuthenticatedRequest(url);
 
-        const data = (await response.json()).data;
-        return data;
+        return (await response.json()).data;
     } catch (error) {
         console.error('Error fetching user libraries:', error);
         throw error;
@@ -15,12 +22,17 @@ export const getUserLibraries = async (userId) => {
 };
 
 
-export const addBookToLibrary = async (userId, book, libraryId) => {
+export const addBookToLibrary = async (userId, book, libraryTitle) => {
+    const libraries = await getUserLibraries(userId,{ libraryTitle: libraryTitle });
+    console.log("Libraries found: ", libraries);
+    const library = libraries[0];
+    if (!library) {
+        throw new Error(`Library with title "${libraryTitle}" not found.`);
+    }
     try {
-        return await makeAuthenticatedRequest(`/users/${userId}/libraries/`, {
+        return await makeAuthenticatedRequest(`/users/${userId}/libraries/${library.id}/books/`, {
             method: 'POST',
             body: JSON.stringify({
-                title: libraryId,
                 book: book
             }),
         });
@@ -29,9 +41,10 @@ export const addBookToLibrary = async (userId, book, libraryId) => {
     }
 };
 
-export const removeBookFromLibrary = async (book) => {
+export const removeBookFromLibrary = async (userId, book) => {
     try {
-        const response = await makeAuthenticatedRequest(`/library/${book.bookId}`, {
+        const library = await getUserLibraries(userId, { bookId: book.bookId });
+        const response = await makeAuthenticatedRequest(`users/${userId}/libraries/${library.id}/books/${book.bookId}`, {
             method: 'DELETE'
         });
 

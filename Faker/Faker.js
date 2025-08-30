@@ -445,12 +445,14 @@ function generateUsers() {
 }
 
 function generateLibraries(users, books) {
-    console.log("📖 Generando bibliotecas...");
+    console.log("📖 Generating libraries...");
     const librariesData = [];
+    const libraryBooks = [];
     let libraryId = 1;
+    let libraryBookId = 1;
 
     const bar = new cliProgress.SingleBar({
-        format: 'Bibliotecas |{bar}| {value}/{total} | {percentage}%',
+        format: 'Libraries |{bar}| {value}/{total} | {percentage}%',
         clearOnComplete: false,
         hideCursor: true
     }, cliProgress.Presets.shades_classic);
@@ -476,29 +478,34 @@ function generateLibraries(users, books) {
                     .slice(0, faker.number.int({ min: 2, max: 8 }))
                     .map(book => book.bookId);
             } else {
-                // Para otras bibliotecas, más variedad
                 const numBooks = faker.number.int({ min: 3, max: 15 });
                 selectedBooks = faker.helpers.shuffle(books)
                     .slice(0, numBooks)
                     .map(book => book.bookId);
             }
 
-            if (selectedBooks.length > 0) {
-                librariesData.push({
-                    id: libraryId++,
-                    userId: user.id,
-                    title: libraryTitle,
-                    bookIds: selectedBooks
-                });
-            }
+            librariesData.push({
+                id: libraryId,
+                userId: user.id,
+                title: libraryTitle
+            });
 
+            selectedBooks.forEach(bookId => {
+                libraryBooks.push({
+                    id: libraryBookId++,
+                    libraryId: libraryId,
+                    bookId: bookId
+                });
+            });
+
+            libraryId++;
             bar.increment();
         });
     });
 
     bar.stop();
-    console.log(`✅ ${librariesData.length} bibliotecas generadas\n`);
-    return librariesData;
+    console.log(`✅ ${librariesData.length} libraries generated\n`);
+    return { librariesData, libraryBooks };
 }
 
 function generateReviews(users, books) {
@@ -719,13 +726,13 @@ async function main() {
 
         const users = generateUsers();
 
-        const libraries = generateLibraries(users, books);
+        const { librariesData, libraryBooks } = generateLibraries(users, books);
 
         const reviews = generateReviews(users, books);
 
         const likes = generateLikes(users, reviews);
 
-        const cleanData = cleanDataForDB(users, books, reviews, likes, libraries);
+        const cleanData = cleanDataForDB(users, books, reviews, likes, librariesData, libraryBooks);
 
         const metadata = {
             generatedAt: new Date().toISOString(),
@@ -748,7 +755,8 @@ async function main() {
         fs.writeFileSync(`${outputDir}books.json`, JSON.stringify(cleanData.books, null, 2));
         fs.writeFileSync(`${outputDir}reviews.json`, JSON.stringify(cleanData.reviews, null, 2));
         fs.writeFileSync(`${outputDir}likes.json`, JSON.stringify(cleanData.likes, null, 2));
-        fs.writeFileSync(`${outputDir}libraries.json`, JSON.stringify(cleanData.libraries, null, 2));
+        fs.writeFileSync(`${outputDir}libraries.json`, JSON.stringify(librariesData, null, 2));
+        fs.writeFileSync(`${outputDir}library_books.json`, JSON.stringify(libraryBooks, null, 2));
         fs.writeFileSync(`${outputDir}metadata.json`, JSON.stringify(metadata, null, 2));
 
         const completeDataset = { ...cleanData, metadata };

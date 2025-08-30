@@ -47,8 +47,12 @@ async function importJsonToDb() {
         CREATE TABLE IF NOT EXISTS libraries (
                                                  id INTEGER PRIMARY KEY,
                                                  userId INTEGER,
-                                                 title TEXT,
-                                                 bookIds TEXT
+                                                 title TEXT
+        );
+        CREATE TABLE IF NOT EXISTS library_books (
+                                                     id INTEGER PRIMARY KEY,
+                                                     libraryId INTEGER,
+                                                     bookId TEXT
         );
         CREATE TABLE IF NOT EXISTS reviews (
                                                id INTEGER PRIMARY KEY,
@@ -67,9 +71,11 @@ async function importJsonToDb() {
     `);
 
     // --- Read JSONs from ../Faker ---
+// --- Read JSONs ---
     const users = JSON.parse(fs.readFileSync(path.join(jsonFolder, 'users.json'), 'utf-8'));
     const books = JSON.parse(fs.readFileSync(path.join(jsonFolder, 'books.json'), 'utf-8'));
     const libraries = JSON.parse(fs.readFileSync(path.join(jsonFolder, 'libraries.json'), 'utf-8'));
+    const libraryBooks = JSON.parse(fs.readFileSync(path.join(jsonFolder, 'library_books.json'), 'utf-8'));
     const reviews = JSON.parse(fs.readFileSync(path.join(jsonFolder, 'reviews.json'), 'utf-8'));
     const likes = JSON.parse(fs.readFileSync(path.join(jsonFolder, 'likes.json'), 'utf-8'));
 
@@ -80,10 +86,12 @@ async function importJsonToDb() {
         format: '{type} |{bar}| {value}/{total}'
     }, cliProgress.Presets.shades_classic);
 
+// --- Progress bars setup ---
     const bars = {
         users: bar.create(users.length, 0, { type: 'Users   ' }),
         books: bar.create(books.length, 0, { type: 'Books   ' }),
         libraries: bar.create(libraries.length, 0, { type: 'Libraries' }),
+        libraryBooks: bar.create(libraryBooks.length, 0, { type: 'LibBooks ' }),
         reviews: bar.create(reviews.length, 0, { type: 'Reviews  ' }),
         likes: bar.create(likes.length, 0, { type: 'Likes    ' }),
     };
@@ -101,34 +109,53 @@ async function importJsonToDb() {
         bars.users.increment();
     }
 
-    // --- Insert books ---
+// --- Insert books ---
+    const insertedBookIds = new Set();
     for (const book of books) {
-        await db.run(
-            `INSERT INTO books (bookId, title, authors, publishedDate, description, pageCount, categories, thumbnail, language, previewLink)
+        if (insertedBookIds.has(book.bookId)) {
+            // Skip duplicate bookId
+            continue;
+        }
+        try {
+            await db.run(
+                `INSERT INTO books (bookId, title, authors, publishedDate, description, pageCount, categories, thumbnail, language, previewLink)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [
-                book.bookId,
-                book.title,
-                book.authors,
-                book.publishedDate,
-                book.description,
-                book.pageCount,
-                book.categories,
-                book.thumbnail,
-                book.language,
-                book.previewLink,
-            ]
-        );
+                [
+                    book.bookId,
+                    book.title,
+                    book.authors,
+                    book.publishedDate,
+                    book.description,
+                    book.pageCount,
+                    book.categories,
+                    book.thumbnail,
+                    book.language,
+                    book.previewLink,
+                ]
+            );
+            insertedBookIds.add(book.bookId);
+        } catch (err) {
+            console.error('Book insert error:', book.bookId, err.message);
+        }
         bars.books.increment();
     }
 
-    // --- Insert libraries ---
+// --- Insert libraries ---
     for (const lib of libraries) {
         await db.run(
-            `INSERT INTO libraries (id, userId, title, bookIds) VALUES (?, ?, ?, ?)`,
-            [lib.id, lib.userId, lib.title, lib.bookIds.toString()]
+            `INSERT INTO libraries (id, userId, title) VALUES (?, ?, ?)`,
+            [lib.id, lib.userId, lib.title]
         );
         bars.libraries.increment();
+    }
+
+// --- Insert library_books ---
+    for (const lb of libraryBooks) {
+        await db.run(
+            `INSERT INTO library_books (id, libraryId, bookId) VALUES (?, ?, ?)`,
+            [lb.id, lb.libraryId, lb.bookId]
+        );
+        bars.libraryBooks.increment();
     }
 
     // --- Insert reviews ---

@@ -60,9 +60,20 @@ export abstract class BaseService<T extends { id?: number }> {
         return entities;
     }
 
-    async existsByFields(fields: Partial<T>): Promise<T | undefined> {
+    async findByFields(fields: Partial<T>): Promise<T[]> {
         validatePartialObject(fields, this.entityConfig.requiredFields);
-        return await this.repository.findByFields(fields);
+        const entities = await this.repository.findByFields(fields);
+        if (!entities) {
+            throw new StatusError(404, `${this.entityConfig.unit} not found with the provided fields.`);
+        }
+        await this.auditAction(entities, 'retrieved');
+        return entities;
+    }
+
+    async existsByFields(fields: Partial<T>): Promise<boolean> {
+        validatePartialObject(fields, this.entityConfig.requiredFields);
+        const entities = await this.repository.findByFields(fields);
+        return entities !== undefined && entities.length > 0;
     }
 
     async getById(id: number): Promise<T> {

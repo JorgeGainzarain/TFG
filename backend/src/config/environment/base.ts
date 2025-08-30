@@ -7,6 +7,7 @@ import { DBOptions } from "../../database/models/db-options";
 import {Book} from "../../app/books/book.model";
 import {Library} from "../../app/libraries/library.model";
 import {Like} from "../../app/likes/like.model"
+import {Library_Book} from "../../app/library_books/library_books.model";
 
 const libraries =  [
     "Leyendo",
@@ -25,6 +26,7 @@ export const baseConfig: {
         book: EntityConfig<Book>;
         user: EntityConfig<User>;
         library: EntityConfig<Library>
+        library_books: EntityConfig<Library_Book>;
     };
 } = {
     port: 5000,
@@ -97,8 +99,15 @@ export const baseConfig: {
             defaultEntities: libraries,
             requiredFields: [
                 { name: 'userId', type: 'INTEGER' },
-                { name: 'title', type: 'TEXT' },
-                { name: 'bookIds', type: 'TEXT[]' }
+                { name: 'title', type: 'TEXT' }
+            ]
+        },
+        library_books: {
+            table_name: 'library_books',
+            unit: 'LibraryBook',
+            requiredFields: [
+                { name: 'libraryId', type: 'INTEGER' },
+                { name: 'bookId', type: 'TEXT' }
             ]
         }
     }
