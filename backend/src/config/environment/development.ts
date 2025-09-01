@@ -1,5 +1,7 @@
 // src/config/environment/development.ts
 import { baseConfig } from './base';
+import dotenv from 'dotenv';
+dotenv.config();
 
 export const development = {
   ...baseConfig,
@@ -27,7 +29,7 @@ export const development = {
     },
 
     cors: {
-      origin: ['http://localhost:3000', 'http://localhost:3001'], // Múltiples orígenes en dev
+      origin: [process.env.CORS_ORIGIN, 'http://localhost:5000'],
       credentials: true
     },
 

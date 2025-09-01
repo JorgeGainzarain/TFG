@@ -1,10 +1,13 @@
 // src/services/api.js
 import {getAccessToken, logout, refreshAccessToken, isTokenExpired} from './authService.js';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = 'http://localhost:5000/api';
 
 // Generic API request function
-export const apiRequest = async (endpoint, options = {}) => {
+export const apiRequest = async (endpoint, options = {}, timeout = 10000) => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeout);
+
     try {
         const url = `${API_BASE_URL}${endpoint}`;
         const config = {
@@ -12,10 +15,12 @@ export const apiRequest = async (endpoint, options = {}) => {
                 'Content-Type': 'application/json',
                 ...options.headers,
             },
+            signal: controller.signal,
             ...options,
         };
 
         const response = await fetch(url, config);
+        clearTimeout(timer);
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
@@ -24,11 +29,14 @@ export const apiRequest = async (endpoint, options = {}) => {
 
         return await response.json();
     } catch (error) {
+        clearTimeout(timer);
+        if (error.name === 'AbortError') {
+            throw new Error('Request timed out.');
+        }
         console.error('API Request failed:', error);
         throw error;
     }
 };
-
 
 export const makeAuthenticatedRequest = async (endpoint, options = {}) => {
     let token = getAccessToken();

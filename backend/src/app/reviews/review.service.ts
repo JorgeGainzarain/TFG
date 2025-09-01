@@ -44,7 +44,6 @@ export class ReviewService extends BaseService<Review> {
     }
 
     async like(id: number) {
-        console.log("Liking review with ID:", id);
         const review = await this.reviewRepository.findById(id);
         if (!review) {
             throw new StatusError(404, `Review with ID "${id}" not found.`);
@@ -55,7 +54,6 @@ export class ReviewService extends BaseService<Review> {
     }
 
     async unlike(id: number) {
-        console.log("Unliking review with ID:", id);
         const review = await this.reviewRepository.findById(id);
         if (!review) {
             throw new StatusError(404, `Review with ID "${id}" not found.`);

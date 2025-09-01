@@ -96,10 +96,8 @@ export abstract class BaseRepository<T extends Object> {
             sql: `SELECT * FROM ${this.entityConfig.table_name} WHERE ${columns}`,
             params: Object.values(filteredFields)
         };
-        console.log("Executing Query:", queryDoc);
         const result = await this.databaseService.execQuery(queryDoc);
 
-        console.log("Query Result:", result);
 
         return result.rows ?? undefined;
     }

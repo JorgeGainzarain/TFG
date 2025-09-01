@@ -26,6 +26,47 @@ export class Api {
     this.apiRouter.use('/books/:bookId/reviews/:reviewId/likes', likeController.getRouter());
   }
 
+
+  /**
+   * @swagger
+   * /health:
+   *   get:
+   *     tags:
+   *       - Health
+   *     summary: Health check for BookHub API
+   *     description: Returns API status, timestamp, and authentication status.
+   *     responses:
+   *       200:
+   *         description: API is running
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 status:
+   *                   type: string
+   *                   example: OK
+   *                 message:
+   *                   type: string
+   *                   example: BookHub API is running!
+   *                 timestamp:
+   *                   type: string
+   *                   format: date-time
+   *                 auth:
+   *                   type: string
+   *                   example: enabled
+   *       500:
+   *         description: Server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 status:
+   *                   type: string
+   *                 message:
+   *                   type: string
+   */
   async healthCheck(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       res.status(200).json({

@@ -55,13 +55,10 @@ export class LibraryService extends BaseService<Library> {
                 libraryId: library.id,
                 bookId: params.bookId
             });
-            console.log("Library: ", library);
-            console.log('Library_Books entries:', library_Books);
             let bookIds = [];
             for (const lb of library_Books) {
                 bookIds.push(lb.bookId);
             }
-            console.log('Book IDs to fetch:', bookIds);
             let books = [];
             for (const id of bookIds) {
                 // Fetch book from BookService and add to books array
@@ -72,7 +69,6 @@ export class LibraryService extends BaseService<Library> {
             }
             (library as any).books = books;
         }
-        console.log('Libraries with books:', libraries);
         return libraries;
     }
 }

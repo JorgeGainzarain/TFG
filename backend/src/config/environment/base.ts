@@ -138,7 +138,7 @@ export const jwtConfig = {
 
     // Configuración de CORS
     cors: {
-        origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+        origin: process.env.CORS_ORIGIN,
         credentials: true
     },
 

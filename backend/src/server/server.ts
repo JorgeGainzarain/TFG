@@ -1,22 +1,19 @@
 // backend/src/server/server.ts
-
 import { urlencoded } from 'body-parser';
 import { Application } from 'express';
 import { Service } from 'typedi';
-
 import cors from 'cors';
 import express from 'express';
 import morgan from 'morgan';
 import session from "express-session";
 import * as http from "node:http";
-
-// AÑADIR ESTAS NUEVAS IMPORTACIONES
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-
 import { Api } from './api/api';
 import { config } from '../config/environment';
 import { errorHandler } from '../middleware/error_handler';
+
+import { setupSwagger} from "../swagger";
 
 import {
   authRateLimit,
@@ -24,6 +21,7 @@ import {
   sanitizeInput,
   securityLogger
 } from '../middleware/security';
+import path from 'node:path';
 
 @Service()
 export class Server {
@@ -101,6 +99,8 @@ export class Server {
     this.app.use('/api/auth/refresh', authRateLimit);
 
     this.app.use(errorHandler);
+
+    setupSwagger(this.app);
 
     this.serverInstance = this.app.listen(config.port, this.onHttpServerListening);
   }
