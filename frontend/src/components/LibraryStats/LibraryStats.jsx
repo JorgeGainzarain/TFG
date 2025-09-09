@@ -1,4 +1,4 @@
-// frontend/src/components/Library/LibraryStats.jsx
+
 import React from 'react';
 import './LibraryStats.css';
 
@@ -10,22 +10,22 @@ const LibraryStats = ({ libraryData }) => {
         const toReadBooks = libraryData.toRead.length;
         const favoriteBooks = libraryData.favorites.length;
 
-        // Calcular páginas totales leídas
+        
         const totalPagesRead = libraryData.read.reduce((total, book) => {
             return total + (book.totalPages || 0);
         }, 0);
 
-        // Calcular tiempo total de lectura
+        
         const totalReadingTime = libraryData.read.reduce((total, book) => {
             return total + (book.readingTime || 0);
         }, 0);
 
-        // Calcular progreso promedio de libros en lectura
+        
         const averageProgress = readingBooks > 0
             ? libraryData.reading.reduce((total, book) => total + (book.progress || 0), 0) / readingBooks
             : 0;
 
-        // Géneros más leídos
+        
         const genreCounts = {};
         [...libraryData.read, ...libraryData.reading, ...libraryData.favorites].forEach(book => {
             book.genres.forEach(genre => {
@@ -35,7 +35,7 @@ const LibraryStats = ({ libraryData }) => {
 
         const topGenre = Object.entries(genreCounts).sort(([,a], [,b]) => b - a)[0];
 
-        // Libro más reciente
+        
         const allBooks = Object.values(libraryData).flat();
         const mostRecentBook = allBooks.sort((a, b) => new Date(b.addedDate) - new Date(a.addedDate))[0];
 

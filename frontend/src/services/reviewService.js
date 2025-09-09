@@ -31,7 +31,6 @@ export const addReviewToBook = async (book, review) => {
 }
 
 export const likeReview = async (userId, book, review) => {
-    console.log("Review in likeReview: ", review);
     try {
         const response = await makeAuthenticatedRequest(`/books/${book.bookId}/reviews/${review.id}/likes/`, {
             method: 'POST'
@@ -43,13 +42,11 @@ export const likeReview = async (userId, book, review) => {
 }
 
 export const isLiked = async (userId, book, review) => {
-    console.log("Review in isLiked: ", review);
     try {
         const response = await makeAuthenticatedRequest(`/books/${book.bookId}/reviews/${review.id}/likes/me`, {
             method: 'GET'
         });
         const data = await response.json();
-        console.log("IsLiked data: ", data);
         return data;
     } catch (error) {
         console.error('Error checking if review is liked:', error);

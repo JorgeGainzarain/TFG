@@ -1,4 +1,4 @@
-/* frontend/src/components/FilterBar/FilterBar.css */
+
 
 .filters {
     display: flex;
@@ -50,7 +50,7 @@
     padding: 0.5rem;
 }
 
-/* Clear filters button if you want to add one */
+
 .filter-clear-btn {
     padding: 0.5rem 1.2rem;
     background: rgba(248, 113, 113, 0.1);
@@ -71,13 +71,13 @@
     box-shadow: 0 4px 12px rgba(248, 113, 113, 0.2);
 }
 
-/* Active filter indicator */
+
 .filter-select.has-value {
     border-color: var(--primary-gradient);
     background-color: rgba(59, 130, 246, 0.1);
 }
 
-/* Filter label for accessibility */
+
 .filter-label {
     position: absolute;
     width: 1px;
@@ -90,13 +90,13 @@
     border: 0;
 }
 
-/* Loading state */
+
 .filters.loading {
     opacity: 0.6;
     pointer-events: none;
 }
 
-/* Responsive: stack on small screens */
+
 @media (max-width: 768px) {
     .filters {
         flex-direction: column;
@@ -117,7 +117,7 @@
     }
 }
 
-/* Animation */
+
 @keyframes slideDown {
     from {
         opacity: 0;

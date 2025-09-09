@@ -10,7 +10,6 @@ const MobileNavbar = ({ onNavigate, isAuthenticated, onShowAuth }) => {
         if (location.pathname === '/') return 'home';
         if (location.pathname.startsWith('/search')) return 'search';
         if (location.pathname.startsWith('/library')) return 'library';
-        if (location.pathname.startsWith('/ai')) return 'ai';
         if (location.pathname.startsWith('/profile')) return 'profile';
         return 'home';
     };
@@ -30,9 +29,6 @@ const MobileNavbar = ({ onNavigate, isAuthenticated, onShowAuth }) => {
             case 'library':
                 navigate('/library');
                 break;
-            case 'ai':
-                navigate('/ai-recommendations');
-                break;
             case 'profile':
                 navigate('/profile');
                 break;
@@ -49,7 +45,6 @@ const MobileNavbar = ({ onNavigate, isAuthenticated, onShowAuth }) => {
         { id: 'home', icon: '🏠', label: 'Inicio' },
         { id: 'search', icon: '🔍', label: 'Buscar' },
         { id: 'library', icon: '📚', label: 'Librería' },
-        { id: 'ai', icon: '🤖', label: 'IA' }
     ];
 
     return (

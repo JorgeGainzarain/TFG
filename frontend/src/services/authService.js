@@ -1,9 +1,9 @@
 import { makeAuthenticatedRequest} from "./api";
 
-// frontend/src/services/authService.js
+
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
-// Cambiar a sessionStorage para mayor seguridad
+
 const TOKEN_KEY = 'bookhub_access_token';
 const REFRESH_TOKEN_KEY = 'bookhub_refresh_token';
 const USER_KEY = 'bookhub_user';
@@ -14,7 +14,7 @@ export const login = async (credentials) => {
         authState.loading = true;
         notifyAuthChange();
 
-        // Validaciones básicas
+        
         if (!credentials.email || !credentials.password) {
             throw new Error('Email y contraseña son requeridos');
         }
@@ -42,7 +42,7 @@ export const login = async (credentials) => {
         }
 
         if (result.status === 'success' && result.data) {
-            // Guardar tokens y usuario
+            
             setTokens(result.data.accessToken, result.data.refreshToken);
             setUser(result.data.user);
 
@@ -68,7 +68,7 @@ export const logout = async () => {
     try {
         const token = getAccessToken();
 
-        // Intentar notificar al servidor (no crítico si falla)
+        
         if (token) {
             try {
                 await makeAuthenticatedRequest('/auth/logout', { method: 'POST' });
@@ -79,7 +79,7 @@ export const logout = async () => {
     } catch (error) {
         console.error('Logout error:', error);
     } finally {
-        // Limpiar datos locales siempre
+        
         clearTokens();
         authState.user = null;
         authState.isAuthenticated = false;
@@ -92,7 +92,7 @@ export const getCurrentUser = async () => {
         const result = await makeAuthenticatedRequest('/auth/me');
 
         if (result.status === 'success' && result.data) {
-            // Actualizar usuario en el estado
+            
             setUser(result.data.user);
             return result.data.user;
         }
@@ -104,7 +104,7 @@ export const getCurrentUser = async () => {
     }
 };
 
-// Estado de autenticación centralizado
+
 let authState = {
     user: null,
     isAuthenticated: false,
@@ -113,10 +113,10 @@ let authState = {
 };
 
 
-// Listeners para cambios de estado
+
 const authListeners = [];
 
-// Sistema de notificaciones de cambios
+
 const notifyAuthChange = () => {
     authListeners.forEach(listener => {
         try {
@@ -127,7 +127,7 @@ const notifyAuthChange = () => {
     });
 };
 
-// Suscripción a cambios de autenticación
+
 export const subscribeToAuthChanges = (listener) => {
     if (typeof listener !== 'function') {
         throw new Error('El listener debe ser una función');
@@ -143,7 +143,7 @@ export const subscribeToAuthChanges = (listener) => {
     };
 };
 
-// === GESTIÓN DE TOKENS ===
+
 
 export const getAccessToken = () => {
     try {
@@ -187,7 +187,7 @@ export const clearTokens = () => {
     }
 };
 
-// === GESTIÓN DE USUARIO ===
+
 
 export const setUser = (user) => {
     try {
@@ -215,7 +215,7 @@ export const getStoredUser = () => {
     }
 };
 
-// === UTILIDADES DE TOKEN ===
+
 
 export const isTokenExpired = (token) => {
     if (!token) return true;
@@ -228,7 +228,7 @@ export const isTokenExpired = (token) => {
     }
 };
 
-// === REFRESH TOKEN ===
+
 
 export const refreshAccessToken = async () => {
     try {
@@ -263,14 +263,14 @@ export const refreshAccessToken = async () => {
     }
 };
 
-// === FUNCIONES DE AUTENTICACIÓN ===
+
 
 export const register = async (userData) => {
     try {
         authState.loading = true;
         notifyAuthChange();
 
-        // Validaciones del lado cliente
+        
         if (!userData.name || userData.name.trim().length < 3) {
             throw new Error('El nombre debe tener al menos 3 caracteres');
         }
@@ -307,7 +307,7 @@ export const register = async (userData) => {
         }
 
         if (result.status === 'success' && result.data) {
-            // Guardar tokens y usuario
+            
             setTokens(result.data.accessToken, result.data.refreshToken);
             setUser(result.data.user);
 
@@ -329,7 +329,7 @@ export const register = async (userData) => {
     }
 };
 
-// === INICIALIZACIÓN ===
+
 
 export const initializeAuth = async () => {
     try {
@@ -337,11 +337,11 @@ export const initializeAuth = async () => {
         const token = getAccessToken();
 
         if (storedUser && token && !isTokenExpired(token)) {
-            // Token válido, establecer estado
+            
             authState.user = storedUser;
             authState.isAuthenticated = true;
 
-            // Verificar con el servidor en background
+            
             try {
                 const currentUser = await getCurrentUser();
                 if (currentUser) {
@@ -352,7 +352,7 @@ export const initializeAuth = async () => {
                 console.warn('Error verificando usuario con servidor:', error);
             }
         } else if (token && isTokenExpired(token)) {
-            // Intentar renovar token
+            
             const refreshed = await refreshAccessToken();
             if (refreshed && storedUser) {
                 authState.user = storedUser;
@@ -372,7 +372,7 @@ export const initializeAuth = async () => {
     }
 };
 
-// === UTILIDADES ===
+
 
 export const isAuthenticated = () => {
     const token = getAccessToken();

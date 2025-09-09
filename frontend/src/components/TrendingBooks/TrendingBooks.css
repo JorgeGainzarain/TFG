@@ -1,4 +1,4 @@
-/* TrendingBooks.css con funcionalidad de drag */
+
 
 .trending-section {
     background: var(--section-bg);
@@ -37,7 +37,7 @@
     }
 }
 
-/* Container para scroll horizontal con drag */
+
 .cards-grid-horizontal {
     display: flex;
     gap: 1.5rem;
@@ -47,26 +47,26 @@
     margin: 0;
     scroll-behavior: smooth;
     cursor: grab;
-    user-select: none; /* Previene selección de texto durante drag */
-    /* Ocultar scrollbar pero mantener funcionalidad */
+    user-select: none; 
+    
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
 
-    /* Smooth momentum scrolling en iOS */
+    
     -webkit-overflow-scrolling: touch;
 }
 
-/* Estado durante drag */
+
 .cards-grid-horizontal.dragging {
     cursor: grabbing;
-    scroll-behavior: auto; /* Deshabilitar smooth scroll durante drag */
+    scroll-behavior: auto; 
 }
 
 .cards-grid-horizontal.dragging * {
-    pointer-events: none; /* Prevenir clicks durante drag */
+    pointer-events: none; 
 }
 
-/* Webkit scrollbar styling */
+
 .cards-grid-horizontal::-webkit-scrollbar {
     height: 8px;
 }
@@ -86,18 +86,18 @@
     background: rgba(255, 255, 255, 0.5);
 }
 
-/* Book cards en modo horizontal */
+
 .cards-grid-horizontal .book-card {
-    min-width: 280px; /* Ancho mínimo fijo para cada card */
-    width: 280px; /* Ancho fijo */
-    flex-shrink: 0; /* Evita que se encojan */
+    min-width: 280px; 
+    width: 280px; 
+    flex-shrink: 0; 
     border-radius: 16px;
     padding: 20px;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
     cursor: pointer;
     position: relative;
     overflow: hidden;
-    /* Mejorar rendimiento durante animaciones */
+    
     will-change: transform;
     height: 100%;
     display: flex;
@@ -105,19 +105,19 @@
     justify-content: space-between;
 }
 
-/* Hover effect mejorado para scroll horizontal */
+
 .cards-grid-horizontal .book-card:hover {
     transform: translateY(-8px) scale(1.02);
     box-shadow: 0 20px 40px rgba(102, 126, 234, 0.25);
 }
 
-/* Prevenir hover durante drag */
+
 .cards-grid-horizontal.dragging .book-card:hover {
     transform: none;
     box-shadow: none;
 }
 
-/* Indicador visual de scroll */
+
 .scroll-indicator {
     display: flex;
     justify-content: center;
@@ -141,12 +141,12 @@
     50% { opacity: 1; }
 }
 
-/* Ocultar hint durante drag */
+
 .cards-grid-horizontal.dragging ~ .scroll-indicator .scroll-hint {
     opacity: 0.3;
 }
 
-/* Botones de navegación */
+
 .scroll-navigation {
     display: flex;
     justify-content: space-between;
@@ -176,7 +176,7 @@
     font-size: 1.1rem;
     font-weight: 600;
 
-    /* Aparecer/desaparecer suavemente */
+    
     opacity: 0;
     visibility: hidden;
     animation: buttonFadeIn 0.3s ease forwards;
@@ -207,7 +207,7 @@
     right: -22px;
 }
 
-/* Efectos específicos para libros en tendencia */
+
 @keyframes flicker {
     0% { opacity: 0.7; }
     100% { opacity: 1; }
@@ -220,7 +220,7 @@
     text-align: center;
 }
 
-/* Mobile Responsive */
+
 @media (max-width: 768px) {
     .trending-indicators {
         flex-direction: column;
@@ -233,11 +233,11 @@
         padding: 0.4rem 0.8rem;
     }
 
-    /* En móvil, mantener scroll horizontal pero ajustar tamaños */
+    
     .cards-grid-horizontal {
         gap: 1rem;
         padding: 0.5rem 0;
-        /* Mejor scroll en móvil */
+        
         scroll-snap-type: x mandatory;
     }
 
@@ -261,7 +261,7 @@
         right: -20px;
     }
 
-    /* Mostrar hint de scroll en móvil */
+    
     .scroll-indicator {
         margin-top: 0.5rem;
     }
@@ -296,7 +296,7 @@
     }
 }
 
-/* Mejoras para accesibilidad */
+
 @media (prefers-reduced-motion: reduce) {
     .cards-grid-horizontal {
         scroll-behavior: auto;
@@ -313,7 +313,7 @@
     }
 }
 
-/* Focus states para navegación con teclado */
+
 .scroll-btn:focus {
     outline: 2px solid var(--primary-gradient);
     outline-offset: 2px;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import BookCard from '../BookCard/BookCard';
 import FilterBar from '../FilterBar/FilterBar';
 import './SearchResults.css';
@@ -13,7 +13,7 @@ const SearchResults = ({
                            onLoadMore,
                            currentQuery,
                            genreOptions,
-                           genreTranslations,
+                           genreTranslations
                        }) => {
     const [filteredResults, setFilteredResults] = useState(results);
     const [prevQuery, setPrevQuery] = useState(currentQuery);
@@ -22,14 +22,14 @@ const SearchResults = ({
     useEffect(() => {
         let filtered = [...results];
 
-        // Filter by genre
+        
         if (filters.genre) {
             filtered = filtered.filter(book =>
                 (book.categories || []).includes(filters.genre)
             );
         }
 
-        // Filter by year
+        
         if (filters.year) {
             if (filters.year === 'clasicos') {
                 filtered = filtered.filter(book => {
@@ -45,7 +45,7 @@ const SearchResults = ({
             }
         }
 
-        // Sort by filter
+        
         switch (filters.sortBy) {
             case 'rating':
                 filtered.sort((a, b) => (b.rating || b.averageRating || 0) - (a.rating || a.averageRating || 0));
@@ -67,7 +67,7 @@ const SearchResults = ({
                 filtered.sort((a, b) => a.author.localeCompare(b.author));
                 break;
             default:
-                // relevance - keep original order
+                
                 break;
         }
 

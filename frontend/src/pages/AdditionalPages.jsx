@@ -1,8 +1,8 @@
 import React from 'react';
 import './Pages.css';
 
-// Página de Recomendaciones IA
-export const AIRecommendationsPage = ({ user, isAuthenticated, onShowAuth }) => {
+
+export const AIRecommendationsPage = ({ user, isAuthenticated, onShowAuth, recommendations }) => {
     return (
         <div className="page-container">
             <div className="page-header">
@@ -18,7 +18,7 @@ export const AIRecommendationsPage = ({ user, isAuthenticated, onShowAuth }) => 
     );
 };
 
-// Página de Perfil
+
 export const ProfilePage = ({ user, isAuthenticated, onShowAuth, handleLogout }) => {
     if (!isAuthenticated) {
         return (
@@ -64,7 +64,7 @@ export const ProfilePage = ({ user, isAuthenticated, onShowAuth, handleLogout })
     );
 };
 
-// Página 404
+
 export const NotFoundPage = () => {
     return (
         <div className="page-container">

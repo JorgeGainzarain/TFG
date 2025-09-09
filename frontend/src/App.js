@@ -10,11 +10,12 @@ import LibraryPage from './pages/LibraryPage';
 import { AIRecommendationsPage, ProfilePage, NotFoundPage } from './pages/AdditionalPages';
 import { useAuth } from './hooks/useAuth';
 import { healthCheck } from './services/api';
+import { getRecommendedBooks } from './services/bookService';
 import {addBookToLibrary, getUserLibraries} from './services/libraryService';
 import './App.css';
 import {getCurrentUser, initializeAuth, logout} from "./services/authService";
 
-// Componente interno que tiene acceso a useLocation
+
 const AppContent = () => {
     const [isMobile, setIsMobile] = useState(false);
     const [searchResults, setSearchResults] = useState([]);
@@ -26,17 +27,18 @@ const AppContent = () => {
     const [showAuthPrompt, setShowAuthPrompt] = useState(false);
     const [libraryOptions, setLibraryOptions] = useState([]);
     const [showUserMenu, setShowUserMenu] = useState(false);
+    const [recommendations, setRecommendations] = useState([]);
 
-    // Ref para la navbar
+    
     const navbarRef = useRef();
 
     const navigate = useNavigate();
 
-    // Hook de autenticación
+    
     const { user, isAuthenticated, initialized } = useAuth();
     const location = useLocation();
 
-    // Unique genres list
+    
     const uniqueGenres = useMemo(() => [
         'ANTIQUES & COLLECTIBLES',
         'LITERARY COLLECTIONS',
@@ -149,13 +151,12 @@ const AppContent = () => {
         'LAW': 'Derecho'
     };
 
-    const defaultLibraries = [
+    const defaultLibraries = useMemo(() => [
         { id: 1, title: 'Leyendo' },
         { id: 2, title: 'Completados' },
         { id: 3, title: 'Por Leer' },
         { id: 4, title: 'Favoritos' }
-
-    ];
+    ], []);
 
     useEffect(() => {
         initializeAuth().then(() => {
@@ -187,14 +188,14 @@ const AppContent = () => {
         };
 
         fetchLibraryOptions();
-    }, []);
+    }, [defaultLibraries, user]);
 
 
     useEffect(() => {
         const checkIfMobile = () => {
             setIsMobile(window.innerWidth <= 768);
         };
-        // Check on mount and on resize
+        
         checkIfMobile();
         window.addEventListener('resize', checkIfMobile);
         return () => window.removeEventListener('resize', checkIfMobile);
@@ -214,9 +215,9 @@ const AppContent = () => {
         };
 
         performHealthCheck();
-    }, []); // Solo ejecutar una vez al montar
+    }, []); 
 
-    // Limpiar estado
+    
     useEffect(() => {
         if (location.pathname !== '/search') {
             setSearchResults([]);
@@ -225,6 +226,27 @@ const AppContent = () => {
             setIsSearching(false);
         }
     }, [location.pathname]);
+
+    const fetchRecommendations = async () => {
+        try {
+            const recs = await getRecommendedBooks();
+            setRecommendations(recs || []);
+        } catch (error) {
+            console.error('Error fetching recommendations:', error);
+            setRecommendations([]);
+        }
+    };
+
+    useEffect(() => {
+        
+        const user = getCurrentUser();
+        if (user) {
+            fetchRecommendations();
+        }
+        else {
+            setRecommendations([]);
+        }
+    }, []);
 
     const checkApiHealth = async () => {
         try {
@@ -267,7 +289,6 @@ const AppContent = () => {
     };
 
     const clearSearch = () => {
-        const recommendations = [];
         setSearchResults(recommendations);
         setSearchQuery('');
         setSearchError(null);
@@ -287,6 +308,7 @@ const AppContent = () => {
 
     const handleCloseAuth = () => {
         setShowAuthOverlay(false);
+        fetchRecommendations()
     };
 
     const handleCloseAuthPrompt = () => {
@@ -303,7 +325,7 @@ const AppContent = () => {
         alert('Libro añadido a tu librería');
     }
 
-    // Mostrar loading mientras se inicializa la auth
+    
     if (!initialized) {
         return (
             <div className="app">
@@ -362,6 +384,7 @@ const AppContent = () => {
                                 libraryOptions={libraryOptions}
                                 genreOptions={uniqueGenres}
                                 genreTranslations={genreTranslations}
+                                recommendations={recommendations}
                             />
                         }
                     />
@@ -415,6 +438,7 @@ const AppContent = () => {
                                 user={user}
                                 isAuthenticated={isAuthenticated}
                                 onShowAuth={handleShowAuth}
+                                recommendations={recommendations}
                             />
                         }
                     />
@@ -522,7 +546,7 @@ const AppContent = () => {
     );
 };
 
-// Componente principal que envuelve todo con Router
+
 const App = () => {
     return (
         <Router>

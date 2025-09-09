@@ -1,4 +1,4 @@
-/* LibraryContent.css - Updated to use BookCard components */
+
 
 .library-content {
     display: flex;
@@ -15,7 +15,7 @@
     overflow: hidden;
 }
 
-/* === LIBRARY CONTROLS === */
+
 .library-controls {
     margin-bottom: 2rem;
 }
@@ -209,7 +209,7 @@
     background: rgba(255,255,255,0.08);
 }
 
-/* === BOOKSHELF === */
+
 .bookshelf {
     padding: 2rem 2.5rem 2.5rem;
     min-height: 600px;
@@ -242,7 +242,7 @@
     font-weight: 500;
 }
 
-/* === BOOK GRID === */
+
 .books-grid {
     animation: slideInUp 0.6s ease-out;
     flex: 1;
@@ -294,7 +294,7 @@
     background: rgba(255, 255, 255, 0.5);
 }
 
-/* Ensure BookCard components work properly in horizontal view */
+
 .books-grid.horizontal .cards-grid-horizontal {
     display: flex;
     gap: 1.5rem;
@@ -313,7 +313,7 @@
     }
 }
 
-/* === EMPTY STATE === */
+
 .empty-state {
     display: flex;
     align-items: center;
@@ -364,7 +364,7 @@
     box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
 }
 
-/* === STATISTICS SIDEBAR === */
+
 .stats-sidebar {
     width: 350px;
     background: rgba(255,255,255,0.02);
@@ -453,7 +453,7 @@
     font-weight: 600;
 }
 
-/* === RESPONSIVE === */
+
 @media (max-width: 1200px) {
     .stats-sidebar {
         width: 300px;
@@ -644,7 +644,7 @@
     }
 }
 
-/* === ACCESSIBILITY === */
+
 @media (prefers-reduced-motion: reduce) {
     .books-grid,
     .shelf-btn,
@@ -660,7 +660,7 @@
     }
 }
 
-/* Focus states for keyboard navigation */
+
 .shelf-btn:focus,
 .search-input:focus,
 .sort-select:focus,
@@ -670,7 +670,7 @@
     outline-offset: 2px;
 }
 
-/* High contrast mode support */
+
 @media (prefers-contrast: more) {
     .shelf-btn,
     .search-input,

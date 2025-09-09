@@ -4,7 +4,7 @@ import { validateEmail, validatePassword, validateName } from '../../services/ap
 import './AuthOverlay.css';
 
 const AuthOverlay = ({ isVisible, onClose, onAuthSuccess }) => {
-    const [mode, setMode] = useState('login'); // 'login' o 'register'
+    const [mode, setMode] = useState('login');
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -15,7 +15,6 @@ const AuthOverlay = ({ isVisible, onClose, onAuthSuccess }) => {
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
-    // Reset form cuando se abre/cierra o cambia modo
     React.useEffect(() => {
         if (isVisible) {
             setFormData({
@@ -35,7 +34,6 @@ const AuthOverlay = ({ isVisible, onClose, onAuthSuccess }) => {
             [name]: value
         }));
 
-        // Limpiar error específico cuando el usuario empieza a escribir
         if (errors[name]) {
             setErrors(prev => ({
                 ...prev,

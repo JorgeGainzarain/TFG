@@ -1,6 +1,6 @@
-/* frontend/src/components/ReviewsSection/ReviewsSection.css */
 
-/* Reviews Section Container */
+
+
 .reviews-section {
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.08);
@@ -9,7 +9,7 @@
     margin-top: 2rem;
 }
 
-/* Section Header */
+
 .section-header {
     display: flex;
     justify-content: space-between;
@@ -23,7 +23,7 @@
     color: var(--text-primary);
 }
 
-/* Botón de añadir reseña */
+
 .add-review-btn {
     background: linear-gradient(135deg, var(--primary-gradient) 0%, var(--bg-card-hover) 100%);
     color: white;
@@ -42,7 +42,7 @@
     box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
 }
 
-/* Formulario para añadir reseña */
+
 .add-review-form {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -64,7 +64,7 @@
     font-size: 0.95rem;
 }
 
-/* Selector de estrellas */
+
 .rating-selector {
     display: flex;
     gap: 0.5rem;
@@ -90,7 +90,7 @@
     color: var(--star-color);
 }
 
-/* Textarea de reseña */
+
 .review-textarea {
     width: 100%;
     min-height: 120px;
@@ -115,7 +115,7 @@
     color: var(--text-muted);
 }
 
-/* Botón de enviar reseña */
+
 .submit-review-btn {
     background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     color: white;
@@ -140,14 +140,14 @@
     cursor: not-allowed;
 }
 
-/* Reviews Container */
+
 .reviews-container {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
 }
 
-/* Review Card */
+
 .review-card {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.08);
@@ -156,7 +156,7 @@
     transition: all 0.2s ease;
 }
 
-/* Review Header */
+
 .review-header {
     display: flex;
     justify-content: space-between;
@@ -211,14 +211,14 @@
     font-size: 1rem;
 }
 
-/* Review Text */
+
 .review-text {
     color: var(--text-secondary);
     line-height: 1.6;
     margin-bottom: 1rem;
 }
 
-/* Review Actions */
+
 .review-actions {
     display: flex;
     gap: 1.5rem;
@@ -271,7 +271,7 @@
     50% { transform: scale(1.2); }
 }
 
-/* Estados de carga y error */
+
 .loading, .error, .no-reviews {
     text-align: center;
     padding: 2rem;
@@ -288,7 +288,7 @@
     border-radius: 12px;
 }
 
-/* Responsive */
+
 @media (max-width: 768px) {
     .reviews-section {
         padding: 1.5rem;
@@ -322,7 +322,7 @@
     }
 }
 
-/* Controles de edición */
+
 .review-controls {
     display: flex;
     gap: 0.5rem;

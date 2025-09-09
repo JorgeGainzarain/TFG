@@ -44,9 +44,7 @@ export class BookRepository extends BaseRepository<Book> {
     }
 
     async create(book: Book): Promise<any> {
-        console.log("Book before process: ", book);
         book = await this.process(book);
-        console.log("Book after process: ", book);
         return await super.create(book);
     }
 
@@ -79,5 +77,14 @@ export class BookRepository extends BaseRepository<Book> {
         }
 
         return book;
+    }
+
+    async getRecommendedBookIds(userId: any) {
+        const queryDoc = {
+            sql: `SELECT bookId FROM recommendations WHERE userId = ?`,
+            params: [userId]
+        }
+        const result = await this.databaseService.execQuery(queryDoc);
+        return result.rows ?? [];
     }
 }

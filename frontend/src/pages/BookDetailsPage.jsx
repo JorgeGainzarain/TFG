@@ -1,4 +1,4 @@
-// frontend/src/pages/BookDetailsPage.jsx
+
 import React from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import BookDetails from '../components/BookDetails/BookDetails';
@@ -9,20 +9,20 @@ const BookDetailsPage = ({ user, isAuthenticated, onShowAuth, handleAddToLibrary
     const location = useLocation();
     const navigate = useNavigate();
 
-    // Obtener los datos del libro del state de la ubicación
+    
     const book = location.state?.book;
 
     const handleGoBack = () => {
-        // Si hay history, ir atrás
+        
         if (window.history.length > 1) {
             navigate(-1);
         } else {
-            // Fallback al home
+            
             navigate('/');
         }
     };
 
-    // Si no hay datos del libro, mostrar mensaje de error
+    
     if (!book) {
         return (
             <div className="page-container">

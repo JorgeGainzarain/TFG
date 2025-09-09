@@ -1,10 +1,9 @@
 import React from 'react';
 import Hero from '../components/WelcomeMessage/WelcomeMessage';
 import AIRecommendations from '../components/AIRecommnedations/AIRecommendations';
-import TrendingBooks from '../components/TrendingBooks/TrendingBooks';
-import ReviewsSection from '../components/ReviewsSection/ReviewsSection';
+import TrendingBooks from '../components/TrendingBooks/TrendingBooks'
 
-const HomePage = ({ user, isAuthenticated, onShowAuth, handleAddToLibrary, libraryOptions, genreOptions, genreTranslations }) => {
+const HomePage = ({ user, isAuthenticated, onShowAuth, handleAddToLibrary, libraryOptions, genreOptions, genreTranslations, recommendations }) => {
     return (
         <>
             <Hero />
@@ -14,6 +13,8 @@ const HomePage = ({ user, isAuthenticated, onShowAuth, handleAddToLibrary, libra
                 onShowAuth={onShowAuth}
                 genreOptions={genreOptions}
                 genreTranslations={genreTranslations}
+                recommendations={recommendations}
+                handleAddToLibrary={handleAddToLibrary}
             />
             <div className="section-spacing"></div>
             <TrendingBooks

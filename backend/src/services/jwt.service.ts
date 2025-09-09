@@ -18,8 +18,8 @@ export interface TokenPair {
 export class JWTService {
     private static ACCESS_TOKEN_SECRET = config.jwt.accessTokenSecret || 'your-access-secret';
     private static REFRESH_TOKEN_SECRET = config.jwt.refreshTokenSecret || 'your-refresh-secret';
-    private static ACCESS_TOKEN_EXPIRY = '15m'; // 15 minutos
-    private static REFRESH_TOKEN_EXPIRY = '7d'; // 7 días
+    private static ACCESS_TOKEN_EXPIRY = '15m';
+    private static REFRESH_TOKEN_EXPIRY = '7d';
 
     static generateTokenPair(payload: Omit<JWTPayload, 'iat' | 'exp'>): TokenPair {
         const accessToken = jwt.sign(

@@ -3,6 +3,7 @@ import { Book } from "./book.model";
 import { BaseController } from "../base/base.controller";
 import { config } from '../../config/environment';
 import { BookService } from "./book.service";
+import {authenticateToken} from "../../middleware/auth.middleware";
 
 /**
  * @swagger
@@ -120,6 +121,7 @@ export class BookController extends BaseController<Book> {
         super(bookService);
 
         this.getRouter().get('/trending', this.getTrending.bind(this));
+        this.getRouter().get('/recommendations', authenticateToken, this.getRecommendations.bind(this));
         this.getRouter().get('/:id', this.getById.bind(this));
         this.getRouter().get('/', this.search.bind(this));
     }
@@ -160,6 +162,58 @@ export class BookController extends BaseController<Book> {
             res.status(200).json({
                 status: 'success',
                 message: 'Trending books retrieved successfully',
+                data: books
+            });
+        } catch (error: any) {
+            next(error);
+        }
+    }
+
+    /**
+     * @swagger
+     * /books/recommendations:
+     *   get:
+     *     tags:
+     *       - Books
+     *     summary: Get personalized book recommendations for the authenticated user
+     *     security:
+     *       - bearerAuth: []
+     *     responses:
+     *       200:
+     *         description: Recommended books retrieved successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 status:
+     *                   type: string
+     *                 message:
+     *                   type: string
+     *                 data:
+     *                   type: array
+     *                   items:
+     *                     $ref: '#/components/schemas/Book'
+     *       401:
+     *         description: Unauthorized - Missing or invalid token
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ErrorResponse'
+     *       500:
+     *         description: Server error
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ErrorResponse'
+     */
+    async getRecommendations(req: any, res: any, next: any): Promise<void> {
+        try {
+            const userId = req.user.id;
+            const books = await this.bookService.getRecommendedBooks(userId);
+            res.status(200).json({
+                status: 'success',
+                message: 'Recommended books retrieved successfully',
                 data: books
             });
         } catch (error: any) {

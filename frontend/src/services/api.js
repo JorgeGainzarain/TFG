@@ -1,9 +1,9 @@
-// src/services/api.js
+
 import {getAccessToken, logout, refreshAccessToken, isTokenExpired} from './authService.js';
 
 const API_BASE_URL = 'http://localhost:5000/api';
 
-// Generic API request function
+
 export const apiRequest = async (endpoint, options = {}, timeout = 10000) => {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeout);
@@ -41,7 +41,7 @@ export const apiRequest = async (endpoint, options = {}, timeout = 10000) => {
 export const makeAuthenticatedRequest = async (endpoint, options = {}) => {
     let token = getAccessToken();
 
-    // Verificar si el token está expirado
+    
     if (token && isTokenExpired(token)) {
         const refreshed = await refreshAccessToken();
         if (!refreshed) {
@@ -63,7 +63,7 @@ export const makeAuthenticatedRequest = async (endpoint, options = {}) => {
     try {
         let response = await fetch(`${API_BASE_URL}${endpoint}`, config);
 
-        // Si recibimos 401, intentar refresh una vez
+        
         if (response.status === 401 && token) {
             const refreshed = await refreshAccessToken();
             if (refreshed) {
@@ -82,12 +82,12 @@ export const makeAuthenticatedRequest = async (endpoint, options = {}) => {
     }
 };
 
-// Health check
+
 export const healthCheck = async () => {
     return apiRequest('/health');
 };
 
-// Error handling utility
+
 export const handleApiError = (error) => {
     if (error.name === 'TypeError' && error.message.includes('fetch')) {
         return 'No se pudo conectar con el servidor. Verifica tu conexión a internet.';
@@ -104,7 +104,7 @@ export const handleApiError = (error) => {
     return error.message || 'Ha ocurrido un error inesperado.';
 };
 
-// Validaciones del lado cliente
+
 export const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);

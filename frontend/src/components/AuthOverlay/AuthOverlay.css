@@ -348,7 +348,7 @@
     line-height: 1.4;
 }
 
-/* Mobile Responsive */
+
 @media (max-width: 768px) {
     .auth-overlay {
         align-items: flex-start;
@@ -390,7 +390,7 @@
 
     .form-input {
         padding: 0.75rem;
-        font-size: 16px; /* Evita zoom en iOS */
+        font-size: 16px; 
     }
 
     .auth-submit-btn {
@@ -410,7 +410,7 @@
     }
 }
 
-/* Scroll personalizado para el modal */
+
 .auth-modal::-webkit-scrollbar {
     width: 6px;
 }

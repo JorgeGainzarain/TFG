@@ -48,7 +48,7 @@
     border: none;
 }
 
-/* Mobile Responsive */
+
 @media (max-width: 768px) {
     .sort-dropdown-container {
         flex-direction: column;

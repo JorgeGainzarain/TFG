@@ -1,4 +1,4 @@
-// frontend/src/components/ReviewsSection/ReviewsSection.jsx
+
 import React, { useState, useEffect } from 'react';
 import {addReviewToBook, getReviewsFromBook, updateReview, deleteReview, likeReview, isLiked} from "../../services/reviewService";
 import './ReviewsSection.css';
@@ -25,8 +25,6 @@ const ReviewsSection = ({ book, isAuthenticated, onShowAuth }) => {
             const likedSet = new Set();
             for (const review of reviews) {
                 const liked = await isLiked(user.id, book, review);
-                console.log("Checking if review is liked:", review.id, "Result:", liked);
-                console.log(liked);
                 if (liked.liked) likedSet.add(review.id || review._id);
             }
             setLikedReviews(likedSet);
@@ -113,7 +111,6 @@ const ReviewsSection = ({ book, isAuthenticated, onShowAuth }) => {
 
     const handleDeleteReview = async (id) => {
         if (!window.confirm("¿Estás seguro de que quieres eliminar esta reseña?")) return;
-        console.log("Deleting review with ID:", id);
         await deleteReview(book, id);
         setReviews(reviews.filter(r => (r._id || r.id) !== id));
     };
@@ -197,7 +194,6 @@ const ReviewsSection = ({ book, isAuthenticated, onShowAuth }) => {
                 {!loading && !error && reviews.map((review) => {
                     const id = review.id || review._id;
                     const liked = likedReviews.has(review.id || review._id);
-                    console.log("Liked?:", liked);
                     const isOwner = user && (review.userId === user?.id);
 
                     return (

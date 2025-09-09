@@ -1,7 +1,16 @@
-// frontend/src/components/BookCard/BookCard.jsx
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './BookCard.css';
+
+const useIsMobile = () => {
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+    return isMobile;
+};
 
 const BookCard = ({
                       book,
@@ -19,6 +28,9 @@ const BookCard = ({
     const [showDropdown, setShowDropdown] = useState(false);
     const dropdownRef = useRef(null);
     const buttonRef = useRef(null);
+
+    const isMobile = useIsMobile();
+    const effectiveVariant = isMobile ? 'vertical' : variant;
 
     const renderStars = (rating) => {
         const stars = [];
@@ -102,8 +114,7 @@ const BookCard = ({
     const publishedYear = formatPublishedDate(book.publishedDate);
     const currentShelf = book.status;
 
-    // Horizontal variant
-    if (variant === 'horizontal') {
+    if (effectiveVariant === 'horizontal') {
         return (
             <div
                 className={`book-card horizontal glass ${showDropdown ? 'dropdown-active' : ''}`}
@@ -215,7 +226,7 @@ const BookCard = ({
         );
     }
 
-    // Vertical variant (default)
+    
     return (
         <div
             className={`book-card vertical glass ${showDropdown ? 'dropdown-active' : ''}`}

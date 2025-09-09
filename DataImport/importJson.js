@@ -2,20 +2,17 @@ const fs = require('fs');
 const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
 const { open } = require('sqlite');
-const cliProgress = require('cli-progress'); // Progress bar
+const cliProgress = require('cli-progress');
 
-// --- Paths ---
 const jsonFolder = path.resolve(__dirname, '../Faker');
 const dbFolder = path.resolve(__dirname, '../backend/src/data');
 const dbPath = path.join(dbFolder, 'dev-books.db');
 
-// Create folder if not exists
 if (!fs.existsSync(dbFolder)) {
     fs.mkdirSync(dbFolder, { recursive: true });
 }
 
 async function importJsonToDb() {
-    // Open database
     const db = await open({
         filename: dbPath,
         driver: sqlite3.Database
@@ -23,7 +20,6 @@ async function importJsonToDb() {
 
     await db.exec('PRAGMA foreign_keys = ON;');
 
-    // --- Create tables if not exist ---
     await db.exec(`
         CREATE TABLE IF NOT EXISTS users (
                                              id INTEGER PRIMARY KEY,
@@ -70,8 +66,6 @@ async function importJsonToDb() {
         );
     `);
 
-    // --- Read JSONs from ../Faker ---
-// --- Read JSONs ---
     const users = JSON.parse(fs.readFileSync(path.join(jsonFolder, 'users.json'), 'utf-8'));
     const books = JSON.parse(fs.readFileSync(path.join(jsonFolder, 'books.json'), 'utf-8'));
     const libraries = JSON.parse(fs.readFileSync(path.join(jsonFolder, 'libraries.json'), 'utf-8'));
@@ -79,14 +73,12 @@ async function importJsonToDb() {
     const reviews = JSON.parse(fs.readFileSync(path.join(jsonFolder, 'reviews.json'), 'utf-8'));
     const likes = JSON.parse(fs.readFileSync(path.join(jsonFolder, 'likes.json'), 'utf-8'));
 
-    // --- Progress bars setup ---
     const bar = new cliProgress.MultiBar({
         clearOnComplete: false,
         hideCursor: true,
         format: '{type} |{bar}| {value}/{total}'
     }, cliProgress.Presets.shades_classic);
 
-// --- Progress bars setup ---
     const bars = {
         users: bar.create(users.length, 0, { type: 'Users   ' }),
         books: bar.create(books.length, 0, { type: 'Books   ' }),
@@ -96,7 +88,6 @@ async function importJsonToDb() {
         likes: bar.create(likes.length, 0, { type: 'Likes    ' }),
     };
 
-    // --- Insert users ---
     for (const user of users) {
         try {
             await db.run(
@@ -109,11 +100,9 @@ async function importJsonToDb() {
         bars.users.increment();
     }
 
-// --- Insert books ---
     const insertedBookIds = new Set();
     for (const book of books) {
         if (insertedBookIds.has(book.bookId)) {
-            // Skip duplicate bookId
             continue;
         }
         try {
@@ -140,7 +129,6 @@ async function importJsonToDb() {
         bars.books.increment();
     }
 
-// --- Insert libraries ---
     for (const lib of libraries) {
         await db.run(
             `INSERT INTO libraries (id, userId, title) VALUES (?, ?, ?)`,
@@ -149,7 +137,6 @@ async function importJsonToDb() {
         bars.libraries.increment();
     }
 
-// --- Insert library_books ---
     for (const lb of libraryBooks) {
         await db.run(
             `INSERT INTO library_books (id, libraryId, bookId) VALUES (?, ?, ?)`,
@@ -158,7 +145,6 @@ async function importJsonToDb() {
         bars.libraryBooks.increment();
     }
 
-    // --- Insert reviews ---
     for (const review of reviews) {
         await db.run(
             `INSERT INTO reviews (id, bookId, userId, rating, comment, createdAt, likes)
@@ -168,7 +154,6 @@ async function importJsonToDb() {
         bars.reviews.increment();
     }
 
-    // --- Insert likes ---
     for (const like of likes) {
         await db.run(
             `INSERT INTO likes (id, reviewId, userId) VALUES (?, ?, ?)`,
@@ -183,7 +168,6 @@ async function importJsonToDb() {
     await db.close();
 }
 
-// Delete existing database to avoid conflicts
 if (fs.existsSync(dbPath)) {
     fs.unlinkSync(dbPath);
 }

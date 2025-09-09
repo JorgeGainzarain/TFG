@@ -1,9 +1,9 @@
 import {apiRequest, makeAuthenticatedRequest} from './api';
 
-// Book API functions - estos endpoints necesitarán ser implementados en tu backend
+
 export const bookAPI = {
-    // Search books - este endpoint necesita ser implementado
-// Accepts query, orderBy, maxResults, genre, year, etc.
+    
+
     searchBooks: async (query, { orderBy, genre, year, page } = {}) => {
         const params = new URLSearchParams();
         if (query) params.append('q', query);
@@ -23,17 +23,6 @@ export const bookAPI = {
 
 };
 
-export const updateBook = async (book) => {
-    try {
-        return await makeAuthenticatedRequest(`/libraries/${book.bookId}`, {
-            method: 'PUT',
-            body: JSON.stringify(book),
-        });
-    } catch (error) {
-        console.error('Error updating book:', error);
-    }
-}
-
 export const getTrendingBooks = async () => {
     try {
         const response = await apiRequest('/books/trending', {
@@ -43,5 +32,19 @@ export const getTrendingBooks = async () => {
         return response;
     } catch (error) {
         console.error('Error fetching trending books:', error);
+    }
+}
+
+export const getRecommendedBooks = async () => {
+    try {
+        const response = await makeAuthenticatedRequest('/books/recommendations', {
+            method: 'GET',
+        });
+
+        const result = await response.json();
+
+        return result.data || [];
+    } catch (error) {
+        console.error('Error fetching recommended books:', error);
     }
 }

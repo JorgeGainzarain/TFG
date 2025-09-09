@@ -24,7 +24,6 @@ export class LikeService extends BaseService<Like> {
     }
 
     async like(like: Like): Promise<number> {
-        console.log('Liking review:', like);
         // Check if the like already exists
         const existingLikes = await this.likeRepository.findByFields({ userId: like.userId, reviewId: like.reviewId });
         if (existingLikes && existingLikes.length > 1) {
@@ -32,10 +31,7 @@ export class LikeService extends BaseService<Like> {
         }
         const existingLike = existingLikes && existingLikes.length === 1 ? existingLikes[0] : undefined;
         if (existingLike) {
-
-            console.log(like);
             // Unlike the review
-
             await this.likeRepository.deleteByFields({ userId: like.userId, reviewId: like.reviewId });
             return await this.reviewService.unlike(existingLike.reviewId);
         }

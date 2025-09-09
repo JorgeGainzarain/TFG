@@ -31,8 +31,8 @@ const LibraryContent = ({
             Array.isArray(shelf.books)
                 ? shelf.books.map(book => ({
                     ...book,
-                    id: book.id || book.bookId, // Ensure id exists
-                    status: shelf.title, // Set status to shelf title
+                    id: book.id || book.bookId, 
+                    status: shelf.title, 
                 }))
                 : []
         );

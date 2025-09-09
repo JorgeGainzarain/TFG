@@ -86,7 +86,7 @@
     line-height: 1.6;
 }
 
-/* Animation for book cards */
+
 
 @keyframes fadeInUp {
     from {
@@ -99,7 +99,7 @@
     }
 }
 
-/* Mobile Responsive */
+
 @media (max-width: 768px) {
     .search-page {
         padding: 1rem;

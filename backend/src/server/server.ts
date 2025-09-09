@@ -49,7 +49,6 @@ export class Server {
 
     this.app.use(securityLogger);
 
-    // === CORS CON CONFIGURACIÓN MEJORADA ===
     this.app.use(cors({
       origin: (origin, callback) => {
         const allowedOrigins = Array.isArray(config.cors.origin)
@@ -70,7 +69,6 @@ export class Server {
       allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
     }));
 
-    // === RATE LIMITING GENERAL ===
     const generalRateLimit = rateLimit({
       windowMs: config.rateLimit.windowMs,
       max: config.rateLimit.maxRequests,
@@ -87,13 +85,11 @@ export class Server {
     this.app.use(urlencoded({ extended: false }));
     this.app.use(morgan('dev'));
 
-    // === MIDDLEWARE DE VALIDACIÓN (AÑADIR) ===
     this.app.use(validateContentType as import('express').RequestHandler);
     this.app.use(sanitizeInput);
 
     this.app.use('/api', this.api.getApiRouter());
 
-    // === RATE LIMITING ESPECÍFICO PARA AUTH (AÑADIR) ===
     this.app.use('/api/auth/login', authRateLimit);
     this.app.use('/api/auth/register', authRateLimit);
     this.app.use('/api/auth/refresh', authRateLimit);

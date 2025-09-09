@@ -1,4 +1,4 @@
-// frontend/src/contexts/AuthContext.js
+
 import React, { createContext, useContext } from 'react';
 import { useAuth } from '../hooks/useAuth';
 
@@ -24,7 +24,6 @@ export const useAuthContext = () => {
     return context;
 };
 
-// Hook para verificar si el usuario está autenticado
 export const useRequireAuth = () => {
     const { isAuthenticated, initialized, user } = useAuthContext();
 
@@ -36,7 +35,6 @@ export const useRequireAuth = () => {
     };
 };
 
-// HOC para proteger rutas
 export const withAuth = (Component) => {
     return function AuthenticatedComponent(props) {
         const { isAuthenticated, initialized } = useAuthContext();
@@ -50,7 +48,7 @@ export const withAuth = (Component) => {
         }
 
         if (!isAuthenticated) {
-            // Redirigir al login o mostrar mensaje
+            
             return (
                 <div className="flex items-center justify-center min-h-screen">
                     <div className="text-center">

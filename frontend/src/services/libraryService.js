@@ -1,7 +1,7 @@
-// frontend/src/services/libraryService.js
+
 import {makeAuthenticatedRequest} from './api.js';
 
-// Get user's libraries (no userId needed - extracted from token)
+
 export const getUserLibraries = async (userId, params = {
     bookId: undefined,
     libraryTitle: undefined
@@ -24,7 +24,6 @@ export const getUserLibraries = async (userId, params = {
 
 export const addBookToLibrary = async (userId, book, libraryTitle) => {
     const libraries = await getUserLibraries(userId,{ libraryTitle: libraryTitle });
-    console.log("Libraries found: ", libraries);
     const library = libraries[0];
     if (!library) {
         throw new Error(`Library with title "${libraryTitle}" not found.`);

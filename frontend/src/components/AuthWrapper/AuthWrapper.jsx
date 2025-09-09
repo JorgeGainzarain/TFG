@@ -1,4 +1,4 @@
-// frontend/src/components/AuthWrapper/AuthWrapper.jsx
+
 
 import React, { useEffect, useState } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -9,14 +9,13 @@ const AuthWrapper = ({ children }) => {
     const [key, setKey] = useState(0);
     const location = useLocation();
 
-    // Forzar re-render cuando cambia el estado de autenticación
+    
     useEffect(() => {
         const handleAuthChange = () => {
-            console.log('🔄 AuthWrapper: Detectado cambio de autenticación');
             setKey(prev => prev + 1);
         };
 
-        // Escuchar cambios de autenticación
+        
         window.addEventListener('auth-changed', handleAuthChange);
 
         return () => {
@@ -24,13 +23,8 @@ const AuthWrapper = ({ children }) => {
         };
     }, []);
 
-    // También forzar re-render cuando cambia el estado interno
+    
     useEffect(() => {
-        console.log('🔄 AuthWrapper: Estado de auth actualizado', {
-            isAuthenticated,
-            user: user?.email || null,
-            initialized
-        });
         setKey(prev => prev + 1);
     }, [isAuthenticated, user, initialized]);
 

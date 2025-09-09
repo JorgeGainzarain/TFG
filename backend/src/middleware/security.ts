@@ -8,13 +8,13 @@ import { createResponse } from '../utils/response';
 // Rate limiting estricto para autenticación
 export const authRateLimit = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutos
-    max: 5, // 5 intentos por IP
+    max: 5,
     message: 'Demasiados intentos de autenticación, intenta más tarde.',
     standardHeaders: true,
     legacyHeaders: false,
     skipSuccessfulRequests: true,
     handler: (req: Request, res: Response) => {
-        // Usar tu StatusError para consistencia
+        // Usar StatusError para consistencia
         const error = StatusError.tooManyRequests(
             'Demasiados intentos de autenticación. Espera 15 minutos antes de intentar nuevamente.'
         );
@@ -106,7 +106,7 @@ export const securityLogger = (req: Request, res: Response, next: NextFunction) 
     next();
 };
 
-// Helper para crear errores de validación usando tu StatusError
+// Helper para crear errores de validación usando StatusError
 export const createValidationError = (message: string, fieldErrors?: any[]) => {
     return StatusError.validation(message, fieldErrors);
 };

@@ -1,4 +1,4 @@
-// frontend/src/components/BookDetails/BookDetails.jsx
+
 
 import React, { useState, useRef, useEffect } from 'react';
 import './BookDetails.css';

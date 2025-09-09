@@ -5,6 +5,7 @@ import { config } from "../../config/environment";
 import {Library_BooksRepository} from "./library_books.repository";
 import {Service} from "typedi";
 import {BookService} from "../books/book.service";
+import {StatusError} from "../../utils/status_error";
 
 @Service()
 export class Library_BooksService extends BaseService<Library_Book> {
@@ -26,7 +27,7 @@ export class Library_BooksService extends BaseService<Library_Book> {
         if (!exists) {
             const books = await this.bookService.searchBooks('', 'relevance', 0, '', entity.bookId);
             if (books.length === 0) {
-                throw new Error(`Book with ID "${entity.bookId}" not found in external source.`);
+                throw new StatusError(500,`Book with ID "${entity.bookId}" not found in the database.`);
             }
             const book = books[0];
             await this.bookService.create(book);

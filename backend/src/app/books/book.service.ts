@@ -248,4 +248,21 @@ export class BookService extends BaseService<Book> {
         // Return the top 10 books
         return sortedBooks.slice(0, maxResults);
     }
+
+    async getRecommendedBooks(userId: any) {
+        const recommendations = await this.bookRepository.getRecommendedBookIds(userId);
+        const recommendedIds = recommendations.map(rec => rec.bookId);
+        // Get the book details for each recommended book ID
+        const recommendedBooks = [];
+        for (const bookId of recommendedIds) {
+            try {
+                const book = await this.getById(bookId);
+                recommendedBooks.push(book);
+            } catch (error) {
+                console.error(`Error fetching book with ID ${bookId}:`, error);
+            }
+        }
+        console.log("Recommended books: ", recommendedBooks.length);
+        return recommendedBooks;
+    }
 }

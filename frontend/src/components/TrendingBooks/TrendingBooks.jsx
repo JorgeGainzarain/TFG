@@ -1,4 +1,4 @@
-// frontend/src/components/TrendingBooks/TrendingBooks.jsx
+
 import React, { useRef, useState, useEffect } from 'react';
 import { getTrendingBooks } from "../../services/bookService";
 import BookCard from '../BookCard/BookCard';

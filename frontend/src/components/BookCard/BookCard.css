@@ -1,6 +1,6 @@
-/* frontend/src/components/BookCard/BookCard.css */
 
-/* Estilos base compartidos */
+
+
 .book-card {
     border-radius: 16px;
     padding: 20px;
@@ -8,7 +8,7 @@
     cursor: pointer;
     position: relative;
     overflow: hidden;
-    /* Mejorar la interactividad de las cards clickeables */
+    
     user-select: none;
     -webkit-tap-highlight-color: transparent;
 }
@@ -34,13 +34,13 @@
     box-shadow: var(--shadow-hover);
 }
 
-/* Efectos especiales en click */
+
 .book-card:active {
     transform: translateY(-1px) scale(0.98);
     transition: all 0.1s ease;
 }
 
-/* Indicador visual de que la card es clickeable */
+
 .book-card::after {
     content: '';
     position: absolute;
@@ -64,7 +64,7 @@
     transform: scale(1.1);
 }
 
-/* Estados de focus para accesibilidad */
+
 .book-card:focus {
     outline: 2px solid var(--primary-gradient);
     outline-offset: 2px;
@@ -74,20 +74,20 @@
     opacity: 1;
 }
 
-/* Asegurar que los elementos internos no interfieran con el click */
+
 .book-card * {
     pointer-events: none;
 }
 
 .book-card .add-btn {
-    pointer-events: auto; /* Restaurar pointer events solo para el botón */
+    pointer-events: auto; 
 }
 
 .book-card .add-btn * {
-    pointer-events: none; /* Pero no para sus hijos */
+    pointer-events: none; 
 }
 
-/* Contenedor del botón y dropdown */
+
 .add-button-container {
     position: relative;
     pointer-events: auto;
@@ -98,7 +98,7 @@
     pointer-events: auto;
 }
 
-/* Estilos para la portada del libro */
+
 .book-cover {
     border-radius: 8px;
     margin-bottom: 0.75rem;
@@ -137,7 +137,7 @@
     border-radius: 8px;
 }
 
-/* Información del libro */
+
 .book-info {
     position: relative;
     z-index: 1;
@@ -261,7 +261,7 @@
     line-height: 1;
 }
 
-/* Flecha del dropdown */
+
 .dropdown-arrow {
     font-size: 0.7rem;
     transition: transform 0.3s ease;
@@ -272,7 +272,7 @@
     transform: rotate(180deg);
 }
 
-/* Estilos del dropdown */
+
 .library-dropdown {
     position: absolute;
     top: calc(100% + 0.5rem);
@@ -343,15 +343,15 @@
     text-align: left;
 }
 
-/* VARIANTE VERTICAL (por defecto) */
+
 .book-card.vertical {
     display: flex;
     flex-direction: column;
-    height: 100%; /* CRÍTICO: Toma toda la altura disponible */
+    height: 100%; 
     min-height: 420px;
-    box-sizing: border-box; /* CRÍTICO: Incluir padding en cálculos */
-    overflow: visible; /* Permitir que el dropdown se vea */
-    z-index: 1; /* Base z-index */
+    box-sizing: border-box; 
+    overflow: visible; 
+    z-index: 1; 
 }
 
 .book-card.vertical .book-title {
@@ -364,12 +364,12 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    max-width: 220px; /* Adjust as needed for your layout */
+    max-width: 220px; 
     text-align: left;
-    height: auto; /* Remove fixed height for single-line ellipsis */
+    height: auto; 
 }
 
-/* Cuando una card vertical tiene dropdown activo, elevar su z-index */
+
 .book-card.vertical:has(.library-dropdown) {
     z-index: 100;
 }
@@ -377,7 +377,7 @@
 .book-card.vertical .book-cover {
     width: 100%;
     height: 140px;
-    flex-shrink: 0; /* CRÍTICO: No se comprime nunca */
+    flex-shrink: 0; 
 }
 
 .book-card.vertical .cover-emoji-fallback {
@@ -395,50 +395,50 @@
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
-    height: 2.6rem; /* Fixed height for title (2 lines max) */
+    height: 2.6rem; 
     flex-shrink: 0;
 }
 
-/* Contenedor para el contenido principal (todo excepto rating y botón) */
+
 .book-card.vertical .book-main-content {
-    flex: 1; /* CRÍTICO: Se expande para llenar el espacio disponible */
+    flex: 1; 
     display: flex;
     flex-direction: column;
-    min-height: 0; /* CRÍTICO: Permite que los elementos internos se compriman si es necesario */
+    min-height: 0; 
 }
 
-/* Contenedor para rating y botón - siempre al final */
+
 .book-card.vertical .book-bottom-content {
-    margin-top: auto; /* CRÍTICO: Empuja hacia abajo */
+    margin-top: auto; 
     display: flex;
     flex-direction: column;
     gap: 0.8rem;
-    flex-shrink: 0; /* CRÍTICO: Nunca se comprime */
+    flex-shrink: 0; 
 }
 
-/* En variante vertical, el rating no tiene margin-bottom ya que está en bottom-content */
+
 .book-card.vertical .book-rating {
     margin-bottom: 0;
 }
 
-/* En variante vertical, los géneros están en main-content */
+
 .book-card.vertical .book-genres {
-    margin-bottom: auto; /* Empuja el rating y botón hacia abajo */
+    margin-bottom: auto; 
     padding-bottom: 0.5rem;
 }
 
-/* VARIANTE HORIZONTAL */
+
 .book-card.horizontal {
     display: flex;
     gap: 1.5rem;
     min-height: 160px;
     width: 100%;
-    height: auto; /* En horizontal no forzamos altura completa */
-    overflow: visible; /* Permitir que el dropdown se vea */
-    z-index: 1; /* Base z-index */
+    height: auto; 
+    overflow: visible; 
+    z-index: 1; 
 }
 
-/* Cuando una card horizontal tiene dropdown activo, elevar su z-index */
+
 .book-card.horizontal:has(.library-dropdown) {
     z-index: 100;
 }
@@ -563,13 +563,13 @@
     left: auto;
 }
 
-/* Asegurar que las cards en grids horizontales tengan altura uniforme */
+
 .cards-grid-horizontal {
     display: flex;
     gap: 1.5rem;
     overflow-x: auto;
-    overflow-y: visible; /* Cambiar para permitir que el dropdown se vea */
-    padding: 1rem 0 3rem 0; /* Añadir padding bottom para el dropdown */
+    overflow-y: visible; 
+    padding: 1rem 0 3rem 0; 
     margin: 0;
     scroll-behavior: smooth;
     cursor: grab;
@@ -577,42 +577,42 @@
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
     -webkit-overflow-scrolling: touch;
-    align-items: stretch; /* Hace que todos los items tengan la misma altura */
-    min-height: 450px; /* CRÍTICO: Altura mínima del contenedor */
+    align-items: stretch; 
+    min-height: 450px; 
 }
 
-/* Container wrapper para cada card en grid horizontal */
+
 .cards-grid-horizontal > div {
     display: flex;
     height: 100%;
-    min-height: 450px; /* CRÍTICO: Debe coincidir con el contenedor */
-    flex-direction: column; /* CRÍTICO: Para que la card tome toda la altura */
+    min-height: 450px; 
+    flex-direction: column; 
 }
 
-/* Book cards en modo horizontal */
+
 .cards-grid-horizontal .book-card {
     min-width: 280px;
     width: 280px;
-    height: 100%; /* CRÍTICO: Toma toda la altura del div padre */
-    flex: 1; /* CRÍTICO: Se expande para llenar el contenedor */
+    height: 100%; 
+    flex: 1; 
     flex-shrink: 0;
     border-radius: 16px;
     padding: 20px;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
     cursor: pointer;
     position: relative;
-    overflow: visible; /* Cambiado para permitir que el dropdown se vea */
+    overflow: visible; 
     will-change: transform;
-    box-sizing: border-box; /* CRÍTICO: Incluir padding en cálculos */
-    z-index: 1; /* Base z-index */
+    box-sizing: border-box; 
+    z-index: 1; 
 }
 
-/* Cuando una card tiene dropdown activo, elevar su z-index */
+
 .cards-grid-horizontal .book-card:has(.library-dropdown) {
     z-index: 100;
 }
 
-/* Efectos hover mejorados para las cards en grid horizontal */
+
 .cards-grid-horizontal .book-card:hover {
     transform: translateY(-8px) scale(1.02);
     box-shadow: 0 20px 40px rgba(102, 126, 234, 0.25);
@@ -622,7 +622,7 @@
     transform: translateY(-4px) scale(1.01);
 }
 
-/* Prevenir hover durante drag */
+
 .cards-grid-horizontal.dragging .book-card:hover {
     transform: none;
     box-shadow: none;
@@ -641,7 +641,7 @@
     pointer-events: none;
 }
 
-/* Webkit scrollbar styling */
+
 .cards-grid-horizontal::-webkit-scrollbar {
     height: 8px;
 }
@@ -661,7 +661,7 @@
     background: rgba(255, 255, 255, 0.5);
 }
 
-/* Loading state para portadas */
+
 .book-cover.loading {
     background: linear-gradient(
             90deg,
@@ -682,7 +682,7 @@
     }
 }
 
-/* Mobile Responsive */
+
 @media (max-width: 768px) {
     .book-card.horizontal {
         flex-direction: row;
@@ -751,7 +751,7 @@
         font-size: 0.75rem;
     }
 
-    /* Dropdown en mobile */
+    
     .library-dropdown {
         left: 0;
         right: 0;
@@ -770,17 +770,17 @@
     }
 
     .cards-grid-horizontal {
-        min-height: 380px; /* CRÍTICO: Altura mínima en pantallas muy pequeñas */
+        min-height: 380px; 
     }
 
     .cards-grid-horizontal > div {
-        min-height: 380px; /* CRÍTICO: Debe coincidir */
+        min-height: 380px; 
     }
 
     .cards-grid-horizontal .book-card {
         min-width: 200px;
         width: 200px;
-        min-height: 360px; /* CRÍTICO: Altura mínima de la card */
+        min-height: 360px; 
     }
 
     .book-card.horizontal .book-cover {
@@ -818,7 +818,7 @@
         font-size: 0.8rem;
     }
 
-    /* Dropdown en pantallas muy pequeñas */
+    
     .dropdown-option {
         padding: 0.5rem 0.7rem;
         font-size: 0.75rem;
@@ -830,7 +830,7 @@
     }
 }
 
-/* Mejoras para accesibilidad */
+
 @media (prefers-reduced-motion: reduce) {
     .cards-grid-horizontal {
         scroll-behavior: auto;
@@ -854,7 +854,7 @@
     }
 }
 
-/* Focus states para navegación con teclado */
+
 .cards-grid-horizontal:focus {
     outline: 2px solid var(--primary-gradient);
     outline-offset: 2px;
@@ -866,7 +866,7 @@
     background: rgba(102, 126, 234, 0.2);
 }
 
-/* Keep button positioned at bottom right with consistent width */
+
 .book-card.horizontal .book-bottom-content {
     display: flex;
     flex-direction: column;
@@ -880,7 +880,7 @@
     align-self: flex-end;
 }
 
-/* Enhanced states for the add button */
+
 .add-btn.added {
     background: #10b981;
     color: white;
@@ -895,7 +895,7 @@
     pointer-events: none;
 }
 
-/* Estilos adicionales para mejor UX del dropdown */
+
 .library-dropdown::before {
     content: '';
     position: absolute;
@@ -909,25 +909,25 @@
     filter: drop-shadow(0 -2px 4px rgba(0, 0, 0, 0.1));
 }
 
-/* Clase especial cuando el dropdown está activo */
+
 .book-card.dropdown-active {
     z-index: 100 !important;
     overflow: visible !important;
 }
 
-/* Para variante horizontal, ajustar la posición de la flecha */
+
 .book-card.horizontal .library-dropdown::before {
     left: auto;
     right: 30px;
 }
 
-/* Hover effect mejorado para el botón cuando está activo */
+
 .add-btn.active:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-primary);
 }
 
-/* Smooth transition cuando se cierra el dropdown */
+
 .library-dropdown.closing {
     animation: dropdownSlideOut 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }

@@ -1,4 +1,4 @@
-// frontend/src/components/SearchPage/SearchPage.jsx
+
 import React, { useState, useEffect } from 'react';
 import FilterBar from '../FilterBar/FilterBar';
 import BookCard from '../BookCard/BookCard';
@@ -17,7 +17,7 @@ const SearchPage = ({ searchQuery = "", handleAddToLibrary }) => {
     const [loading, setLoading] = useState(false);
     const [currentQuery, setCurrentQuery] = useState(searchQuery);
 
-    // Datos de ejemplo - en una app real vendría de una API
+    
     const allBooks = [];
 
     useEffect(() => {
@@ -32,11 +32,11 @@ const SearchPage = ({ searchQuery = "", handleAddToLibrary }) => {
     const searchBooks = () => {
         setLoading(true);
 
-        // Simular búsqueda con delay
+        
         setTimeout(() => {
             let filteredBooks = allBooks;
 
-            // Filtrar por query de búsqueda
+            
             if (currentQuery) {
                 filteredBooks = filteredBooks.filter(book =>
                     book.title.toLowerCase().includes(currentQuery.toLowerCase()) ||
@@ -45,19 +45,19 @@ const SearchPage = ({ searchQuery = "", handleAddToLibrary }) => {
                 );
             }
 
-            // Filtrar por categoría
+            
             if (filters.category) {
                 filteredBooks = filteredBooks.filter(book => book.category === filters.category);
             }
 
-            // Filtrar por género
+            
             if (filters.genre) {
                 filteredBooks = filteredBooks.filter(book =>
                     book.genres.some(genre => genre.toLowerCase().includes(filters.genre.toLowerCase()))
                 );
             }
 
-            // Filtrar por año
+            
             if (filters.year) {
                 if (filters.year === 'clasicos') {
                     filteredBooks = filteredBooks.filter(book => book.year < 2000);
@@ -66,7 +66,7 @@ const SearchPage = ({ searchQuery = "", handleAddToLibrary }) => {
                 }
             }
 
-            // Ordenar
+            
             switch (filters.sortBy) {
                 case 'rating':
                     filteredBooks.sort((a, b) => (b.rating || b.averageRating) - (a.rating || a.averageRating));
@@ -84,7 +84,7 @@ const SearchPage = ({ searchQuery = "", handleAddToLibrary }) => {
                     filteredBooks.sort((a, b) => a.author.localeCompare(b.author));
                     break;
                 default:
-                    // relevance - mantener orden original
+                    
                     break;
             }
 

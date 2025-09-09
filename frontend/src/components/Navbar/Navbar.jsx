@@ -32,14 +32,14 @@ const Navbar = forwardRef((
             const params = new URLSearchParams(location.search);
             const urlQuery = params.get('q') || '';
 
-            // Only update local input, don’t re-trigger search
+            
             if (urlQuery !== localQuery) {
                 setLocalQuery(urlQuery);
             }
         } else {
             setLocalQuery('');
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        
     }, [location.pathname, location.search]);
 
 
@@ -54,7 +54,6 @@ const Navbar = forwardRef((
 
     const handleSearch = async (e) => {
         e.preventDefault();
-        console.log("Handling search with query:", localQuery);
         setSearchQuery(localQuery);
         await performSearch(localQuery);
     };

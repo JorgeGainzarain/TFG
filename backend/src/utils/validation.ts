@@ -15,7 +15,6 @@ export function validateObject<T extends Object>(obj: Partial<T>, requiredFields
         throw new StatusError(400, `Invalid object. Missing fields: ${invalidFields.map(field => field.name).join(', ')}`);
     }
 
-    // Remove extra arguments not in requiredFields
     const allowedKeys = requiredFields.map(field => field.name);
     const cleanedObj: Partial<T> = {};
     for (const key of allowedKeys) {

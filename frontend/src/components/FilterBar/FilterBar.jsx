@@ -4,7 +4,6 @@ import './FilterBar.css';
 const FilterBar = ({
                        filters = {
                            genre: '',
-                           year: '',
                            sortBy: 'relevance',
                        },
                        onFilterChange,
@@ -32,29 +31,11 @@ const FilterBar = ({
 
             <select
                 className="filter-select"
-                value={filters.year || ''}
-                onChange={(e) => handleSelectChange('year', e.target.value)}
-            >
-                <option value="">Cualquier década</option>
-                <option value="2020-2029">2020 - 2029</option>
-                <option value="2010-2019">2010 - 2019</option>
-                <option value="2000-2009">2000 - 2009</option>
-                <option value="1990-1999">1990 - 1999</option>
-                <option value="1980-1989">1980 - 1989</option>
-                <option value="clasicos">Clásicos</option>
-            </select>
-
-            <select
-                className="filter-select"
                 value={filters.sortBy || 'relevance'}
                 onChange={(e) => handleSelectChange('sortBy', e.target.value)}
             >
-                <option value="relevance">Ordenar por relevancia</option>
-                <option value="rating">Mejor puntuados</option>
+                <option value="relevance">Más relevantes</option>
                 <option value="newest">Más recientes</option>
-                <option value="popular">Más populares</option>
-                <option value="title">Por título</option>
-                <option value="author">Por autor</option>
             </select>
         </div>
     );

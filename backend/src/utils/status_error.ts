@@ -20,7 +20,6 @@ export class StatusError extends Error {
         }
     }
 
-    // Métodos estáticos para crear errores comunes manteniendo tu patrón
     static badRequest(message: string, details?: any): StatusError {
         return new StatusError(400, message, 'BAD_REQUEST', details);
     }
@@ -53,7 +52,7 @@ export class StatusError extends Error {
         return new StatusError(500, message, 'INTERNAL_ERROR');
     }
 
-    // Métodos específicos para JWT (mantienen tu estilo)
+    // Métodos específicos para JWT
     static invalidToken(message: string = 'Token inválido'): StatusError {
         return new StatusError(401, message, 'INVALID_TOKEN');
     }

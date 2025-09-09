@@ -89,7 +89,7 @@
 
 .clear-search {
     position: absolute;
-    right: 60px; /* Espacio para el botón de búsqueda */
+    right: 60px; 
     top: 50%;
     transform: translateY(-50%);
     background: none;
@@ -174,7 +174,7 @@
     align-items: center;
 }
 
-/* User Menu */
+
 .user-menu-container {
     position: relative;
 }
@@ -247,7 +247,7 @@
     transition: transform var(--transition-normal);
 }
 
-/* User Dropdown */
+
 .user-dropdown {
     position: absolute;
     top: calc(100% + 0.5rem);
@@ -354,7 +354,7 @@
     margin: 0.5rem 0;
 }
 
-/* Loading state for search */
+
 .search-container.loading .search-icon {
     animation: pulse 1.5s infinite;
 }
@@ -368,7 +368,7 @@
     }
 }
 
-/* Mobile Responsive */
+
 @media (max-width: 768px) {
     .navbar {
         padding: 1rem;
@@ -382,7 +382,7 @@
     .search-container {
         margin: 0;
         max-width: none;
-        width: 100%; /* Make the search bar take full width */
+        width: 100%; 
     }
 
     .nav-actions {
@@ -390,11 +390,11 @@
     }
 
     .logo {
-        display: none; /* Hide the logo in mobile mode */
+        display: none; 
     }
 
     .nav-actions {
-        display: none; /* Hide navigation actions */
+        display: none; 
     }
 
     .user-menu-trigger {
@@ -456,7 +456,7 @@
     text-decoration: none;
 }
 
-/* Link del logo */
+
 .logo {
     text-decoration: none;
 }
@@ -465,7 +465,7 @@
     color: inherit;
 }
 
-/* Enlaces de navegación principal */
+
 .nav-actions .btn {
     text-decoration: none;
 }
@@ -474,7 +474,7 @@
     color: inherit;
 }
 
-/* Very small screens */
+
 @media (max-width: 480px) {
     .user-dropdown {
         left: 0.5rem;
@@ -484,6 +484,6 @@
     }
 
     .search-input {
-        font-size: 16px; /* Evita zoom en iOS */
+        font-size: 16px; 
     }
 }

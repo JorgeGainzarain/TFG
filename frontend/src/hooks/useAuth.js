@@ -1,4 +1,4 @@
-// frontend/src/hooks/useAuth.js
+
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import {
@@ -19,20 +19,20 @@ export const useAuth = () => {
     const [error, setError] = useState(null);
     const initializationRef = useRef(false);
 
-    // === EFECTOS ===
+    
 
     useEffect(() => {
-        // Prevenir múltiples inicializaciones
+        
         if (initializationRef.current) return;
         initializationRef.current = true;
 
-        // Suscribirse a cambios de autenticación
+        
         const unsubscribe = subscribeToAuthChanges((newState) => {
             setAuthState(newState);
             setInitialized(newState.initialized);
         });
 
-        // Inicializar estado de autenticación
+        
         const initialize = async () => {
             try {
                 await initializeAuth();
@@ -47,14 +47,14 @@ export const useAuth = () => {
 
         initialize();
 
-        // Cleanup
+        
         return () => {
             unsubscribe();
             initializationRef.current = false;
         };
     }, []);
 
-    // === FUNCIONES WRAPPED ===
+    
 
     const handleLogin = useCallback(async (credentials) => {
         try {
@@ -86,7 +86,7 @@ export const useAuth = () => {
             await logout();
         } catch (err) {
             console.error('Error en logout:', err);
-            // No propagar error de logout para no interrumpir UX
+            
         }
     }, []);
 
@@ -113,27 +113,27 @@ export const useAuth = () => {
         setError(null);
     }, []);
 
-    // === VALORES DE RETORNO (mantiene tu interfaz actual) ===
+    
 
     return {
-        // Estado actual que ya usas
+        
         user: authState.user,
         isAuthenticated: checkAuthStatus(),
         loading: authState.loading,
         initialized,
 
-        // Funciones que ya usas
+        
         login: handleLogin,
         register: handleRegister,
         logout: handleLogout,
 
-        // Nuevas funciones disponibles
+        
         error,
         refreshUser,
         clearError,
         checkAuthStatus,
 
-        // Información adicional
+        
         isLoading: authState.loading,
         hasUser: !!authState.user,
     };

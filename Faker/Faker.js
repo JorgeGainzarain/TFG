@@ -408,7 +408,6 @@ function createBookFromAPI(apiBook) {
     };
 }
 
-// --- Función para generar usuarios según estructura DB ---
 function generateUsers() {
     const users = [];
     const hashedPassword = bcrypt.hashSync("password123", 12);
@@ -526,14 +525,12 @@ function generateReviews(users, books) {
         const personality = user._personality;
         const numReviews = faker.number.int({ min: 5, max: 12 });
 
-        // Seleccionar libros que el usuario probablemente leería
         const userBooks = selectBooksForUser(user, books, numReviews);
 
         userBooks.forEach(book => {
             const compatibility = calculateCompatibility(user, book);
             const rating = generateRatingFromCompatibility(compatibility, personality.ratingTendency);
 
-            // Generar comentario basado en rating y estilo del usuario
             const comment = generateComment(rating, personality.reviewStyle, book);
 
             reviews.push({
@@ -569,7 +566,6 @@ function selectBooksForUser(user, books, numBooks) {
 
     const otherBooks = books.filter(book => !compatibleBooks.includes(book));
 
-    // 70% libros compatibles, 30% otros
     const numCompatible = Math.floor(numBooks * 0.7);
     const numOthers = numBooks - numCompatible;
 
