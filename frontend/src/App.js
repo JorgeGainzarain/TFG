@@ -382,7 +382,6 @@ const AppContent = () => {
                                 onShowAuth={handleShowAuth}
                                 handleAddToLibrary={handleAddToLibrary}
                                 libraryOptions={libraryOptions}
-                                genreOptions={uniqueGenres}
                                 genreTranslations={genreTranslations}
                                 recommendations={recommendations}
                             />

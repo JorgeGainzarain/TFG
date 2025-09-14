@@ -85,11 +85,15 @@ export class ReviewService extends BaseService<Review> {
     }
 
     async getByBookId(bookId: string) {
+        console.log("Getting reviews for book ID:", bookId);
         let reviews = await this.reviewRepository.getByBookId(bookId);
+        console.log(`Found ${reviews.length} reviews for book ID ${bookId}`);
         for (const review of reviews) {
             // Add the book and user as fields from their id's
-            const book = await this.bookService.getById(review.bookId);
+            const book = await this.bookService.getById(String(review.bookId));
+            console.log("Book found" );
             const user = await this.userService.getById(review.userId);
+            console.log("User found" );
             review.book = book;
             review.user = user;
         }

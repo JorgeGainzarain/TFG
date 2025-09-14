@@ -78,9 +78,11 @@ export class BookService extends BaseService<Book> {
 
     async getById(id: string | number): Promise<Book> {
         if (typeof id == 'number') {
+            console.log("Getting book by internal ID: " + id);
             return await super.getById(id);
         }
         else {
+            console.log("Getting book by book ID: " + id);
             let books = await this.bookRepository.findByFields( { bookId: id })
             if (!books) {
                 throw new StatusError(404, `Book with ID "${id}" not found.`);
@@ -251,7 +253,7 @@ export class BookService extends BaseService<Book> {
 
     async getRecommendedBooks(userId: any) {
         const recommendations = await this.bookRepository.getRecommendedBookIds(userId);
-        const recommendedIds = recommendations.map(rec => rec.bookId);
+        const recommendedIds = recommendations.map(rec => String(rec.bookId));
         // Get the book details for each recommended book ID
         const recommendedBooks = [];
         for (const bookId of recommendedIds) {

@@ -3,7 +3,7 @@ import Hero from '../components/WelcomeMessage/WelcomeMessage';
 import AIRecommendations from '../components/AIRecommnedations/AIRecommendations';
 import TrendingBooks from '../components/TrendingBooks/TrendingBooks'
 
-const HomePage = ({ user, isAuthenticated, onShowAuth, handleAddToLibrary, libraryOptions, genreOptions, genreTranslations, recommendations }) => {
+const HomePage = ({ user, isAuthenticated, onShowAuth, handleAddToLibrary, libraryOptions, genreTranslations, recommendations }) => {
     return (
         <>
             <Hero />
@@ -11,7 +11,6 @@ const HomePage = ({ user, isAuthenticated, onShowAuth, handleAddToLibrary, libra
                 user={user}
                 isAuthenticated={isAuthenticated}
                 onShowAuth={onShowAuth}
-                genreOptions={genreOptions}
                 genreTranslations={genreTranslations}
                 recommendations={recommendations}
                 handleAddToLibrary={handleAddToLibrary}

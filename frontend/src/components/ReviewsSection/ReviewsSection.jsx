@@ -100,10 +100,21 @@ const ReviewsSection = ({ book, isAuthenticated, onShowAuth }) => {
             const likes = await likeReview(userId, book, review);
             setReviews(reviews =>
                 reviews.map(r =>
-                    (r.id || r._id) === review.id ? { ...r, likes } : r
+                    (r.id || r._id) === review.id
+                        ? { ...r, likes: typeof likes === 'object' ? likes.likes : likes }
+                        : r
                 )
             );
-            setLikedReviews(prev => new Set(prev).add(review.id));
+            setLikedReviews(prev => {
+                const newSet = new Set(prev);
+                const reviewId = review.id || review._id;
+                if (prev.has(reviewId)) {
+                    newSet.delete(reviewId); // Unlike: remove from set
+                } else {
+                    newSet.add(reviewId);    // Like: add to set
+                }
+                return newSet;
+            });
         } catch (err) {
             alert("Error al dar like a la reseña");
         }

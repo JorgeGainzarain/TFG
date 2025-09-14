@@ -1,17 +1,29 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import BookCard from '../BookCard/BookCard';
 import './AIRecommendations.css';
 
-const AIRecommendations = ({ user, isAuthenticated, onShowAuth, genreOptions, genreTranslations, recommendations, handleAddToLibrary }) => {
+const AIRecommendations = ({
+                               user,
+                               isAuthenticated,
+                               onShowAuth,
+                               genreOptions,
+                               genreTranslations,
+                               recommendations,
+                               handleAddToLibrary
+                           }) => {
     const scrollContainerRef = useRef(null);
     const [showAuthPrompt, setShowAuthPrompt] = useState(false);
-    const [isDragging, setIsDragging] = useState(false);
-    const [startX, setStartX] = useState(0);
-    const [scrollLeft, setScrollLeft] = useState(0);
     const [showLeftButton, setShowLeftButton] = useState(false);
     const [showRightButton, setShowRightButton] = useState(true);
+    const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
-    React.useEffect(() => {
+    useEffect(() => {
+        setLoading(recommendations === undefined);
+    }, [recommendations]);
+
+    useEffect(() => {
         if (!isAuthenticated) {
             setShowAuthPrompt(true);
         } else {
@@ -41,11 +53,15 @@ const AIRecommendations = ({ user, isAuthenticated, onShowAuth, genreOptions, ge
         }
     }, []);
 
-    const filteredBooks = recommendations;
+    const filteredBooks = recommendations || [];
 
     const handleShowAuthModal = () => {
         setShowAuthPrompt(false);
         onShowAuth();
+    };
+
+    const handleCardClick = (bookId) => {
+        navigate(`/books/${bookId}`);
     };
 
     const scrollLeftBtn = () => {
@@ -66,6 +82,20 @@ const AIRecommendations = ({ user, isAuthenticated, onShowAuth, genreOptions, ge
         }
     };
 
+    if (loading) {
+        return (
+            <section className="ai-section">
+                <div className="ai-header">
+                    <h2 className="ai-title">🤖 Recomendaciones Personalizadas</h2>
+                </div>
+                <div className="empty-state">
+                    <div className="empty-icon">⏳</div>
+                    <p>Cargando Resultados...</p>
+                </div>
+            </section>
+        );
+    }
+
     if (!isAuthenticated && (!recommendations || recommendations.length === 0)) {
         return (
             <section className="ai-section">
@@ -74,7 +104,7 @@ const AIRecommendations = ({ user, isAuthenticated, onShowAuth, genreOptions, ge
                 </div>
                 <div className="empty-state">
                     <div className="empty-icon">🔍</div>
-                    <p>📚 No se encontraron recomendaciones</p>
+                    <p>📚 Cargando Resultados...</p>
                 </div>
                 <div className="ai-blur-backdrop-permanent" />
                 <div className="ai-auth-popup">
@@ -164,9 +194,8 @@ const AIRecommendations = ({ user, isAuthenticated, onShowAuth, genreOptions, ge
                         )}
 
                         <div
-                            className={`cards-grid-horizontal ${isDragging ? 'dragging' : ''}`}
+                            className={`cards-grid-horizontal`}
                             ref={scrollContainerRef}
-                            style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
                         >
                             {filteredBooks.map((book) => (
                                 <div key={book.id} style={{ height: '100%' }}>
@@ -176,6 +205,7 @@ const AIRecommendations = ({ user, isAuthenticated, onShowAuth, genreOptions, ge
                                         showDate={true}
                                         onAddToLibrary={handleAddToLibrary}
                                         genreTranslations={genreTranslations}
+                                        onCardClick={() => handleCardClick(book.id)}
                                     />
                                 </div>
                             ))}
@@ -195,7 +225,7 @@ const AIRecommendations = ({ user, isAuthenticated, onShowAuth, genreOptions, ge
             ) : (
                 <div className="empty-state">
                     <div className="empty-icon">🔍</div>
-                    <p>📚 No se encontraron recomendaciones.</p>
+                    <p>📚 Cargando Resultados.</p>
                 </div>
             )}
 

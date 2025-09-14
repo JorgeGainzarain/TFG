@@ -100,8 +100,11 @@ const BookCard = ({
 
     const formatPublishedDate = (dateString) => {
         if (!dateString) return '';
-        const year = dateString.split('-')[0];
-        return year;
+        if (typeof dateString === 'string') {
+            const year = dateString.split('-')[0];
+            return year;
+        }
+        return dateString;
     };
 
     const displayGenres = (book.categories || []).map(
